@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         Eventernote Compact List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.1.0
+// @version      0.1.1
 // @description  Make Eventernote event list pages denser by hiding images and folding long actor lists.
 // @author       yanfu
-// @match        *://*.eventernote.com/*
-// @match        *://eventernote.com/*
+// @match        https://www.eventernote.com/*
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
 // @run-at       document-idle
-// @grant        none
+// @grant        GM_addStyle
+// @license      MIT
 // ==/UserScript==
 
 (function () {
@@ -32,8 +33,10 @@
     window.addEventListener("load", tryBoot, { once: true });
 
     const observer = new MutationObserver(() => {
-      if (started) return;
-      tryBoot();
+      if (!started) {
+        tryBoot();
+      }
+      if (started) observer.disconnect();
     });
     observer.observe(document.documentElement, { childList: true, subtree: true });
     setTimeout(tryBoot, 1000);
@@ -42,11 +45,13 @@
 
   function tryBoot() {
     if (started) return;
-    if (!getEventItems().length) return;
+    if (!document.body) return;
     started = true;
     injectStyles();
     renderPanel();
     apply();
+    setTimeout(apply, 1000);
+    setTimeout(apply, 3000);
     console.info("[Eventernote Compact List] active");
   }
 
@@ -140,8 +145,7 @@
   }
 
   function injectStyles() {
-    const style = document.createElement("style");
-    style.textContent = `
+    GM_addStyle(`
       .encl-enabled .gb_event_list > li.clearfix {
         min-height: 0;
         padding-top: 8px;
@@ -247,7 +251,6 @@
         justify-content: flex-end;
         gap: 6px;
       }
-    `;
-    document.head.append(style);
+    `);
   }
 })();
