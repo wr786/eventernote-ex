@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.2.0
+// @version      0.2.1
 // @description  Compact Eventernote lists, keyword badges, mute rules, and popularity badges in one script.
 // @author       yanfu
 // @match        https://www.eventernote.com/*
@@ -28,11 +28,13 @@
       "配信",
       "生配信",
       "朗読劇",
-      "トークショー"
+      "トークショー",
+      "LIVE",
+      "舞台",
+      "FES"
     ],
     muteKeywords: [
-      "女性限定",
-      "男性限定"
+      "女性限定"
     ],
     popularityEnabled: true,
     warm: 3,
