@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.2.1
+// @version      0.2.2
 // @description  Compact Eventernote lists, keyword badges, mute rules, and popularity badges in one script.
 // @author       yanfu
 // @match        https://www.eventernote.com/*
@@ -17,7 +17,7 @@
   const STORAGE_KEY = "eventernote-power-list.settings.v2";
   const DEFAULT_SETTINGS = {
     compactEnabled: true,
-    maxActors: 4,
+    maxActors: 10,
     keywordsEnabled: true,
     hideMuted: false,
     highlightKeywords: [
@@ -37,9 +37,9 @@
       "女性限定"
     ],
     popularityEnabled: true,
-    warm: 3,
-    hot: 10,
-    veryHot: 30
+    warm: 10,
+    hot: 50,
+    veryHot: 100
   };
 
   let settings = loadSettings();
@@ -113,7 +113,7 @@
 
   function cleanupItem(item) {
     item.classList.remove("enpl-keyword-hit", "enpl-muted");
-    item.querySelectorAll(".enpl-chip-row, .enpl-popularity-badge, .enpl-actor-more").forEach((node) => node.remove());
+    item.querySelectorAll(".enpl-badge-row, .enpl-actor-more").forEach((node) => node.remove());
     item.querySelectorAll(".actor li.enpl-actor-hidden").forEach((node) => {
       node.classList.remove("enpl-actor-hidden");
     });
@@ -145,7 +145,7 @@
     const badge = document.createElement("span");
     badge.className = `enpl-popularity-badge enpl-popularity-${level}`;
     badge.textContent = `${getPopularityLabel(level)} ${count}`;
-    title.closest("h4").append(" ", badge);
+    getBadgeRow(title).append(badge);
   }
 
   function applyCompact(item) {
@@ -228,7 +228,18 @@
       chip.textContent = word;
       row.append(chip);
     });
-    titleLink.closest("h4").append(" ", row);
+    getBadgeRow(titleLink).append(row);
+  }
+
+  function getBadgeRow(titleLink) {
+    const heading = titleLink.closest("h4");
+    let row = heading.nextElementSibling;
+    if (!row || !row.classList.contains("enpl-badge-row")) {
+      row = document.createElement("div");
+      row.className = "enpl-badge-row";
+      heading.insertAdjacentElement("afterend", row);
+    }
+    return row;
   }
 
   function parseNoteCount(item) {
@@ -387,12 +398,18 @@
         display: none;
       }
 
+      .enpl-badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        margin: 2px 0 5px;
+        align-items: center;
+      }
+
       .enpl-chip-row {
         display: inline-flex;
         flex-wrap: wrap;
         gap: 4px;
-        margin: 0 0 0 4px;
-        vertical-align: middle;
       }
 
       .enpl-chip,
