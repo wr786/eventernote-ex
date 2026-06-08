@@ -4,8 +4,8 @@
 // @version      0.1.0
 // @description  Add visual popularity badges to Eventernote event lists based on note/attendance count.
 // @author       yanfu
-// @match        *://www.eventernote.com/events*
-// @match        *://eventernote.com/events*
+// @match        *://*.eventernote.com/*
+// @match        *://eventernote.com/*
 // @run-at       document-idle
 // @grant        none
 // ==/UserScript==
@@ -44,7 +44,7 @@
 
   function tryBoot() {
     if (started) return;
-    if (!document.querySelector(".gb_event_list")) return;
+    if (!getEventItems().length) return;
     started = true;
     injectStyles();
     renderPanel();
@@ -65,7 +65,7 @@
   }
 
   function apply() {
-    document.querySelectorAll(".gb_event_list > li.clearfix").forEach((item) => {
+    getEventItems().forEach((item) => {
       item.querySelectorAll(".enpb-badge").forEach((node) => node.remove());
       if (!settings.enabled) return;
 
@@ -89,6 +89,11 @@
 
     const count = Number((node.textContent || "").replace(/[^\d]/g, ""));
     return Number.isFinite(count) ? count : null;
+  }
+
+  function getEventItems() {
+    const containers = Array.from(document.querySelectorAll(".gb_event_list > li, .event_list > li, li.clearfix"));
+    return containers.filter((item) => item.querySelector("a[href^='/events/'], a[href*='eventernote.com/events/']"));
   }
 
   function getLevel(count) {

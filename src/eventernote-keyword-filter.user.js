@@ -4,8 +4,8 @@
 // @version      0.1.0
 // @description  Highlight or mute Eventernote events by title, venue, and actor keywords.
 // @author       yanfu
-// @match        *://www.eventernote.com/events*
-// @match        *://eventernote.com/events*
+// @match        *://*.eventernote.com/*
+// @match        *://eventernote.com/*
 // @run-at       document-idle
 // @grant        none
 // ==/UserScript==
@@ -56,7 +56,7 @@
 
   function tryBoot() {
     if (started) return;
-    if (!document.querySelector(".gb_event_list")) return;
+    if (!getEventItems().length) return;
     started = true;
     injectStyles();
     renderPanel();
@@ -89,7 +89,7 @@
   function apply() {
     document.body.classList.toggle("enkf-hide-muted", settings.enabled && settings.hideMuted);
 
-    document.querySelectorAll(".gb_event_list > li.clearfix").forEach((item) => {
+    getEventItems().forEach((item) => {
       cleanup(item);
       if (!settings.enabled) return;
 
@@ -111,6 +111,11 @@
   function cleanup(item) {
     item.classList.remove("enkf-keyword-hit", "enkf-muted");
     item.querySelectorAll(".enkf-chip-row").forEach((node) => node.remove());
+  }
+
+  function getEventItems() {
+    const containers = Array.from(document.querySelectorAll(".gb_event_list > li, .event_list > li, li.clearfix"));
+    return containers.filter((item) => item.querySelector("a[href^='/events/'], a[href*='eventernote.com/events/']"));
   }
 
   function collectSearchableText(item) {
