@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Keyword Filter
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.1.1
+// @version      0.1.2
 // @description  Highlight or mute Eventernote events by title, venue, and actor keywords.
 // @author       yanfu
 // @match        https://www.eventernote.com/*
@@ -156,7 +156,7 @@
     ];
     if (!matches.length) return;
 
-    const row = document.createElement("div");
+    const row = document.createElement("span");
     row.className = "enkf-chip-row";
     matches.forEach(({ word, type }) => {
       const chip = document.createElement("span");
@@ -164,7 +164,7 @@
       chip.textContent = word;
       row.append(chip);
     });
-    titleLink.closest("h4").insertAdjacentElement("afterend", row);
+    titleLink.closest("h4").append(" ", row);
   }
 
   function renderPanel() {
@@ -240,10 +240,11 @@
       }
 
       .enkf-chip-row {
-        display: flex;
+        display: inline-flex;
         flex-wrap: wrap;
         gap: 4px;
-        margin: 2px 0 5px;
+        margin: 0 0 0 4px;
+        vertical-align: middle;
       }
 
       .enkf-chip {
@@ -268,10 +269,10 @@
 
       .enkf-panel {
         position: fixed;
-        right: 14px;
-        bottom: 56px;
+        right: 96px;
+        bottom: 14px;
         z-index: 9998;
-        width: 250px;
+        width: auto;
         font-size: 12px;
         color: #26313d;
       }
@@ -286,15 +287,17 @@
       }
 
       .enkf-toggle {
-        float: right;
         padding: 5px 9px;
         box-shadow: 0 1px 5px rgba(0, 0, 0, .18);
       }
 
       .enkf-body {
         display: none;
-        clear: both;
-        margin-top: 34px;
+        position: absolute;
+        right: 0;
+        bottom: 34px;
+        width: 250px;
+        box-sizing: border-box;
         padding: 10px;
         border: 1px solid #9fb0c3;
         border-radius: 4px;

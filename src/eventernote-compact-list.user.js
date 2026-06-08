@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Compact List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.1.1
+// @version      0.1.2
 // @description  Make Eventernote event list pages denser by hiding images and folding long actor lists.
 // @author       yanfu
 // @match        https://www.eventernote.com/*
@@ -77,6 +77,7 @@
       item.querySelectorAll(".encl-actor-more").forEach((node) => node.remove());
 
       if (!settings.enabled) return;
+      if (item.dataset.enclExpanded === "true") return;
 
       const actors = Array.from(item.querySelectorAll(".actor li")).filter((node) => node.querySelector("a"));
       const maxActors = Math.max(0, Number(settings.maxActors) || 0);
@@ -86,7 +87,19 @@
 
       const more = document.createElement("li");
       more.className = "encl-actor-more";
-      more.textContent = `+${actors.length - maxActors}`;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "encl-actor-more-button";
+      button.textContent = `+${actors.length - maxActors}`;
+      button.title = "Show hidden actors";
+      button.addEventListener("click", () => {
+        item.dataset.enclExpanded = "true";
+        item.querySelectorAll(".actor li.encl-actor-hidden").forEach((node) => {
+          node.classList.remove("encl-actor-hidden");
+        });
+        more.remove();
+      });
+      more.append(button);
       actors[actors.length - 1].insertAdjacentElement("afterend", more);
     });
 
@@ -183,9 +196,14 @@
 
       .encl-actor-more {
         display: inline-block;
+      }
+
+      .encl-actor-more-button {
+        border: 0;
         border-radius: 3px;
         color: #4b5563;
         background: #eef1f4;
+        cursor: pointer;
         font-size: 11px;
         font-weight: 700;
         line-height: 1.4;
@@ -198,7 +216,7 @@
         right: 14px;
         bottom: 14px;
         z-index: 9999;
-        width: 220px;
+        width: auto;
         font-size: 12px;
         color: #26313d;
       }
@@ -213,15 +231,17 @@
       }
 
       .encl-toggle {
-        float: right;
         padding: 5px 9px;
         box-shadow: 0 1px 5px rgba(0, 0, 0, .18);
       }
 
       .encl-body {
         display: none;
-        clear: both;
-        margin-top: 34px;
+        position: absolute;
+        right: 0;
+        bottom: 34px;
+        width: 220px;
+        box-sizing: border-box;
         padding: 10px;
         border: 1px solid #9fb0c3;
         border-radius: 4px;

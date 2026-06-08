@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Popularity Badges
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.1.1
+// @version      0.1.2
 // @description  Add visual popularity badges to Eventernote event lists based on note/attendance count.
 // @author       yanfu
 // @match        https://www.eventernote.com/*
@@ -206,10 +206,10 @@
 
       .enpb-panel {
         position: fixed;
-        right: 14px;
-        bottom: 98px;
+        right: 188px;
+        bottom: 14px;
         z-index: 9997;
-        width: 240px;
+        width: auto;
         font-size: 12px;
         color: #26313d;
       }
@@ -224,15 +224,17 @@
       }
 
       .enpb-toggle {
-        float: right;
         padding: 5px 9px;
         box-shadow: 0 1px 5px rgba(0, 0, 0, .18);
       }
 
       .enpb-body {
         display: none;
-        clear: both;
-        margin-top: 34px;
+        position: absolute;
+        right: 0;
+        bottom: 34px;
+        width: 240px;
+        box-sizing: border-box;
         padding: 10px;
         border: 1px solid #9fb0c3;
         border-radius: 4px;
