@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Eventernote Compact List
-// @namespace    https://github.com/yanfu/eventernote-power-list
+// @namespace    https://github.com/wr786/eventernote-power-list
 // @version      0.1.0
 // @description  Make Eventernote event list pages denser by hiding images and folding long actor lists.
 // @author       yanfu

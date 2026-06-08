@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Eventernote Keyword Filter
-// @namespace    https://github.com/yanfu/eventernote-power-list
+// @namespace    https://github.com/wr786/eventernote-power-list
 // @version      0.1.0
 // @description  Highlight or mute Eventernote events by title, venue, and actor keywords.
 // @author       yanfu

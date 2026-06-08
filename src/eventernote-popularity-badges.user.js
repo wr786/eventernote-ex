@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Eventernote Popularity Badges
-// @namespace    https://github.com/yanfu/eventernote-power-list
+// @namespace    https://github.com/wr786/eventernote-power-list
 // @version      0.1.0
 // @description  Add visual popularity badges to Eventernote event lists based on note/attendance count.
 // @author       yanfu
