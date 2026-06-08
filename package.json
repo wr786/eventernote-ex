@@ -2,9 +2,9 @@
   "name": "eventernote-power-list",
   "version": "0.1.0",
   "private": true,
-  "description": "Independent Tampermonkey userscripts for compact Eventernote event lists, keyword rules, and popularity badges.",
+  "description": "Tampermonkey userscript for compact Eventernote event lists, keyword rules, and popularity badges.",
   "scripts": {
-    "check": "node --check src/eventernote-compact-list.user.js && node --check src/eventernote-keyword-filter.user.js && node --check src/eventernote-popularity-badges.user.js"
+    "check": "node --check src/eventernote-power-list.user.js"
   },
   "keywords": [
     "eventernote",
