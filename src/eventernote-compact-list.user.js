@@ -4,7 +4,8 @@
 // @version      0.1.0
 // @description  Make Eventernote event list pages denser by hiding images and folding long actor lists.
 // @author       yanfu
-// @match        https://www.eventernote.com/events*
+// @match        *://www.eventernote.com/events*
+// @match        *://eventernote.com/events*
 // @run-at       document-idle
 // @grant        none
 // ==/UserScript==
@@ -19,14 +20,34 @@
   };
 
   let settings = loadSettings();
+  let started = false;
 
-  boot();
+  scheduleBoot();
 
-  function boot() {
+  function scheduleBoot() {
+    tryBoot();
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", tryBoot, { once: true });
+    }
+    window.addEventListener("load", tryBoot, { once: true });
+
+    const observer = new MutationObserver(() => {
+      if (started) return;
+      tryBoot();
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+    setTimeout(tryBoot, 1000);
+    setTimeout(tryBoot, 3000);
+  }
+
+  function tryBoot() {
+    if (started) return;
     if (!document.querySelector(".gb_event_list")) return;
+    started = true;
     injectStyles();
     renderPanel();
     apply();
+    console.info("[Eventernote Compact List] active");
   }
 
   function loadSettings() {
