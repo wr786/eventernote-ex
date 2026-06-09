@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.5.0
+// @version      0.5.1
 // @description  Compact Eventernote lists, mute rules, popularity highlighting, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -396,30 +396,27 @@
       }
 
       .enpl-note-count-highlight {
-        border-radius: 4px;
-        box-sizing: border-box;
-        padding: 4px 6px;
         font-weight: 700;
+        text-shadow: 0 1px 0 rgba(255, 255, 255, .65);
       }
 
       .enpl-note-count-quiet {
         color: #667085;
-        background: #eef1f4;
       }
 
       .enpl-note-count-warm {
         color: #135c3b;
-        background: #cdebdc;
+        border-left: 3px solid #86efac;
       }
 
       .enpl-note-count-hot {
         color: #8a4b00;
-        background: #ffdca8;
+        border-left: 3px solid #f59e0b;
       }
 
       .enpl-note-count-very-hot {
-        color: #8f1f2c;
-        background: #fecaca;
+        color: #b91c1c;
+        border-left: 3px solid #ef4444;
       }
 
       .enpl-followed-actor > a {
