@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.5.1
+// @version      0.5.2
 // @description  Compact Eventernote lists, mute rules, popularity highlighting, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -135,7 +135,7 @@
     if (!settings.popularityEnabled) return;
 
     const count = parseNoteCount(item);
-    const node = item.querySelector(".note_count");
+    const node = getNoteCountTextElement(item);
     if (!node || count === null) return;
 
     const level = getPopularityLevel(count);
@@ -210,7 +210,7 @@
   }
 
   function cleanupPopularity(item) {
-    const node = item.querySelector(".note_count");
+    const node = getNoteCountTextElement(item);
     if (!node) return;
     node.classList.remove(
       "enpl-note-count-highlight",
@@ -258,6 +258,10 @@
 
     const count = Number((node.textContent || "").replace(/[^\d]/g, ""));
     return Number.isFinite(count) ? count : null;
+  }
+
+  function getNoteCountTextElement(item) {
+    return item.querySelector(".note_count [title='参加者数'], .note_count p") || item.querySelector(".note_count");
   }
 
   function getPopularityLevel(count) {
@@ -397,26 +401,25 @@
 
       .enpl-note-count-highlight {
         font-weight: 700;
-        text-shadow: 0 1px 0 rgba(255, 255, 255, .65);
       }
 
       .enpl-note-count-quiet {
-        color: #667085;
+        color: inherit;
       }
 
       .enpl-note-count-warm {
-        color: #135c3b;
-        border-left: 3px solid #86efac;
+        color: #d97706;
       }
 
       .enpl-note-count-hot {
-        color: #8a4b00;
-        border-left: 3px solid #f59e0b;
+        color: #dc2626;
       }
 
       .enpl-note-count-very-hot {
         color: #b91c1c;
-        border-left: 3px solid #ef4444;
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 2px;
       }
 
       .enpl-followed-actor > a {
