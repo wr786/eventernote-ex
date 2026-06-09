@@ -9,6 +9,7 @@ A Tampermonkey userscript for Eventernote event list pages.
 - Keyword highlight, mute, and optional hiding for event title, venue, and actors.
 - Popularity badges based on Eventernote note/attendance count.
 - Followed-actor density badges when `Eventernote following highlight` cache is available.
+- Followed-actor highlighting with a compact pill style, also using the `Eventernote following highlight` cache.
 
 ## Install
 

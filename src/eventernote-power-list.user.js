@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.3.1
+// @version      0.4.0
 // @description  Compact Eventernote lists, keyword badges, mute rules, and popularity badges in one script.
 // @author       yanfu
 // @match        https://www.eventernote.com/*
@@ -40,7 +40,8 @@
     warm: 10,
     hot: 50,
     veryHot: 100,
-    actorDensityEnabled: true
+    actorDensityEnabled: true,
+    followedActorHighlightEnabled: true
   };
 
   let settings = loadSettings();
@@ -101,6 +102,7 @@
   function apply() {
     document.body.classList.toggle("enpl-compact-enabled", settings.compactEnabled);
     document.body.classList.toggle("enpl-hide-muted", settings.keywordsEnabled && settings.hideMuted);
+    cleanupFollowedActorHighlights();
 
     getEventItems().forEach((item) => {
       cleanupItem(item);
@@ -109,6 +111,7 @@
       applyActorDensity(item);
       applyCompact(item);
     });
+    applyFollowedActorHighlights();
 
     updatePanel();
   }
@@ -171,6 +174,28 @@
     getBadgeRow(title).append(followBadge);
   }
 
+  function applyFollowedActorHighlights() {
+    if (!settings.followedActorHighlightEnabled) return;
+
+    const following = getFollowingActorMap();
+    if (!following) return;
+
+    getPageActorLinks().forEach((actor) => {
+      const pathname = getPathname(actor.href);
+      const rank = following[pathname];
+      if (!rank) return;
+
+      const parent = actor.parentElement;
+      if (!parent) return;
+
+      parent.classList.add("enpl-followed-actor");
+      const level = getFollowingRankLevel(rank);
+      if (level !== null) {
+        parent.classList.add(`enpl-followed-actor-${level}`);
+      }
+    });
+  }
+
   function applyCompact(item) {
     if (!settings.compactEnabled) return;
     if (item.dataset.enplExpanded === "true") return;
@@ -214,6 +239,10 @@
     return Array.from(item.querySelectorAll(".actor a[href*='/actors/'], .actors a[href*='/actors/']"));
   }
 
+  function getPageActorLinks() {
+    return Array.from(document.querySelectorAll(".actor > ul > li > a[href*='/actors/'], .actors > li > a[href*='/actors/']"));
+  }
+
   function getPathname(href) {
     try {
       return new URL(href, location.origin).pathname;
@@ -229,6 +258,26 @@
     } catch (_error) {
       return null;
     }
+  }
+
+  function cleanupFollowedActorHighlights() {
+    document.querySelectorAll(".enpl-followed-actor").forEach((node) => {
+      node.classList.remove(
+        "enpl-followed-actor",
+        "enpl-followed-actor-0",
+        "enpl-followed-actor-1",
+        "enpl-followed-actor-2",
+        "enpl-followed-actor-3",
+        "enpl-followed-actor-4",
+        "enpl-followed-actor-5",
+        "enpl-followed-actor-6"
+      );
+    });
+  }
+
+  function getFollowingRankLevel(rank) {
+    const match = String(rank || "").match(/s([0-6])/);
+    return match ? match[1] : null;
   }
 
   function collectSearchableText(item) {
@@ -336,6 +385,7 @@
           <label>Very hot <input type="number" name="veryHot" min="0" step="1"></label>
         </div>
         <label><input type="checkbox" name="actorDensityEnabled"> Actor density badges</label>
+        <label><input type="checkbox" name="followedActorHighlightEnabled"> Followed actor highlight</label>
         <div class="enpl-actions">
           <button type="submit">Apply</button>
           <button type="button" name="reset">Reset</button>
@@ -382,6 +432,7 @@
     settings.hot = Number(panel.querySelector("[name='hot']").value) || 0;
     settings.veryHot = Number(panel.querySelector("[name='veryHot']").value) || 0;
     settings.actorDensityEnabled = panel.querySelector("[name='actorDensityEnabled']").checked;
+    settings.followedActorHighlightEnabled = panel.querySelector("[name='followedActorHighlightEnabled']").checked;
   }
 
   function updatePanel() {
@@ -399,6 +450,7 @@
     panel.querySelector("[name='hot']").value = settings.hot;
     panel.querySelector("[name='veryHot']").value = settings.veryHot;
     panel.querySelector("[name='actorDensityEnabled']").checked = settings.actorDensityEnabled;
+    panel.querySelector("[name='followedActorHighlightEnabled']").checked = settings.followedActorHighlightEnabled;
   }
 
   function injectStyles() {
@@ -513,6 +565,55 @@
 
       .enpl-follow-5 {
         color: #7f1d1d;
+        background: #fecaca;
+      }
+
+      .enpl-followed-actor > a {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border: 1px solid #7dd3fc;
+        border-radius: 4px;
+        color: #0f3f57;
+        background: #ecfeff;
+        padding: 1px 5px;
+        text-decoration: none;
+      }
+
+      .enpl-followed-actor > a::after {
+        content: "follow";
+        border-radius: 3px;
+        color: #155e75;
+        background: #cffafe;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.2;
+        padding: 1px 4px;
+      }
+
+      .enpl-followed-actor-3 > a,
+      .enpl-followed-actor-4 > a {
+        border-color: #86efac;
+        color: #14532d;
+        background: #f0fdf4;
+      }
+
+      .enpl-followed-actor-3 > a::after,
+      .enpl-followed-actor-4 > a::after {
+        color: #166534;
+        background: #bbf7d0;
+      }
+
+      .enpl-followed-actor-5 > a,
+      .enpl-followed-actor-6 > a {
+        border-color: #fca5a5;
+        color: #7f1d1d;
+        background: #fff1f2;
+      }
+
+      .enpl-followed-actor-5 > a::after,
+      .enpl-followed-actor-6 > a::after {
+        color: #991b1b;
         background: #fecaca;
       }
 
