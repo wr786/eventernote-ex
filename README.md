@@ -4,17 +4,15 @@ A Tampermonkey userscript for Eventernote event list pages.
 
 ## Features
 
-- Compact list mode with hidden images and folded actor lists.
-- Clickable actor expansion for hidden compact-list actors.
+- Compact list mode with hidden images and denser event rows.
 - Keyword highlight, mute, and optional hiding for event title, venue, and actors.
-- Popularity badges based on Eventernote note/attendance count.
-- Followed-actor density badges when `Eventernote following highlight` cache is available.
+- Popularity highlighting on Eventernote's existing note/attendance count.
 - Followed-actor highlighting with a compact pill style, also using the `Eventernote following highlight` cache.
 
 ## Install
 
 Install `src/eventernote-power-list.user.js` in Tampermonkey, Violentmonkey, or another userscript manager.
-The script includes separate toggles for compact list, keyword rules, and popularity badges.
+The script includes separate toggles for compact list, keyword rules, popularity highlighting, and followed-actor highlighting.
 
 ## Supported Pages
 

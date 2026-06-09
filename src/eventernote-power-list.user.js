@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.4.1
-// @description  Compact Eventernote lists, keyword badges, mute rules, and popularity badges in one script.
-// @author       yanfu
+// @version      0.5.0
+// @description  Compact Eventernote lists, mute rules, popularity highlighting, and followed actor highlighting.
+// @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
 // @run-at       document-idle
@@ -17,7 +17,6 @@
   const STORAGE_KEY = "eventernote-power-list.settings.v2";
   const DEFAULT_SETTINGS = {
     compactEnabled: true,
-    maxActors: 10,
     keywordsEnabled: true,
     hideMuted: false,
     highlightKeywords: [
@@ -40,7 +39,6 @@
     warm: 10,
     hot: 50,
     veryHot: 100,
-    actorDensityEnabled: true,
     followedActorHighlightEnabled: true
   };
 
@@ -108,8 +106,6 @@
       cleanupItem(item);
       applyKeywords(item);
       applyPopularity(item);
-      applyActorDensity(item);
-      applyCompact(item);
     });
     applyFollowedActorHighlights();
 
@@ -118,10 +114,7 @@
 
   function cleanupItem(item) {
     item.classList.remove("enpl-keyword-hit", "enpl-muted");
-    item.querySelectorAll(".enpl-badge-row, .enpl-actor-more").forEach((node) => node.remove());
-    item.querySelectorAll(".actor li.enpl-actor-hidden").forEach((node) => {
-      node.classList.remove("enpl-actor-hidden");
-    });
+    cleanupPopularity(item);
   }
 
   function applyKeywords(item) {
@@ -136,42 +129,17 @@
 
     item.classList.toggle("enpl-keyword-hit", highlightMatches.length > 0);
     item.classList.toggle("enpl-muted", muteMatches.length > 0);
-    renderKeywordChips(title, highlightMatches, muteMatches);
   }
 
   function applyPopularity(item) {
     if (!settings.popularityEnabled) return;
 
-    const title = getTitleLink(item);
     const count = parseNoteCount(item);
-    if (!title || count === null) return;
+    const node = item.querySelector(".note_count");
+    if (!node || count === null) return;
 
     const level = getPopularityLevel(count);
-    const badge = document.createElement("span");
-    badge.className = `enpl-popularity-badge enpl-popularity-${level}`;
-    badge.textContent = `${getPopularityLabel(level)} ${count}`;
-    getBadgeRow(title).append(badge);
-  }
-
-  function applyActorDensity(item) {
-    if (!settings.actorDensityEnabled) return;
-
-    const title = getTitleLink(item);
-    if (!title) return;
-
-    const actors = getActorLinks(item);
-    if (!actors.length) return;
-
-    const actorPaths = new Set(actors.map((actor) => getPathname(actor.href)).filter(Boolean));
-    const actorCount = actorPaths.size;
-    const following = getFollowingActorMap();
-    if (!following) return;
-
-    const followCount = Array.from(actorPaths).filter((pathname) => following[pathname]).length;
-    const followBadge = document.createElement("span");
-    followBadge.className = `enpl-follow-badge enpl-follow-${getFollowLevel(followCount)}`;
-    followBadge.textContent = `Follow ${followCount}/${actorCount}`;
-    getBadgeRow(title).append(followBadge);
+    node.classList.add("enpl-note-count-highlight", `enpl-note-count-${level}`);
   }
 
   function applyFollowedActorHighlights() {
@@ -196,36 +164,6 @@
     });
   }
 
-  function applyCompact(item) {
-    if (!settings.compactEnabled) return;
-    if (item.dataset.enplExpanded === "true") return;
-
-    const actors = Array.from(item.querySelectorAll(".actor li")).filter((node) => node.querySelector("a"));
-    const maxActors = Math.max(0, Number(settings.maxActors) || 0);
-    if (actors.length <= maxActors) return;
-
-    actors.slice(maxActors).forEach((node) => node.classList.add("enpl-actor-hidden"));
-
-    const more = document.createElement("li");
-    more.className = "enpl-actor-more";
-
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "enpl-actor-more-button";
-    button.textContent = `+${actors.length - maxActors}`;
-    button.title = "Show hidden actors";
-    button.addEventListener("click", () => {
-      item.dataset.enplExpanded = "true";
-      item.querySelectorAll(".actor li.enpl-actor-hidden").forEach((node) => {
-        node.classList.remove("enpl-actor-hidden");
-      });
-      more.remove();
-    });
-
-    more.append(button);
-    actors[actors.length - 1].insertAdjacentElement("afterend", more);
-  }
-
   function getEventItems() {
     const containers = Array.from(document.querySelectorAll(".gb_event_list > li, .event_list > li, li.clearfix"));
     return containers.filter((item) => item.querySelector("a[href^='/events/'], a[href*='eventernote.com/events/']"));
@@ -233,10 +171,6 @@
 
   function getTitleLink(item) {
     return item.querySelector(".event h4 a, h4 a");
-  }
-
-  function getActorLinks(item) {
-    return Array.from(item.querySelectorAll(".actor a[href*='/actors/'], .actors a[href*='/actors/']"));
   }
 
   function getPageActorLinks() {
@@ -275,6 +209,18 @@
     });
   }
 
+  function cleanupPopularity(item) {
+    const node = item.querySelector(".note_count");
+    if (!node) return;
+    node.classList.remove(
+      "enpl-note-count-highlight",
+      "enpl-note-count-quiet",
+      "enpl-note-count-warm",
+      "enpl-note-count-hot",
+      "enpl-note-count-very-hot"
+    );
+  }
+
   function getFollowingRankLevel(rank) {
     const match = String(rank || "").match(/s([0-6])/);
     return match ? match[1] : null;
@@ -306,35 +252,6 @@
     return normalizeKeywords(keywords).filter((keyword) => haystack.includes(keyword.toLowerCase()));
   }
 
-  function renderKeywordChips(titleLink, highlightMatches, muteMatches) {
-    const matches = [
-      ...highlightMatches.map((word) => ({ word, type: "hit" })),
-      ...muteMatches.map((word) => ({ word, type: "mute" }))
-    ];
-    if (!matches.length) return;
-
-    const row = document.createElement("span");
-    row.className = "enpl-chip-row";
-    matches.forEach(({ word, type }) => {
-      const chip = document.createElement("span");
-      chip.className = `enpl-chip enpl-chip-${type}`;
-      chip.textContent = word;
-      row.append(chip);
-    });
-    getBadgeRow(titleLink).append(row);
-  }
-
-  function getBadgeRow(titleLink) {
-    const heading = titleLink.closest("h4");
-    let row = heading.nextElementSibling;
-    if (!row || !row.classList.contains("enpl-badge-row")) {
-      row = document.createElement("div");
-      row.className = "enpl-badge-row";
-      heading.insertAdjacentElement("afterend", row);
-    }
-    return row;
-  }
-
   function parseNoteCount(item) {
     const node = item.querySelector(".note_count");
     if (!node) return null;
@@ -350,22 +267,6 @@
     return "quiet";
   }
 
-  function getPopularityLabel(level) {
-    return {
-      "very-hot": "VERY HOT",
-      hot: "HOT",
-      warm: "WARM",
-      quiet: "QUIET"
-    }[level];
-  }
-
-  function getFollowLevel(count) {
-    if (count >= 5) return "5";
-    if (count >= 3) return "3";
-    if (count >= 1) return "1";
-    return "0";
-  }
-
   function renderPanel() {
     const panel = document.createElement("aside");
     panel.className = "enpl-panel";
@@ -373,18 +274,16 @@
       <button type="button" class="enpl-toggle" aria-expanded="false">Power List</button>
       <form class="enpl-body">
         <label><input type="checkbox" name="compactEnabled"> Compact list</label>
-        <label>Actors shown <input type="number" name="maxActors" min="0" max="20" step="1"></label>
         <label><input type="checkbox" name="keywordsEnabled"> Keyword rules</label>
         <label><input type="checkbox" name="hideMuted"> Hide muted events</label>
         <label>Highlight keywords <textarea name="highlightKeywords" rows="5"></textarea></label>
         <label>Mute keywords <textarea name="muteKeywords" rows="4"></textarea></label>
-        <label><input type="checkbox" name="popularityEnabled"> Popularity badges</label>
+        <label><input type="checkbox" name="popularityEnabled"> Popularity highlight</label>
         <div class="enpl-thresholds">
           <label>Warm <input type="number" name="warm" min="0" step="1"></label>
           <label>Hot <input type="number" name="hot" min="0" step="1"></label>
           <label>Very hot <input type="number" name="veryHot" min="0" step="1"></label>
         </div>
-        <label><input type="checkbox" name="actorDensityEnabled"> Actor density badges</label>
         <label><input type="checkbox" name="followedActorHighlightEnabled"> Followed actor highlight</label>
         <div class="enpl-actions">
           <button type="submit">Apply</button>
@@ -422,7 +321,6 @@
 
   function readPanelValues(panel) {
     settings.compactEnabled = panel.querySelector("[name='compactEnabled']").checked;
-    settings.maxActors = Number(panel.querySelector("[name='maxActors']").value) || 0;
     settings.keywordsEnabled = panel.querySelector("[name='keywordsEnabled']").checked;
     settings.hideMuted = panel.querySelector("[name='hideMuted']").checked;
     settings.highlightKeywords = normalizeKeywords(panel.querySelector("[name='highlightKeywords']").value);
@@ -431,7 +329,6 @@
     settings.warm = Number(panel.querySelector("[name='warm']").value) || 0;
     settings.hot = Number(panel.querySelector("[name='hot']").value) || 0;
     settings.veryHot = Number(panel.querySelector("[name='veryHot']").value) || 0;
-    settings.actorDensityEnabled = panel.querySelector("[name='actorDensityEnabled']").checked;
     settings.followedActorHighlightEnabled = panel.querySelector("[name='followedActorHighlightEnabled']").checked;
   }
 
@@ -440,7 +337,6 @@
     if (!panel) return;
 
     panel.querySelector("[name='compactEnabled']").checked = settings.compactEnabled;
-    panel.querySelector("[name='maxActors']").value = settings.maxActors;
     panel.querySelector("[name='keywordsEnabled']").checked = settings.keywordsEnabled;
     panel.querySelector("[name='hideMuted']").checked = settings.hideMuted;
     panel.querySelector("[name='highlightKeywords']").value = settings.highlightKeywords.join("\n");
@@ -449,7 +345,6 @@
     panel.querySelector("[name='warm']").value = settings.warm;
     panel.querySelector("[name='hot']").value = settings.hot;
     panel.querySelector("[name='veryHot']").value = settings.veryHot;
-    panel.querySelector("[name='actorDensityEnabled']").checked = settings.actorDensityEnabled;
     panel.querySelector("[name='followedActorHighlightEnabled']").checked = settings.followedActorHighlightEnabled;
   }
 
@@ -486,10 +381,6 @@
         margin-bottom: 0;
       }
 
-      .enpl-compact-enabled .gb_event_list .actor li.enpl-actor-hidden {
-        display: none;
-      }
-
       .gb_event_list > li.enpl-keyword-hit {
         border-left: 4px solid #f0ad4e;
         background: #fff9ed;
@@ -504,67 +395,30 @@
         display: none;
       }
 
-      .enpl-badge-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px;
-        margin: 2px 0 5px;
-        align-items: center;
-      }
-
-      .enpl-chip-row {
-        display: inline-flex;
-        flex-wrap: wrap;
-        gap: 4px;
-      }
-
-      .enpl-chip,
-      .enpl-popularity-badge,
-      .enpl-follow-badge,
-      .enpl-actor-more-button {
-        display: inline-block;
-        border-radius: 3px;
-        font-size: 11px;
+      .enpl-note-count-highlight {
+        border-radius: 4px;
+        box-sizing: border-box;
+        padding: 4px 6px;
         font-weight: 700;
-        line-height: 1.4;
-        padding: 1px 5px;
-        vertical-align: middle;
-        white-space: nowrap;
       }
 
-      .enpl-chip-hit {
-        color: #8a5a00;
-        background: #ffe6a6;
-      }
-
-      .enpl-chip-mute {
-        color: #4d5965;
-        background: #dfe5ec;
-      }
-
-      .enpl-popularity-quiet,
-      .enpl-actor-more-button {
+      .enpl-note-count-quiet {
         color: #667085;
         background: #eef1f4;
       }
 
-      .enpl-follow-0 {
-        color: #667085;
-        background: #eef1f4;
+      .enpl-note-count-warm {
+        color: #135c3b;
+        background: #cdebdc;
       }
 
-      .enpl-follow-1 {
-        color: #164e63;
-        background: #cffafe;
+      .enpl-note-count-hot {
+        color: #8a4b00;
+        background: #ffdca8;
       }
 
-      .enpl-follow-3 {
-        color: #14532d;
-        background: #bbf7d0;
-      }
-
-      .enpl-follow-5 {
-        color: #7f1d1d;
+      .enpl-note-count-very-hot {
+        color: #8f1f2c;
         background: #fecaca;
       }
 
@@ -599,30 +453,6 @@
         color: #92400e;
         background: #fef9c3;
         box-shadow: inset 0 0 0 1px rgba(250, 204, 21, .25);
-      }
-
-      .enpl-popularity-warm {
-        color: #135c3b;
-        background: #cdebdc;
-      }
-
-      .enpl-popularity-hot {
-        color: #8a4b00;
-        background: #ffdca8;
-      }
-
-      .enpl-popularity-very-hot {
-        color: #8f1f2c;
-        background: #ffd1d8;
-      }
-
-      .enpl-actor-more {
-        display: inline-block;
-      }
-
-      .enpl-actor-more-button {
-        border: 0;
-        cursor: pointer;
       }
 
       .enpl-panel {
