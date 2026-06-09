@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.8.1
-// @description  Compact Eventernote lists, date/time cues, mute rules, venue links, popularity, and followed actor highlighting.
+// @version      0.8.2
+// @description  Compact Eventernote lists, relative date labels, mute rules, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -41,9 +41,7 @@
     veryHot: 100,
     followedActorHighlightEnabled: true,
     venueLinksEnabled: true,
-    relativeDateEnabled: true,
-    weekendHighlightEnabled: true,
-    timeHighlightEnabled: true
+    relativeDateEnabled: true
   };
 
   let settings = loadSettings();
@@ -110,16 +108,16 @@
       applyKeywords(item);
       applyPopularity(item);
       applyVenueLinks(item);
-      applyDateTimeCues(item);
+      applyRelativeDateCue(item);
     });
     applyFollowedActorHighlights();
   }
 
   function cleanupItem(item) {
-    item.classList.remove("enpl-keyword-hit", "enpl-muted", "enpl-weekend-event", "enpl-saturday-event", "enpl-sunday-event");
+    item.classList.remove("enpl-keyword-hit", "enpl-muted");
     cleanupPopularity(item);
     cleanupVenueLinks(item);
-    cleanupDateTimeCues(item);
+    cleanupRelativeDateCue(item);
   }
 
   function applyKeywords(item) {
@@ -167,55 +165,17 @@
     venueLink.insertAdjacentElement("afterend", mapLink);
   }
 
-  function applyDateTimeCues(item) {
-    const eventDate = parseEventDate(item);
-    if (eventDate) {
-      applyRelativeDate(item, eventDate);
-      applyWeekendHighlight(item, eventDate);
-    }
-    applyTimeHighlight(item);
-  }
-
-  function applyRelativeDate(item, eventDate) {
+  function applyRelativeDateCue(item) {
     if (!settings.relativeDateEnabled) return;
 
+    const eventDate = parseEventDate(item);
     const dateLine = getDateLine(item);
-    if (!dateLine) return;
+    if (!eventDate || !dateLine) return;
 
     const chip = document.createElement("span");
     chip.className = "enpl-date-chip";
     chip.textContent = getRelativeDateLabel(eventDate);
     dateLine.appendChild(chip);
-  }
-
-  function applyWeekendHighlight(item, eventDate) {
-    if (!settings.weekendHighlightEnabled) return;
-
-    const day = eventDate.getDay();
-    if (day !== 0 && day !== 6) return;
-
-    item.classList.add("enpl-weekend-event", day === 6 ? "enpl-saturday-event" : "enpl-sunday-event");
-    const dateLine = getDateLine(item);
-    if (dateLine) {
-      dateLine.classList.add(day === 6 ? "enpl-saturday-date" : "enpl-sunday-date");
-    }
-  }
-
-  function applyTimeHighlight(item) {
-    if (!settings.timeHighlightEnabled) return;
-
-    const timeNode = getTimeNode(item);
-    const startMinutes = parseStartMinutes(timeNode);
-    if (!timeNode || startMinutes === null) return;
-
-    timeNode.classList.add("enpl-start-time");
-    if (startMinutes < 13 * 60) {
-      timeNode.classList.add("enpl-start-morning");
-    } else if (startMinutes >= 19 * 60 + 30) {
-      timeNode.classList.add("enpl-start-late");
-    } else if (startMinutes >= 18 * 60) {
-      timeNode.classList.add("enpl-start-evening");
-    }
   }
 
   function applyFollowedActorHighlights() {
@@ -255,10 +215,6 @@
 
   function getVenueLink(item) {
     return item.querySelector(".place a[href^='/places/'], .place a[href*='eventernote.com/places/']");
-  }
-
-  function getTimeNode(item) {
-    return Array.from(item.querySelectorAll(".place .s, .place")).find((node) => /開演\s*\d{1,2}[:：]\d{2}/.test(textOf(node))) || null;
   }
 
   function getPageActorLinks() {
@@ -313,16 +269,8 @@
     item.querySelectorAll(".enpl-venue-link").forEach((node) => node.remove());
   }
 
-  function cleanupDateTimeCues(item) {
+  function cleanupRelativeDateCue(item) {
     item.querySelectorAll(".enpl-date-chip").forEach((node) => node.remove());
-    const dateLine = getDateLine(item);
-    if (dateLine) {
-      dateLine.classList.remove("enpl-saturday-date", "enpl-sunday-date");
-    }
-    const timeNode = getTimeNode(item);
-    if (timeNode) {
-      timeNode.classList.remove("enpl-start-time", "enpl-start-morning", "enpl-start-evening", "enpl-start-late");
-    }
   }
 
   function getFollowingRankLevel(rank) {
@@ -355,17 +303,6 @@
     if (!year || !month || !day) return null;
 
     return new Date(year, month - 1, day);
-  }
-
-  function parseStartMinutes(node) {
-    const match = textOf(node).match(/開演\s*(\d{1,2})[:：](\d{2})/);
-    if (!match) return null;
-
-    const hour = Number(match[1]);
-    const minute = Number(match[2]);
-    if (hour > 23 || minute > 59) return null;
-
-    return hour * 60 + minute;
   }
 
   function getRelativeDateLabel(eventDate) {
@@ -551,46 +488,6 @@
         line-height: 1.35;
         vertical-align: 1px;
         white-space: nowrap;
-      }
-
-      .enpl-saturday-date {
-        color: #2563eb;
-      }
-
-      .enpl-sunday-date {
-        color: #dc2626;
-      }
-
-      .gb_event_list > ul > li.enpl-saturday-event,
-      .gb_event_list > li.enpl-saturday-event {
-        box-shadow: inset 2px 0 0 rgba(37, 99, 235, .32);
-      }
-
-      .gb_event_list > ul > li.enpl-sunday-event,
-      .gb_event_list > li.enpl-sunday-event {
-        box-shadow: inset 2px 0 0 rgba(220, 38, 38, .30);
-      }
-
-      .enpl-start-time {
-        display: inline-block;
-        padding: 1px 4px;
-        border-radius: 3px;
-      }
-
-      .enpl-start-morning {
-        color: #8a4f10;
-        background: #fff7ed;
-      }
-
-      .enpl-start-evening {
-        color: #b45309;
-        background: #fff3d8;
-      }
-
-      .enpl-start-late {
-        color: #b91c1c;
-        background: #fef2f2;
-        font-weight: 600;
       }
 
     `);
