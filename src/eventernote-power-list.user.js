@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.8.0
+// @version      0.8.1
 // @description  Compact Eventernote lists, date/time cues, mute rules, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -422,19 +422,14 @@
         padding-bottom: 8px;
       }
 
-      .enpl-compact-enabled .gb_event_list > ul > li.clearfix .date img,
-      .enpl-compact-enabled .gb_event_list > li.clearfix .date img {
-        display: none;
-      }
-
       .enpl-compact-enabled .gb_event_list > ul > li.clearfix .date,
       .enpl-compact-enabled .gb_event_list > li.clearfix .date {
-        width: 105px;
+        width: 120px;
       }
 
       .enpl-compact-enabled .gb_event_list > ul > li.clearfix .event,
       .enpl-compact-enabled .gb_event_list > li.clearfix .event {
-        margin-left: 112px;
+        margin-left: 128px;
       }
 
       .enpl-compact-enabled .gb_event_list h4 {
