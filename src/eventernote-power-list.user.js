@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.6.1
-// @description  Compact Eventernote lists, mute rules, popularity highlighting, and followed actor highlighting.
+// @version      0.7.0
+// @description  Compact Eventernote lists, mute rules, venue links, series cues, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -39,7 +39,9 @@
     warm: 10,
     hot: 50,
     veryHot: 100,
-    followedActorHighlightEnabled: true
+    followedActorHighlightEnabled: true,
+    venueLinksEnabled: true,
+    seriesHighlightEnabled: true
   };
 
   let settings = loadSettings();
@@ -101,17 +103,22 @@
     document.body.classList.toggle("enpl-hide-muted", settings.keywordsEnabled && settings.hideMuted);
     cleanupFollowedActorHighlights();
 
-    getEventItems().forEach((item) => {
+    const eventItems = getEventItems();
+    eventItems.forEach((item) => {
       cleanupItem(item);
       applyKeywords(item);
       applyPopularity(item);
+      applyVenueLinks(item);
     });
+    applySeriesHighlights(eventItems);
     applyFollowedActorHighlights();
   }
 
   function cleanupItem(item) {
-    item.classList.remove("enpl-keyword-hit", "enpl-muted");
+    item.classList.remove("enpl-keyword-hit", "enpl-muted", "enpl-series-item");
+    removeSeriesClasses(item);
     cleanupPopularity(item);
+    cleanupVenueLinks(item);
   }
 
   function applyKeywords(item) {
@@ -137,6 +144,49 @@
 
     const level = getPopularityLevel(count);
     node.classList.add("enpl-note-count-highlight", `enpl-note-count-${level}`);
+  }
+
+  function applyVenueLinks(item) {
+    if (!settings.venueLinksEnabled) return;
+
+    const venueLink = getVenueLink(item);
+    if (!venueLink) return;
+    if (venueLink.parentElement && venueLink.parentElement.querySelector(".enpl-venue-link")) return;
+
+    const venueName = textOf(venueLink);
+    if (!venueName) return;
+
+    const mapLink = document.createElement("a");
+    mapLink.className = "enpl-venue-link";
+    mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(venueName)}`;
+    mapLink.target = "_blank";
+    mapLink.rel = "noopener noreferrer";
+    mapLink.title = `Google Maps: ${venueName}`;
+    mapLink.textContent = "map";
+    venueLink.insertAdjacentElement("afterend", mapLink);
+  }
+
+  function applySeriesHighlights(items) {
+    if (!settings.seriesHighlightEnabled) return;
+
+    const groups = new Map();
+    items.forEach((item) => {
+      const key = getSeriesKey(item);
+      if (!key) return;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(item);
+    });
+
+    let colorIndex = 0;
+    groups.forEach((group, key) => {
+      if (group.length < 2) return;
+      const className = `enpl-series-${colorIndex % 6}`;
+      group.forEach((item) => {
+        item.classList.add("enpl-series-item", className);
+        item.setAttribute("data-enpl-series", key);
+      });
+      colorIndex += 1;
+    });
   }
 
   function applyFollowedActorHighlights() {
@@ -168,6 +218,10 @@
 
   function getTitleLink(item) {
     return item.querySelector(".event h4 a, h4 a");
+  }
+
+  function getVenueLink(item) {
+    return item.querySelector(".place a[href^='/places/'], .place a[href*='eventernote.com/places/']");
   }
 
   function getPageActorLinks() {
@@ -218,6 +272,22 @@
     );
   }
 
+  function cleanupVenueLinks(item) {
+    item.querySelectorAll(".enpl-venue-link").forEach((node) => node.remove());
+  }
+
+  function removeSeriesClasses(item) {
+    item.classList.remove(
+      "enpl-series-0",
+      "enpl-series-1",
+      "enpl-series-2",
+      "enpl-series-3",
+      "enpl-series-4",
+      "enpl-series-5"
+    );
+    item.removeAttribute("data-enpl-series");
+  }
+
   function getFollowingRankLevel(rank) {
     const match = String(rank || "").match(/s([0-6])/);
     return match ? match[1] : null;
@@ -234,6 +304,29 @@
 
   function textOf(node) {
     return (node ? node.textContent : "").replace(/\s+/g, " ").trim();
+  }
+
+  function getSeriesKey(item) {
+    const title = textOf(getTitleLink(item));
+    if (!title) return "";
+
+    const normalized = title
+      .replace(/[【\[]\s*(?:\d{4}[./-]\d{1,2}[./-]\d{1,2}|\d{1,2}[./-]\d{1,2}|昼公演|夜公演|昼の部|夜の部|昼|夜)\s*[】\]]/g, " ")
+      .replace(/\d{4}\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*日/g, " ")
+      .replace(/\d{4}[./-]\d{1,2}[./-]\d{1,2}/g, " ")
+      .replace(/\d{1,2}[./-]\d{1,2}/g, " ")
+      .replace(/\d{1,2}\s*月\s*\d{1,2}\s*日/g, " ")
+      .replace(/\d{1,2}[:：]\d{2}/g, " ")
+      .replace(/[①②③④⑤⑥⑦⑧⑨⑩]/g, " ")
+      .replace(/(?:第\s*)?[0-9０-９一二三四五六七八九十]+\s*(?:部|回|公演|公演目)/g, " ")
+      .replace(/(?:昼公演|夜公演|昼の部|夜の部|昼|夜|DAY|Day|day)\s*\d*/g, " ")
+      .replace(/\b(?:vol|Vol|VOL)\.?\s*\d+\b/g, " ")
+      .replace(/\s+/g, " ")
+      .replace(/[「」『』【】\[\]()（）:：｜|/／・,\-ー~〜]+$/g, "")
+      .trim()
+      .toLowerCase();
+
+    return normalized.length >= 6 ? normalized : "";
   }
 
   function normalizeKeywords(value) {
@@ -369,6 +462,51 @@
         color: #92400e;
         background: #fef9c3;
         box-shadow: inset 0 0 0 1px rgba(250, 204, 21, .25);
+      }
+
+      .enpl-venue-link {
+        display: inline-block;
+        margin-left: 5px;
+        padding: 0 4px;
+        border: 1px solid #ddd5cc;
+        border-radius: 3px;
+        color: #9a6a32;
+        background: #fffaf2;
+        font-size: 11px;
+        line-height: 1.35;
+        text-decoration: none;
+        vertical-align: 1px;
+      }
+
+      .enpl-venue-link:hover {
+        border-color: #e5a64a;
+        color: #8a4f10;
+        background: #fff3d8;
+        text-decoration: none;
+      }
+
+      .gb_event_list > li.enpl-series-item {
+        background-image: linear-gradient(90deg, rgba(245, 158, 11, .42) 0, rgba(245, 158, 11, .42) 3px, transparent 3px);
+      }
+
+      .gb_event_list > li.enpl-series-1 {
+        background-image: linear-gradient(90deg, rgba(220, 38, 38, .34) 0, rgba(220, 38, 38, .34) 3px, transparent 3px);
+      }
+
+      .gb_event_list > li.enpl-series-2 {
+        background-image: linear-gradient(90deg, rgba(217, 119, 6, .34) 0, rgba(217, 119, 6, .34) 3px, transparent 3px);
+      }
+
+      .gb_event_list > li.enpl-series-3 {
+        background-image: linear-gradient(90deg, rgba(180, 83, 9, .32) 0, rgba(180, 83, 9, .32) 3px, transparent 3px);
+      }
+
+      .gb_event_list > li.enpl-series-4 {
+        background-image: linear-gradient(90deg, rgba(190, 24, 93, .28) 0, rgba(190, 24, 93, .28) 3px, transparent 3px);
+      }
+
+      .gb_event_list > li.enpl-series-5 {
+        background-image: linear-gradient(90deg, rgba(124, 58, 237, .24) 0, rgba(124, 58, 237, .24) 3px, transparent 3px);
       }
 
     `);
