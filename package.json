@@ -2,7 +2,7 @@
   "name": "eventernote-power-list",
   "version": "0.1.0",
   "private": true,
-  "description": "Tampermonkey userscript for compact Eventernote event lists, keyword rules, venue links, series cues, popularity, and followed actor highlighting.",
+  "description": "Tampermonkey userscript for compact Eventernote event lists, keyword rules, venue links, popularity, and followed actor highlighting.",
   "scripts": {
     "check": "node --check src/eventernote-power-list.user.js"
   },
