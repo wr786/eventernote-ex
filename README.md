@@ -5,7 +5,6 @@ A Tampermonkey userscript for Eventernote event list pages.
 ## Features
 
 - Compact list mode with denser event rows while keeping cover images visible.
-- Relative date labels beside event dates.
 - Keyword highlight, mute, and optional hiding for event title, venue, and actors.
 - Tiny Google Maps link beside Eventernote venue links.
 - Popularity highlighting on Eventernote's existing note/attendance count.

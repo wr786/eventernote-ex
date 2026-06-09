@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.8.3
-// @description  Compact Eventernote lists, relative date labels, mute rules, venue links, popularity, and followed actor highlighting.
+// @version      0.8.4
+// @description  Compact Eventernote lists, mute rules, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -40,8 +40,7 @@
     hot: 50,
     veryHot: 100,
     followedActorHighlightEnabled: true,
-    venueLinksEnabled: true,
-    relativeDateEnabled: true
+    venueLinksEnabled: true
   };
 
   let settings = loadSettings();
@@ -108,7 +107,6 @@
       applyKeywords(item);
       applyPopularity(item);
       applyVenueLinks(item);
-      applyRelativeDateCue(item);
     });
     applyFollowedActorHighlights();
   }
@@ -117,7 +115,6 @@
     item.classList.remove("enpl-keyword-hit", "enpl-muted");
     cleanupPopularity(item);
     cleanupVenueLinks(item);
-    cleanupRelativeDateCue(item);
   }
 
   function applyKeywords(item) {
@@ -165,22 +162,6 @@
     venueLink.insertAdjacentElement("afterend", mapLink);
   }
 
-  function applyRelativeDateCue(item) {
-    if (!settings.relativeDateEnabled) return;
-
-    const eventDate = parseEventDate(item);
-    const dateLine = getDateLine(item);
-    if (!eventDate || !dateLine) return;
-
-    const chipLine = document.createElement("p");
-    const chip = document.createElement("span");
-    chipLine.className = "enpl-date-chip-line";
-    chip.textContent = getRelativeDateLabel(eventDate);
-    chip.className = "enpl-date-chip";
-    chipLine.appendChild(chip);
-    dateLine.insertAdjacentElement("afterend", chipLine);
-  }
-
   function applyFollowedActorHighlights() {
     if (!settings.followedActorHighlightEnabled) return;
 
@@ -210,10 +191,6 @@
 
   function getTitleLink(item) {
     return item.querySelector(".event h4 a, h4 a");
-  }
-
-  function getDateLine(item) {
-    return item.querySelector(".date p[class^='day'], .date p");
   }
 
   function getVenueLink(item) {
@@ -272,10 +249,6 @@
     item.querySelectorAll(".enpl-venue-link").forEach((node) => node.remove());
   }
 
-  function cleanupRelativeDateCue(item) {
-    item.querySelectorAll(".enpl-date-chip-line").forEach((node) => node.remove());
-  }
-
   function getFollowingRankLevel(rank) {
     const match = String(rank || "").match(/s([0-6])/);
     return match ? match[1] : null;
@@ -292,33 +265,6 @@
 
   function textOf(node) {
     return (node ? node.textContent : "").replace(/\s+/g, " ").trim();
-  }
-
-  function parseEventDate(item) {
-    const dateLine = getDateLine(item);
-    const text = textOf(dateLine);
-    const match = text.match(/(\d{4})[-/.年](\d{1,2})[-/.月](\d{1,2})/);
-    if (!match) return null;
-
-    const year = Number(match[1]);
-    const month = Number(match[2]);
-    const day = Number(match[3]);
-    if (!year || !month || !day) return null;
-
-    return new Date(year, month - 1, day);
-  }
-
-  function getRelativeDateLabel(eventDate) {
-    const today = new Date();
-    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const startOfEvent = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
-    const days = Math.round((startOfEvent.getTime() - startOfToday.getTime()) / 86400000);
-
-    if (days === 0) return "今日";
-    if (days === 1) return "明日";
-    if (days === -1) return "昨日";
-    if (days > 0) return `あと${days}日`;
-    return `${Math.abs(days)}日前`;
   }
 
   function normalizeKeywords(value) {
@@ -477,24 +423,6 @@
         color: #8a4f10;
         background: #fff3d8;
         text-decoration: none;
-      }
-
-      .enpl-date-chip {
-        display: inline-block;
-        padding: 0 4px;
-        border-radius: 3px;
-        color: #8a5a18;
-        background: #fff4dc;
-        font-size: 10px;
-        font-weight: 600;
-        line-height: 1.35;
-        vertical-align: 1px;
-        white-space: nowrap;
-      }
-
-      .enpl-date-chip-line {
-        margin: 2px 0 4px;
-        line-height: 1.2;
       }
 
     `);
