@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.3.0
+// @version      0.3.1
 // @description  Compact Eventernote lists, keyword badges, mute rules, and popularity badges in one script.
 // @author       yanfu
 // @match        https://www.eventernote.com/*
@@ -162,21 +162,13 @@
     const actorPaths = new Set(actors.map((actor) => getPathname(actor.href)).filter(Boolean));
     const actorCount = actorPaths.size;
     const following = getFollowingActorMap();
-    const followCount = following
-      ? Array.from(actorPaths).filter((pathname) => following[pathname]).length
-      : null;
+    if (!following) return;
 
-    const actorsBadge = document.createElement("span");
-    actorsBadge.className = "enpl-density-badge";
-    actorsBadge.textContent = `Actors ${actorCount}`;
-    getBadgeRow(title).append(actorsBadge);
-
-    if (followCount !== null) {
-      const followBadge = document.createElement("span");
-      followBadge.className = followCount > 0 ? "enpl-follow-badge enpl-follow-hit" : "enpl-follow-badge";
-      followBadge.textContent = `Follow ${followCount}/${actorCount}`;
-      getBadgeRow(title).append(followBadge);
-    }
+    const followCount = Array.from(actorPaths).filter((pathname) => following[pathname]).length;
+    const followBadge = document.createElement("span");
+    followBadge.className = `enpl-follow-badge enpl-follow-${getFollowLevel(followCount)}`;
+    followBadge.textContent = `Follow ${followCount}/${actorCount}`;
+    getBadgeRow(title).append(followBadge);
   }
 
   function applyCompact(item) {
@@ -316,6 +308,13 @@
       warm: "WARM",
       quiet: "QUIET"
     }[level];
+  }
+
+  function getFollowLevel(count) {
+    if (count >= 5) return "5";
+    if (count >= 3) return "3";
+    if (count >= 1) return "1";
+    return "0";
   }
 
   function renderPanel() {
@@ -469,7 +468,6 @@
 
       .enpl-chip,
       .enpl-popularity-badge,
-      .enpl-density-badge,
       .enpl-follow-badge,
       .enpl-actor-more-button {
         display: inline-block;
@@ -493,16 +491,29 @@
       }
 
       .enpl-popularity-quiet,
-      .enpl-density-badge,
-      .enpl-follow-badge,
       .enpl-actor-more-button {
         color: #667085;
         background: #eef1f4;
       }
 
-      .enpl-follow-hit {
+      .enpl-follow-0 {
+        color: #667085;
+        background: #eef1f4;
+      }
+
+      .enpl-follow-1 {
         color: #164e63;
         background: #cffafe;
+      }
+
+      .enpl-follow-3 {
+        color: #14532d;
+        background: #bbf7d0;
+      }
+
+      .enpl-follow-5 {
+        color: #7f1d1d;
+        background: #fecaca;
       }
 
       .enpl-popularity-warm {
