@@ -8,6 +8,7 @@ A Tampermonkey userscript for Eventernote event list pages.
 - Clickable actor expansion for hidden compact-list actors.
 - Keyword highlight, mute, and optional hiding for event title, venue, and actors.
 - Popularity badges based on Eventernote note/attendance count.
+- Actor density badges, with followed-actor density when `Eventernote following highlight` cache is available.
 
 ## Install
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.2.2
+// @version      0.3.0
 // @description  Compact Eventernote lists, keyword badges, mute rules, and popularity badges in one script.
 // @author       yanfu
 // @match        https://www.eventernote.com/*
@@ -39,7 +39,8 @@
     popularityEnabled: true,
     warm: 10,
     hot: 50,
-    veryHot: 100
+    veryHot: 100,
+    actorDensityEnabled: true
   };
 
   let settings = loadSettings();
@@ -105,6 +106,7 @@
       cleanupItem(item);
       applyKeywords(item);
       applyPopularity(item);
+      applyActorDensity(item);
       applyCompact(item);
     });
 
@@ -148,6 +150,35 @@
     getBadgeRow(title).append(badge);
   }
 
+  function applyActorDensity(item) {
+    if (!settings.actorDensityEnabled) return;
+
+    const title = getTitleLink(item);
+    if (!title) return;
+
+    const actors = getActorLinks(item);
+    if (!actors.length) return;
+
+    const actorPaths = new Set(actors.map((actor) => getPathname(actor.href)).filter(Boolean));
+    const actorCount = actorPaths.size;
+    const following = getFollowingActorMap();
+    const followCount = following
+      ? Array.from(actorPaths).filter((pathname) => following[pathname]).length
+      : null;
+
+    const actorsBadge = document.createElement("span");
+    actorsBadge.className = "enpl-density-badge";
+    actorsBadge.textContent = `Actors ${actorCount}`;
+    getBadgeRow(title).append(actorsBadge);
+
+    if (followCount !== null) {
+      const followBadge = document.createElement("span");
+      followBadge.className = followCount > 0 ? "enpl-follow-badge enpl-follow-hit" : "enpl-follow-badge";
+      followBadge.textContent = `Follow ${followCount}/${actorCount}`;
+      getBadgeRow(title).append(followBadge);
+    }
+  }
+
   function applyCompact(item) {
     if (!settings.compactEnabled) return;
     if (item.dataset.enplExpanded === "true") return;
@@ -185,6 +216,27 @@
 
   function getTitleLink(item) {
     return item.querySelector(".event h4 a, h4 a");
+  }
+
+  function getActorLinks(item) {
+    return Array.from(item.querySelectorAll(".actor a[href*='/actors/'], .actors a[href*='/actors/']"));
+  }
+
+  function getPathname(href) {
+    try {
+      return new URL(href, location.origin).pathname;
+    } catch (_error) {
+      return "";
+    }
+  }
+
+  function getFollowingActorMap() {
+    try {
+      const following = JSON.parse(localStorage.getItem("following-highlight") || "null");
+      return following && typeof following === "object" ? following : null;
+    } catch (_error) {
+      return null;
+    }
   }
 
   function collectSearchableText(item) {
@@ -284,6 +336,7 @@
           <label>Hot <input type="number" name="hot" min="0" step="1"></label>
           <label>Very hot <input type="number" name="veryHot" min="0" step="1"></label>
         </div>
+        <label><input type="checkbox" name="actorDensityEnabled"> Actor density badges</label>
         <div class="enpl-actions">
           <button type="submit">Apply</button>
           <button type="button" name="reset">Reset</button>
@@ -329,6 +382,7 @@
     settings.warm = Number(panel.querySelector("[name='warm']").value) || 0;
     settings.hot = Number(panel.querySelector("[name='hot']").value) || 0;
     settings.veryHot = Number(panel.querySelector("[name='veryHot']").value) || 0;
+    settings.actorDensityEnabled = panel.querySelector("[name='actorDensityEnabled']").checked;
   }
 
   function updatePanel() {
@@ -345,6 +399,7 @@
     panel.querySelector("[name='warm']").value = settings.warm;
     panel.querySelector("[name='hot']").value = settings.hot;
     panel.querySelector("[name='veryHot']").value = settings.veryHot;
+    panel.querySelector("[name='actorDensityEnabled']").checked = settings.actorDensityEnabled;
   }
 
   function injectStyles() {
@@ -414,6 +469,8 @@
 
       .enpl-chip,
       .enpl-popularity-badge,
+      .enpl-density-badge,
+      .enpl-follow-badge,
       .enpl-actor-more-button {
         display: inline-block;
         border-radius: 3px;
@@ -436,9 +493,16 @@
       }
 
       .enpl-popularity-quiet,
+      .enpl-density-badge,
+      .enpl-follow-badge,
       .enpl-actor-more-button {
         color: #667085;
         background: #eef1f4;
+      }
+
+      .enpl-follow-hit {
+        color: #164e63;
+        background: #cffafe;
       }
 
       .enpl-popularity-warm {
