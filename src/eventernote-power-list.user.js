@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.7.1
-// @description  Compact Eventernote lists, mute rules, venue links, popularity, and followed actor highlighting.
+// @version      0.8.0
+// @description  Compact Eventernote lists, date/time cues, mute rules, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -40,7 +40,10 @@
     hot: 50,
     veryHot: 100,
     followedActorHighlightEnabled: true,
-    venueLinksEnabled: true
+    venueLinksEnabled: true,
+    relativeDateEnabled: true,
+    weekendHighlightEnabled: true,
+    timeHighlightEnabled: true
   };
 
   let settings = loadSettings();
@@ -107,14 +110,16 @@
       applyKeywords(item);
       applyPopularity(item);
       applyVenueLinks(item);
+      applyDateTimeCues(item);
     });
     applyFollowedActorHighlights();
   }
 
   function cleanupItem(item) {
-    item.classList.remove("enpl-keyword-hit", "enpl-muted");
+    item.classList.remove("enpl-keyword-hit", "enpl-muted", "enpl-weekend-event", "enpl-saturday-event", "enpl-sunday-event");
     cleanupPopularity(item);
     cleanupVenueLinks(item);
+    cleanupDateTimeCues(item);
   }
 
   function applyKeywords(item) {
@@ -162,6 +167,57 @@
     venueLink.insertAdjacentElement("afterend", mapLink);
   }
 
+  function applyDateTimeCues(item) {
+    const eventDate = parseEventDate(item);
+    if (eventDate) {
+      applyRelativeDate(item, eventDate);
+      applyWeekendHighlight(item, eventDate);
+    }
+    applyTimeHighlight(item);
+  }
+
+  function applyRelativeDate(item, eventDate) {
+    if (!settings.relativeDateEnabled) return;
+
+    const dateLine = getDateLine(item);
+    if (!dateLine) return;
+
+    const chip = document.createElement("span");
+    chip.className = "enpl-date-chip";
+    chip.textContent = getRelativeDateLabel(eventDate);
+    dateLine.appendChild(chip);
+  }
+
+  function applyWeekendHighlight(item, eventDate) {
+    if (!settings.weekendHighlightEnabled) return;
+
+    const day = eventDate.getDay();
+    if (day !== 0 && day !== 6) return;
+
+    item.classList.add("enpl-weekend-event", day === 6 ? "enpl-saturday-event" : "enpl-sunday-event");
+    const dateLine = getDateLine(item);
+    if (dateLine) {
+      dateLine.classList.add(day === 6 ? "enpl-saturday-date" : "enpl-sunday-date");
+    }
+  }
+
+  function applyTimeHighlight(item) {
+    if (!settings.timeHighlightEnabled) return;
+
+    const timeNode = getTimeNode(item);
+    const startMinutes = parseStartMinutes(timeNode);
+    if (!timeNode || startMinutes === null) return;
+
+    timeNode.classList.add("enpl-start-time");
+    if (startMinutes < 13 * 60) {
+      timeNode.classList.add("enpl-start-morning");
+    } else if (startMinutes >= 19 * 60 + 30) {
+      timeNode.classList.add("enpl-start-late");
+    } else if (startMinutes >= 18 * 60) {
+      timeNode.classList.add("enpl-start-evening");
+    }
+  }
+
   function applyFollowedActorHighlights() {
     if (!settings.followedActorHighlightEnabled) return;
 
@@ -185,7 +241,7 @@
   }
 
   function getEventItems() {
-    const containers = Array.from(document.querySelectorAll(".gb_event_list > li, .event_list > li, li.clearfix"));
+    const containers = Array.from(document.querySelectorAll(".gb_event_list > ul > li, .gb_event_list > li, .event_list > li, li.clearfix"));
     return containers.filter((item) => item.querySelector("a[href^='/events/'], a[href*='eventernote.com/events/']"));
   }
 
@@ -193,8 +249,16 @@
     return item.querySelector(".event h4 a, h4 a");
   }
 
+  function getDateLine(item) {
+    return item.querySelector(".date p[class^='day'], .date p");
+  }
+
   function getVenueLink(item) {
     return item.querySelector(".place a[href^='/places/'], .place a[href*='eventernote.com/places/']");
+  }
+
+  function getTimeNode(item) {
+    return Array.from(item.querySelectorAll(".place .s, .place")).find((node) => /開演\s*\d{1,2}[:：]\d{2}/.test(textOf(node))) || null;
   }
 
   function getPageActorLinks() {
@@ -249,6 +313,18 @@
     item.querySelectorAll(".enpl-venue-link").forEach((node) => node.remove());
   }
 
+  function cleanupDateTimeCues(item) {
+    item.querySelectorAll(".enpl-date-chip").forEach((node) => node.remove());
+    const dateLine = getDateLine(item);
+    if (dateLine) {
+      dateLine.classList.remove("enpl-saturday-date", "enpl-sunday-date");
+    }
+    const timeNode = getTimeNode(item);
+    if (timeNode) {
+      timeNode.classList.remove("enpl-start-time", "enpl-start-morning", "enpl-start-evening", "enpl-start-late");
+    }
+  }
+
   function getFollowingRankLevel(rank) {
     const match = String(rank || "").match(/s([0-6])/);
     return match ? match[1] : null;
@@ -265,6 +341,44 @@
 
   function textOf(node) {
     return (node ? node.textContent : "").replace(/\s+/g, " ").trim();
+  }
+
+  function parseEventDate(item) {
+    const dateLine = getDateLine(item);
+    const text = textOf(dateLine);
+    const match = text.match(/(\d{4})[-/.年](\d{1,2})[-/.月](\d{1,2})/);
+    if (!match) return null;
+
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    if (!year || !month || !day) return null;
+
+    return new Date(year, month - 1, day);
+  }
+
+  function parseStartMinutes(node) {
+    const match = textOf(node).match(/開演\s*(\d{1,2})[:：](\d{2})/);
+    if (!match) return null;
+
+    const hour = Number(match[1]);
+    const minute = Number(match[2]);
+    if (hour > 23 || minute > 59) return null;
+
+    return hour * 60 + minute;
+  }
+
+  function getRelativeDateLabel(eventDate) {
+    const today = new Date();
+    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const startOfEvent = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
+    const days = Math.round((startOfEvent.getTime() - startOfToday.getTime()) / 86400000);
+
+    if (days === 0) return "今日";
+    if (days === 1) return "明日";
+    if (days === -1) return "昨日";
+    if (days > 0) return `あと${days}日`;
+    return `${Math.abs(days)}日前`;
   }
 
   function normalizeKeywords(value) {
@@ -301,20 +415,24 @@
 
   function injectStyles() {
     GM_addStyle(`
+      .enpl-compact-enabled .gb_event_list > ul > li.clearfix,
       .enpl-compact-enabled .gb_event_list > li.clearfix {
         min-height: 0;
         padding-top: 8px;
         padding-bottom: 8px;
       }
 
+      .enpl-compact-enabled .gb_event_list > ul > li.clearfix .date img,
       .enpl-compact-enabled .gb_event_list > li.clearfix .date img {
         display: none;
       }
 
+      .enpl-compact-enabled .gb_event_list > ul > li.clearfix .date,
       .enpl-compact-enabled .gb_event_list > li.clearfix .date {
         width: 105px;
       }
 
+      .enpl-compact-enabled .gb_event_list > ul > li.clearfix .event,
       .enpl-compact-enabled .gb_event_list > li.clearfix .event {
         margin-left: 112px;
       }
@@ -332,16 +450,19 @@
         margin-bottom: 0;
       }
 
+      .gb_event_list > ul > li.enpl-keyword-hit,
       .gb_event_list > li.enpl-keyword-hit {
         border-left: 4px solid #f0ad4e;
         background: #fff9ed;
       }
 
+      .gb_event_list > ul > li.enpl-muted,
       .gb_event_list > li.enpl-muted {
         border-left: 4px solid #9aa3ad;
         opacity: .48;
       }
 
+      .enpl-hide-muted .gb_event_list > ul > li.enpl-muted,
       .enpl-hide-muted .gb_event_list > li.enpl-muted {
         display: none;
       }
@@ -421,6 +542,60 @@
         color: #8a4f10;
         background: #fff3d8;
         text-decoration: none;
+      }
+
+      .enpl-date-chip {
+        display: inline-block;
+        margin-left: 4px;
+        padding: 0 4px;
+        border-radius: 3px;
+        color: #8a5a18;
+        background: #fff4dc;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1.35;
+        vertical-align: 1px;
+        white-space: nowrap;
+      }
+
+      .enpl-saturday-date {
+        color: #2563eb;
+      }
+
+      .enpl-sunday-date {
+        color: #dc2626;
+      }
+
+      .gb_event_list > ul > li.enpl-saturday-event,
+      .gb_event_list > li.enpl-saturday-event {
+        box-shadow: inset 2px 0 0 rgba(37, 99, 235, .32);
+      }
+
+      .gb_event_list > ul > li.enpl-sunday-event,
+      .gb_event_list > li.enpl-sunday-event {
+        box-shadow: inset 2px 0 0 rgba(220, 38, 38, .30);
+      }
+
+      .enpl-start-time {
+        display: inline-block;
+        padding: 1px 4px;
+        border-radius: 3px;
+      }
+
+      .enpl-start-morning {
+        color: #8a4f10;
+        background: #fff7ed;
+      }
+
+      .enpl-start-evening {
+        color: #b45309;
+        background: #fff3d8;
+      }
+
+      .enpl-start-late {
+        color: #b91c1c;
+        background: #fef2f2;
+        font-weight: 600;
       }
 
     `);
