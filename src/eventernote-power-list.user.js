@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.8.2
+// @version      0.8.3
 // @description  Compact Eventernote lists, relative date labels, mute rules, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -172,10 +172,13 @@
     const dateLine = getDateLine(item);
     if (!eventDate || !dateLine) return;
 
+    const chipLine = document.createElement("p");
     const chip = document.createElement("span");
-    chip.className = "enpl-date-chip";
+    chipLine.className = "enpl-date-chip-line";
     chip.textContent = getRelativeDateLabel(eventDate);
-    dateLine.appendChild(chip);
+    chip.className = "enpl-date-chip";
+    chipLine.appendChild(chip);
+    dateLine.insertAdjacentElement("afterend", chipLine);
   }
 
   function applyFollowedActorHighlights() {
@@ -270,7 +273,7 @@
   }
 
   function cleanupRelativeDateCue(item) {
-    item.querySelectorAll(".enpl-date-chip").forEach((node) => node.remove());
+    item.querySelectorAll(".enpl-date-chip-line").forEach((node) => node.remove());
   }
 
   function getFollowingRankLevel(rank) {
@@ -478,7 +481,6 @@
 
       .enpl-date-chip {
         display: inline-block;
-        margin-left: 4px;
         padding: 0 4px;
         border-radius: 3px;
         color: #8a5a18;
@@ -488,6 +490,11 @@
         line-height: 1.35;
         vertical-align: 1px;
         white-space: nowrap;
+      }
+
+      .enpl-date-chip-line {
+        margin: 2px 0 4px;
+        line-height: 1.2;
       }
 
     `);
