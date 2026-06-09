@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.8.4
+// @version      0.7.1
 // @description  Compact Eventernote lists, mute rules, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -185,7 +185,7 @@
   }
 
   function getEventItems() {
-    const containers = Array.from(document.querySelectorAll(".gb_event_list > ul > li, .gb_event_list > li, .event_list > li, li.clearfix"));
+    const containers = Array.from(document.querySelectorAll(".gb_event_list > li, .event_list > li, li.clearfix"));
     return containers.filter((item) => item.querySelector("a[href^='/events/'], a[href*='eventernote.com/events/']"));
   }
 
@@ -301,21 +301,22 @@
 
   function injectStyles() {
     GM_addStyle(`
-      .enpl-compact-enabled .gb_event_list > ul > li.clearfix,
       .enpl-compact-enabled .gb_event_list > li.clearfix {
         min-height: 0;
         padding-top: 8px;
         padding-bottom: 8px;
       }
 
-      .enpl-compact-enabled .gb_event_list > ul > li.clearfix .date,
-      .enpl-compact-enabled .gb_event_list > li.clearfix .date {
-        width: 120px;
+      .enpl-compact-enabled .gb_event_list > li.clearfix .date img {
+        display: none;
       }
 
-      .enpl-compact-enabled .gb_event_list > ul > li.clearfix .event,
+      .enpl-compact-enabled .gb_event_list > li.clearfix .date {
+        width: 105px;
+      }
+
       .enpl-compact-enabled .gb_event_list > li.clearfix .event {
-        margin-left: 128px;
+        margin-left: 112px;
       }
 
       .enpl-compact-enabled .gb_event_list h4 {
@@ -331,19 +332,16 @@
         margin-bottom: 0;
       }
 
-      .gb_event_list > ul > li.enpl-keyword-hit,
       .gb_event_list > li.enpl-keyword-hit {
         border-left: 4px solid #f0ad4e;
         background: #fff9ed;
       }
 
-      .gb_event_list > ul > li.enpl-muted,
       .gb_event_list > li.enpl-muted {
         border-left: 4px solid #9aa3ad;
         opacity: .48;
       }
 
-      .enpl-hide-muted .gb_event_list > ul > li.enpl-muted,
       .enpl-hide-muted .gb_event_list > li.enpl-muted {
         display: none;
       }
