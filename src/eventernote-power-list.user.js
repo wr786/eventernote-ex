@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.4.0
+// @version      0.4.1
 // @description  Compact Eventernote lists, keyword badges, mute rules, and popularity badges in one script.
 // @author       yanfu
 // @match        https://www.eventernote.com/*
@@ -571,50 +571,34 @@
       .enpl-followed-actor > a {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
-        border: 1px solid #7dd3fc;
+        border: 1px solid #fdba74;
         border-radius: 4px;
-        color: #0f3f57;
-        background: #ecfeff;
+        color: #b45309;
+        background: #fff7ed;
         padding: 1px 5px;
         text-decoration: none;
       }
 
-      .enpl-followed-actor > a::after {
-        content: "follow";
-        border-radius: 3px;
-        color: #155e75;
-        background: #cffafe;
-        font-size: 10px;
-        font-weight: 700;
-        line-height: 1.2;
-        padding: 1px 4px;
+      .enpl-followed-actor-1 > a,
+      .enpl-followed-actor-2 > a {
+        border-color: #fb923c;
+        color: #c2410c;
+        background: #ffedd5;
       }
 
       .enpl-followed-actor-3 > a,
       .enpl-followed-actor-4 > a {
-        border-color: #86efac;
-        color: #14532d;
-        background: #f0fdf4;
-      }
-
-      .enpl-followed-actor-3 > a::after,
-      .enpl-followed-actor-4 > a::after {
-        color: #166534;
-        background: #bbf7d0;
+        border-color: #f87171;
+        color: #b91c1c;
+        background: #fef2f2;
       }
 
       .enpl-followed-actor-5 > a,
       .enpl-followed-actor-6 > a {
-        border-color: #fca5a5;
-        color: #7f1d1d;
-        background: #fff1f2;
-      }
-
-      .enpl-followed-actor-5 > a::after,
-      .enpl-followed-actor-6 > a::after {
-        color: #991b1b;
-        background: #fecaca;
+        border-color: #facc15;
+        color: #92400e;
+        background: #fef9c3;
+        box-shadow: inset 0 0 0 1px rgba(250, 204, 21, .25);
       }
 
       .enpl-popularity-warm {
