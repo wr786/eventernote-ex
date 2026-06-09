@@ -5,7 +5,6 @@ A Tampermonkey userscript for Eventernote event list pages.
 ## Features
 
 - Compact list mode with hidden images and denser event rows.
-- Toggleable dark mode.
 - Keyword highlight, mute, and optional hiding for event title, venue, and actors.
 - Popularity highlighting on Eventernote's existing note/attendance count.
 - Followed-actor highlighting with a compact pill style, also using the `Eventernote following highlight` cache.
@@ -13,7 +12,7 @@ A Tampermonkey userscript for Eventernote event list pages.
 ## Install
 
 Install `src/eventernote-power-list.user.js` in Tampermonkey, Violentmonkey, or another userscript manager.
-The script includes separate toggles for dark mode, compact list, keyword rules, popularity highlighting, and followed-actor highlighting.
+The script applies enhancements automatically after installation.
 
 ## Supported Pages
 
@@ -21,7 +20,6 @@ The script includes separate toggles for dark mode, compact list, keyword rules,
 
 ## Settings
 
-Open any Eventernote page and use the `Power List` panel in the lower-right corner.
 Settings are stored locally in your browser with `localStorage`.
 
 ## Development
