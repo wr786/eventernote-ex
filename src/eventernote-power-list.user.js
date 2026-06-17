@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.7.1
+// @version      0.7.2
 // @description  Compact Eventernote lists, mute rules, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -43,7 +43,7 @@
     venueLinksEnabled: true
   };
 
-  let settings = loadSettings();
+  const settings = loadSettings();
   let started = false;
 
   scheduleBoot();
@@ -91,10 +91,6 @@
     } catch (_error) {
       return { ...DEFAULT_SETTINGS };
     }
-  }
-
-  function saveSettings() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   }
 
   function apply() {
