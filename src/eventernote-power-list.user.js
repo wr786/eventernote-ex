@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Power List
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.7.2
-// @description  Compact Eventernote lists, mute rules, venue links, popularity, and followed actor highlighting.
+// @version      0.7.3
+// @description  Compact Eventernote lists, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -17,24 +17,6 @@
   const STORAGE_KEY = "eventernote-power-list.settings.v2";
   const DEFAULT_SETTINGS = {
     compactEnabled: true,
-    keywordsEnabled: true,
-    hideMuted: false,
-    highlightKeywords: [
-      "ミニライブ",
-      "お見送り会",
-      "舞台挨拶",
-      "無料",
-      "配信",
-      "生配信",
-      "朗読劇",
-      "トークショー",
-      "LIVE",
-      "舞台",
-      "FES"
-    ],
-    muteKeywords: [
-      "女性限定"
-    ],
     popularityEnabled: true,
     warm: 10,
     hot: 50,
@@ -80,13 +62,7 @@
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
       return {
         ...DEFAULT_SETTINGS,
-        ...stored,
-        highlightKeywords: Array.isArray(stored.highlightKeywords)
-          ? stored.highlightKeywords
-          : DEFAULT_SETTINGS.highlightKeywords,
-        muteKeywords: Array.isArray(stored.muteKeywords)
-          ? stored.muteKeywords
-          : DEFAULT_SETTINGS.muteKeywords
+        ...stored
       };
     } catch (_error) {
       return { ...DEFAULT_SETTINGS };
@@ -95,12 +71,10 @@
 
   function apply() {
     document.body.classList.toggle("enpl-compact-enabled", settings.compactEnabled);
-    document.body.classList.toggle("enpl-hide-muted", settings.keywordsEnabled && settings.hideMuted);
     cleanupFollowedActorHighlights();
 
     getEventItems().forEach((item) => {
       cleanupItem(item);
-      applyKeywords(item);
       applyPopularity(item);
       applyVenueLinks(item);
     });
@@ -108,23 +82,8 @@
   }
 
   function cleanupItem(item) {
-    item.classList.remove("enpl-keyword-hit", "enpl-muted");
     cleanupPopularity(item);
     cleanupVenueLinks(item);
-  }
-
-  function applyKeywords(item) {
-    if (!settings.keywordsEnabled) return;
-
-    const title = getTitleLink(item);
-    if (!title) return;
-
-    const text = collectSearchableText(item);
-    const highlightMatches = findMatches(text, settings.highlightKeywords);
-    const muteMatches = findMatches(text, settings.muteKeywords);
-
-    item.classList.toggle("enpl-keyword-hit", highlightMatches.length > 0);
-    item.classList.toggle("enpl-muted", muteMatches.length > 0);
   }
 
   function applyPopularity(item) {
@@ -250,30 +209,8 @@
     return match ? match[1] : null;
   }
 
-  function collectSearchableText(item) {
-    const parts = [
-      textOf(getTitleLink(item)),
-      ...Array.from(item.querySelectorAll(".place")).map(textOf),
-      ...Array.from(item.querySelectorAll(".actor a")).map(textOf)
-    ];
-    return parts.join(" ").toLowerCase();
-  }
-
   function textOf(node) {
     return (node ? node.textContent : "").replace(/\s+/g, " ").trim();
-  }
-
-  function normalizeKeywords(value) {
-    if (Array.isArray(value)) return value.map((word) => String(word).trim()).filter(Boolean);
-    return String(value || "")
-      .split(/\n|,/)
-      .map((word) => word.trim())
-      .filter(Boolean);
-  }
-
-  function findMatches(text, keywords) {
-    const haystack = text.toLowerCase();
-    return normalizeKeywords(keywords).filter((keyword) => haystack.includes(keyword.toLowerCase()));
   }
 
   function parseNoteCount(item) {
@@ -326,20 +263,6 @@
 
       .enpl-compact-enabled .gb_event_list .actor ul {
         margin-bottom: 0;
-      }
-
-      .gb_event_list > li.enpl-keyword-hit {
-        border-left: 4px solid #f0ad4e;
-        background: #fff9ed;
-      }
-
-      .gb_event_list > li.enpl-muted {
-        border-left: 4px solid #9aa3ad;
-        opacity: .48;
-      }
-
-      .enpl-hide-muted .gb_event_list > li.enpl-muted {
-        display: none;
       }
 
       .enpl-note-count-highlight {
