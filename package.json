@@ -1,8 +1,8 @@
 {
-  "name": "eventernote-power-list",
+  "name": "eventernote-lite-enhancer",
   "version": "0.1.0",
   "private": true,
-  "description": "Tampermonkey userscript for compact Eventernote event lists, venue links, popularity, and followed actor highlighting.",
+  "description": "Tampermonkey userscript for lightweight Eventernote list enhancements: compact rows, venue links, popularity, and followed actor highlighting.",
   "scripts": {
     "check": "node --check src/eventernote-power-list.user.js"
   },

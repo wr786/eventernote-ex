@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Eventernote Power List
+// @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
 // @version      0.7.3
-// @description  Compact Eventernote lists, venue links, popularity, and followed actor highlighting.
+// @description  Lightweight Eventernote list enhancements: compact rows, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -54,7 +54,7 @@
     apply();
     setTimeout(apply, 1000);
     setTimeout(apply, 3000);
-    console.info("[Eventernote Power List] active");
+    console.info("[Eventernote Lite Enhancer] active");
   }
 
   function loadSettings() {

@@ -1,4 +1,4 @@
-# Eventernote Power List
+# Eventernote Lite Enhancer
 
 A Tampermonkey userscript for Eventernote event list pages.
 
