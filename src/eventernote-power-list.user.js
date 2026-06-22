@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.7.3
+// @version      0.8.0
 // @description  Lightweight Eventernote list enhancements: compact rows, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -15,6 +15,8 @@
   "use strict";
 
   const STORAGE_KEY = "eventernote-power-list.settings.v2";
+  const FOLLOWING_CACHE_KEY = "eventernote-lite-enhancer.following.v1";
+  const FOLLOWING_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
   const DEFAULT_SETTINGS = {
     compactEnabled: true,
     popularityEnabled: true,
@@ -52,6 +54,11 @@
     started = true;
     injectStyles();
     apply();
+    refreshFollowingActorCache()
+      .then((updated) => {
+        if (updated) apply();
+      })
+      .catch((error) => console.warn("[Eventernote Lite Enhancer] Could not refresh following actors", error));
     setTimeout(apply, 1000);
     setTimeout(apply, 3000);
     console.info("[Eventernote Lite Enhancer] active");
@@ -139,13 +146,55 @@
     });
   }
 
+  async function refreshFollowingActorCache() {
+    if (!settings.followedActorHighlightEnabled) return false;
+
+    if (location.pathname === "/users") {
+      const following = extractFollowingActorMap(document);
+      return following ? saveFollowingActorCache(following) : false;
+    }
+
+    const cache = loadFollowingActorCache();
+    if (cache && Date.now() - cache.updatedAt < FOLLOWING_CACHE_MAX_AGE) return false;
+
+    const response = await fetch("/users", { credentials: "same-origin" });
+    if (!response.ok) return false;
+
+    const page = new DOMParser().parseFromString(await response.text(), "text/html");
+    const following = extractFollowingActorMap(page);
+    return following ? saveFollowingActorCache(following) : false;
+  }
+
+  function extractFollowingActorMap(root) {
+    const list = root.querySelector(".gb_users_side_profile ~ .gb_subtitle + div > .gb_actors_list");
+    if (!list) return null;
+
+    const following = {};
+    list.querySelectorAll("li > a[href*='/actors/']").forEach((actor) => {
+      const pathname = getPathname(actor.href);
+      if (pathname) following[pathname] = actor.parentElement ? actor.parentElement.className : "";
+    });
+    return following;
+  }
+
+  function loadFollowingActorCache() {
+    try {
+      const cache = JSON.parse(localStorage.getItem(FOLLOWING_CACHE_KEY) || "null");
+      if (!cache || typeof cache !== "object" || typeof cache.actors !== "object") return null;
+      return cache;
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  function saveFollowingActorCache(actors) {
+    localStorage.setItem(FOLLOWING_CACHE_KEY, JSON.stringify({ updatedAt: Date.now(), actors }));
+    return true;
+  }
+
   function getEventItems() {
     const containers = Array.from(document.querySelectorAll(".gb_event_list > li, .event_list > li, li.clearfix"));
     return containers.filter((item) => item.querySelector("a[href^='/events/'], a[href*='eventernote.com/events/']"));
-  }
-
-  function getTitleLink(item) {
-    return item.querySelector(".event h4 a, h4 a");
   }
 
   function getVenueLink(item) {
@@ -165,12 +214,8 @@
   }
 
   function getFollowingActorMap() {
-    try {
-      const following = JSON.parse(localStorage.getItem("following-highlight") || "null");
-      return following && typeof following === "object" ? following : null;
-    } catch (_error) {
-      return null;
-    }
+    const cache = loadFollowingActorCache();
+    return cache ? cache.actors : null;
   }
 
   function cleanupFollowedActorHighlights() {
