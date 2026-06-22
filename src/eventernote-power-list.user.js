@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.8.1
+// @version      0.8.2
 // @description  Lightweight Eventernote list enhancements: compact rows, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -16,8 +16,7 @@
 
   const STORAGE_KEY = "eventernote-power-list.settings.v2";
   const FOLLOWING_CACHE_KEY = "eventernote-lite-enhancer.following.v1";
-  const FOLLOWING_REFRESH_ATTEMPT_KEY = "eventernote-lite-enhancer.following-refresh-attempt.v1";
-  const FOLLOWING_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
+  const FOLLOWING_PROMPT_KEY = "eventernote-lite-enhancer.following-prompted";
   const DEFAULT_SETTINGS = {
     compactEnabled: true,
     popularityEnabled: true,
@@ -52,25 +51,10 @@
     if (!document.body) return;
     started = true;
     injectStyles();
+    updateFollowingActorCache();
     apply();
-    scheduleFollowingActorRefresh();
+    promptForFollowingActorCache();
     console.info("[Eventernote Lite Enhancer] active");
-  }
-
-  function scheduleFollowingActorRefresh() {
-    const refresh = () => {
-      refreshFollowingActorCache()
-        .then((updated) => {
-          if (updated) applyFollowedActorHighlights();
-        })
-        .catch((error) => console.warn("[Eventernote Lite Enhancer] Could not refresh following actors", error));
-    };
-
-    if (document.readyState === "complete") {
-      setTimeout(refresh, 0);
-    } else {
-      window.addEventListener("load", refresh, { once: true });
-    }
   }
 
   function loadSettings() {
@@ -148,28 +132,20 @@
     });
   }
 
-  async function refreshFollowingActorCache() {
-    if (!settings.followedActorHighlightEnabled) return false;
+  function updateFollowingActorCache() {
+    if (!settings.followedActorHighlightEnabled || location.pathname !== "/users") return;
 
-    if (location.pathname === "/users") {
-      const following = extractFollowingActorMap(document);
-      return following ? saveFollowingActorCache(following) : false;
-    }
+    const following = extractFollowingActorMap(document);
+    if (following) saveFollowingActorCache(following);
+  }
 
-    const cache = loadFollowingActorCache();
-    if (cache && Date.now() - cache.updatedAt < FOLLOWING_CACHE_MAX_AGE) return false;
-    if (getPageActorLinks().length === 0) return false;
+  function promptForFollowingActorCache() {
+    if (!settings.followedActorHighlightEnabled || location.pathname === "/users") return;
+    if (getFollowingActorMap() || sessionStorage.getItem(FOLLOWING_PROMPT_KEY)) return;
 
-    const lastAttempt = Number(localStorage.getItem(FOLLOWING_REFRESH_ATTEMPT_KEY) || 0);
-    if (Date.now() - lastAttempt < FOLLOWING_CACHE_MAX_AGE) return false;
-    localStorage.setItem(FOLLOWING_REFRESH_ATTEMPT_KEY, String(Date.now()));
-
-    const response = await fetch("/users", { credentials: "same-origin" });
-    if (!response.ok) return false;
-
-    const page = new DOMParser().parseFromString(await response.text(), "text/html");
-    const following = extractFollowingActorMap(page);
-    return following ? saveFollowingActorCache(following) : false;
+    sessionStorage.setItem(FOLLOWING_PROMPT_KEY, "1");
+    const consent = confirm("[Eventernote Lite Enhancer]\nVisit mypage to cache your followed actors?");
+    if (consent) location.href = "https://www.eventernote.com/users";
   }
 
   function extractFollowingActorMap(root) {
@@ -196,7 +172,6 @@
 
   function saveFollowingActorCache(actors) {
     localStorage.setItem(FOLLOWING_CACHE_KEY, JSON.stringify({ updatedAt: Date.now(), actors }));
-    return true;
   }
 
   function getEventItems() {
