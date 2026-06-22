@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.8.6
+// @version      0.8.7
 // @description  Lightweight Eventernote list enhancements: compact rows, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -283,10 +283,11 @@
       }
 
       .enpl-followed-actor-6 > a {
-        border-color: #facc15;
-        color: #92400e;
-        background: #fef9c3;
-        box-shadow: inset 0 0 0 1px rgba(250, 204, 21, .25);
+        border-color: #ca8a04;
+        color: #713f12;
+        background: #fde047;
+        font-weight: 700;
+        box-shadow: 0 0 0 2px rgba(250, 204, 21, .30), 0 1px 3px rgba(161, 98, 7, .24);
       }
 
       .enpl-venue-link {
