@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.8.3
+// @version      0.8.4
 // @description  Lightweight Eventernote list enhancements: compact rows, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -16,7 +16,7 @@
 
   const STORAGE_KEY = "eventernote-power-list.settings.v2";
   const FOLLOWING_CACHE_KEY = "eventernote-lite-enhancer.following.v1";
-  const FOLLOWING_PROMPT_KEY = "eventernote-lite-enhancer.following-prompted";
+  const RELEVANT_NODE_SELECTOR = ".gb_event_list, .event_list, .actor, .actors, .gb_users_side_profile, .note_count, a[href*='/actors/']";
   const DEFAULT_SETTINGS = {
     compactEnabled: true,
     popularityEnabled: true,
@@ -28,26 +28,32 @@
   };
 
   const settings = loadSettings();
-  let started = false;
+  const processedEventItems = new WeakSet();
+  const processedActorLinks = new WeakSet();
 
   injectStyles();
-  scheduleBoot();
+  observeRelevantContent();
 
-  function scheduleBoot() {
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", boot, { once: true });
-    } else {
-      boot();
-    }
+  function observeRelevantContent() {
+    applyAvailableEnhancements();
+
+    const observer = new MutationObserver((mutations) => {
+      if (mutations.some(hasRelevantAddedNode)) applyAvailableEnhancements();
+    });
+    observer.observe(document, { childList: true, subtree: true });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      applyAvailableEnhancements();
+      observer.disconnect();
+      console.info("[Eventernote Lite Enhancer] active");
+    }, { once: true });
   }
 
-  function boot() {
-    if (started) return;
-    started = true;
-    updateFollowingActorCache();
-    apply();
-    promptForFollowingActorCache();
-    console.info("[Eventernote Lite Enhancer] active");
+  function hasRelevantAddedNode(mutation) {
+    return Array.from(mutation.addedNodes).some((node) => {
+      if (node.nodeType !== Node.ELEMENT_NODE) return false;
+      return node.matches(RELEVANT_NODE_SELECTOR) || Boolean(node.querySelector(RELEVANT_NODE_SELECTOR));
+    });
   }
 
   function loadSettings() {
@@ -62,12 +68,16 @@
     }
   }
 
-  function apply() {
+  function applyAvailableEnhancements() {
+    if (!document.body) return;
     document.body.classList.toggle("enpl-compact-enabled", settings.compactEnabled);
+    updateFollowingActorCache();
 
     getEventItems().forEach((item) => {
+      if (processedEventItems.has(item)) return;
       applyPopularity(item);
       applyVenueLinks(item);
+      processedEventItems.add(item);
     });
     applyFollowedActorHighlights();
   }
@@ -110,9 +120,13 @@
     if (!following) return;
 
     getPageActorLinks().forEach((actor) => {
+      if (processedActorLinks.has(actor)) return;
       const pathname = getPathname(actor.href);
       const rank = following[pathname];
-      if (!rank) return;
+      if (!rank) {
+        processedActorLinks.add(actor);
+        return;
+      }
 
       const parent = actor.parentElement;
       if (!parent) return;
@@ -122,6 +136,7 @@
       if (level !== null) {
         parent.classList.add(`enpl-followed-actor-${level}`);
       }
+      processedActorLinks.add(actor);
     });
   }
 
@@ -130,15 +145,6 @@
 
     const following = extractFollowingActorMap(document);
     if (following) saveFollowingActorCache(following);
-  }
-
-  function promptForFollowingActorCache() {
-    if (!settings.followedActorHighlightEnabled || location.pathname === "/users") return;
-    if (getFollowingActorMap() || sessionStorage.getItem(FOLLOWING_PROMPT_KEY)) return;
-
-    sessionStorage.setItem(FOLLOWING_PROMPT_KEY, "1");
-    const consent = confirm("[Eventernote Lite Enhancer]\nVisit mypage to cache your followed actors?");
-    if (consent) location.href = "https://www.eventernote.com/users";
   }
 
   function extractFollowingActorMap(root) {

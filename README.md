@@ -9,6 +9,8 @@ A Tampermonkey userscript for Eventernote event list pages.
 - Popularity highlighting on Eventernote's existing note/attendance count.
 - Followed-actor highlighting with a compact pill style and a cache updated when visiting `/users`.
 
+Visit `https://www.eventernote.com/users` once after installation to cache your followed actors.
+
 ## Install
 
 Install `src/eventernote-power-list.user.js` in Tampermonkey, Violentmonkey, or another userscript manager.
