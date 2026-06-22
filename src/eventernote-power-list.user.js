@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.8.0
+// @version      0.8.1
 // @description  Lightweight Eventernote list enhancements: compact rows, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -16,6 +16,7 @@
 
   const STORAGE_KEY = "eventernote-power-list.settings.v2";
   const FOLLOWING_CACHE_KEY = "eventernote-lite-enhancer.following.v1";
+  const FOLLOWING_REFRESH_ATTEMPT_KEY = "eventernote-lite-enhancer.following-refresh-attempt.v1";
   const FOLLOWING_CACHE_MAX_AGE = 6 * 60 * 60 * 1000;
   const DEFAULT_SETTINGS = {
     compactEnabled: true,
@@ -44,8 +45,6 @@
       if (started) observer.disconnect();
     });
     observer.observe(document.documentElement, { childList: true, subtree: true });
-    setTimeout(tryBoot, 1000);
-    setTimeout(tryBoot, 3000);
   }
 
   function tryBoot() {
@@ -54,14 +53,24 @@
     started = true;
     injectStyles();
     apply();
-    refreshFollowingActorCache()
-      .then((updated) => {
-        if (updated) apply();
-      })
-      .catch((error) => console.warn("[Eventernote Lite Enhancer] Could not refresh following actors", error));
-    setTimeout(apply, 1000);
-    setTimeout(apply, 3000);
+    scheduleFollowingActorRefresh();
     console.info("[Eventernote Lite Enhancer] active");
+  }
+
+  function scheduleFollowingActorRefresh() {
+    const refresh = () => {
+      refreshFollowingActorCache()
+        .then((updated) => {
+          if (updated) applyFollowedActorHighlights();
+        })
+        .catch((error) => console.warn("[Eventernote Lite Enhancer] Could not refresh following actors", error));
+    };
+
+    if (document.readyState === "complete") {
+      setTimeout(refresh, 0);
+    } else {
+      window.addEventListener("load", refresh, { once: true });
+    }
   }
 
   function loadSettings() {
@@ -78,19 +87,12 @@
 
   function apply() {
     document.body.classList.toggle("enpl-compact-enabled", settings.compactEnabled);
-    cleanupFollowedActorHighlights();
 
     getEventItems().forEach((item) => {
-      cleanupItem(item);
       applyPopularity(item);
       applyVenueLinks(item);
     });
     applyFollowedActorHighlights();
-  }
-
-  function cleanupItem(item) {
-    cleanupPopularity(item);
-    cleanupVenueLinks(item);
   }
 
   function applyPopularity(item) {
@@ -156,6 +158,11 @@
 
     const cache = loadFollowingActorCache();
     if (cache && Date.now() - cache.updatedAt < FOLLOWING_CACHE_MAX_AGE) return false;
+    if (getPageActorLinks().length === 0) return false;
+
+    const lastAttempt = Number(localStorage.getItem(FOLLOWING_REFRESH_ATTEMPT_KEY) || 0);
+    if (Date.now() - lastAttempt < FOLLOWING_CACHE_MAX_AGE) return false;
+    localStorage.setItem(FOLLOWING_REFRESH_ATTEMPT_KEY, String(Date.now()));
 
     const response = await fetch("/users", { credentials: "same-origin" });
     if (!response.ok) return false;
@@ -216,37 +223,6 @@
   function getFollowingActorMap() {
     const cache = loadFollowingActorCache();
     return cache ? cache.actors : null;
-  }
-
-  function cleanupFollowedActorHighlights() {
-    document.querySelectorAll(".enpl-followed-actor").forEach((node) => {
-      node.classList.remove(
-        "enpl-followed-actor",
-        "enpl-followed-actor-0",
-        "enpl-followed-actor-1",
-        "enpl-followed-actor-2",
-        "enpl-followed-actor-3",
-        "enpl-followed-actor-4",
-        "enpl-followed-actor-5",
-        "enpl-followed-actor-6"
-      );
-    });
-  }
-
-  function cleanupPopularity(item) {
-    const node = getNoteCountTextElement(item);
-    if (!node) return;
-    node.classList.remove(
-      "enpl-note-count-highlight",
-      "enpl-note-count-quiet",
-      "enpl-note-count-warm",
-      "enpl-note-count-hot",
-      "enpl-note-count-very-hot"
-    );
-  }
-
-  function cleanupVenueLinks(item) {
-    item.querySelectorAll(".enpl-venue-link").forEach((node) => node.remove());
   }
 
   function getFollowingRankLevel(rank) {
