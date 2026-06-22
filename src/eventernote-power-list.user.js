@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.8.4
+// @version      0.8.5
 // @description  Lightweight Eventernote list enhancements: compact rows, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -22,7 +22,8 @@
     popularityEnabled: true,
     warm: 10,
     hot: 50,
-    veryHot: 100,
+    veryHot: 80,
+    extreme: 100,
     followedActorHighlightEnabled: true,
     venueLinksEnabled: true
   };
@@ -59,10 +60,15 @@
   function loadSettings() {
     try {
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-      return {
+      const loaded = {
         ...DEFAULT_SETTINGS,
         ...stored
       };
+      if (!Object.prototype.hasOwnProperty.call(stored, "extreme")) {
+        loaded.veryHot = DEFAULT_SETTINGS.veryHot;
+        loaded.extreme = DEFAULT_SETTINGS.extreme;
+      }
+      return loaded;
     } catch (_error) {
       return { ...DEFAULT_SETTINGS };
     }
@@ -221,6 +227,7 @@
   }
 
   function getPopularityLevel(count) {
+    if (count >= settings.extreme) return "extreme";
     if (count >= settings.veryHot) return "very-hot";
     if (count >= settings.hot) return "hot";
     if (count >= settings.warm) return "warm";
@@ -273,11 +280,15 @@
       }
 
       .enpl-note-count-hot {
-        color: #dc2626;
+        color: #ea580c;
       }
 
       .enpl-note-count-very-hot {
-        color: #b91c1c;
+        color: #dc2626;
+      }
+
+      .enpl-note-count-extreme {
+        color: #991b1b;
         text-decoration: underline;
         text-decoration-thickness: 2px;
         text-underline-offset: 2px;
