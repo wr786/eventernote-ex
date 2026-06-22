@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.8.2
+// @version      0.8.3
 // @description  Lightweight Eventernote list enhancements: compact rows, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
-// @run-at       document-idle
+// @run-at       document-start
 // @grant        GM_addStyle
 // @license      MIT
 // ==/UserScript==
@@ -30,27 +30,20 @@
   const settings = loadSettings();
   let started = false;
 
+  injectStyles();
   scheduleBoot();
 
   function scheduleBoot() {
-    tryBoot();
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", tryBoot, { once: true });
+      document.addEventListener("DOMContentLoaded", boot, { once: true });
+    } else {
+      boot();
     }
-    window.addEventListener("load", tryBoot, { once: true });
-
-    const observer = new MutationObserver(() => {
-      if (!started) tryBoot();
-      if (started) observer.disconnect();
-    });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
   }
 
-  function tryBoot() {
+  function boot() {
     if (started) return;
-    if (!document.body) return;
     started = true;
-    injectStyles();
     updateFollowingActorCache();
     apply();
     promptForFollowingActorCache();
@@ -175,7 +168,7 @@
   }
 
   function getEventItems() {
-    const containers = Array.from(document.querySelectorAll(".gb_event_list > li, .event_list > li, li.clearfix"));
+    const containers = Array.from(document.querySelectorAll(".gb_event_list > ul > li, .gb_event_list > li, .event_list > li"));
     return containers.filter((item) => item.querySelector("a[href^='/events/'], a[href*='eventernote.com/events/']"));
   }
 
