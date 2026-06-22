@@ -1,12 +1,11 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.8.5
+// @version      0.8.6
 // @description  Lightweight Eventernote list enhancements: compact rows, venue links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
-// @run-at       document-start
 // @grant        GM_addStyle
 // @license      MIT
 // ==/UserScript==
@@ -16,74 +15,41 @@
 
   const STORAGE_KEY = "eventernote-power-list.settings.v2";
   const FOLLOWING_CACHE_KEY = "eventernote-lite-enhancer.following.v1";
-  const RELEVANT_NODE_SELECTOR = ".gb_event_list, .event_list, .actor, .actors, .gb_users_side_profile, .note_count, a[href*='/actors/']";
   const DEFAULT_SETTINGS = {
     compactEnabled: true,
     popularityEnabled: true,
     warm: 10,
     hot: 50,
-    veryHot: 80,
-    extreme: 100,
+    veryHot: 100,
     followedActorHighlightEnabled: true,
     venueLinksEnabled: true
   };
 
   const settings = loadSettings();
-  const processedEventItems = new WeakSet();
-  const processedActorLinks = new WeakSet();
 
   injectStyles();
-  observeRelevantContent();
-
-  function observeRelevantContent() {
-    applyAvailableEnhancements();
-
-    const observer = new MutationObserver((mutations) => {
-      if (mutations.some(hasRelevantAddedNode)) applyAvailableEnhancements();
-    });
-    observer.observe(document, { childList: true, subtree: true });
-
-    document.addEventListener("DOMContentLoaded", () => {
-      applyAvailableEnhancements();
-      observer.disconnect();
-      console.info("[Eventernote Lite Enhancer] active");
-    }, { once: true });
-  }
-
-  function hasRelevantAddedNode(mutation) {
-    return Array.from(mutation.addedNodes).some((node) => {
-      if (node.nodeType !== Node.ELEMENT_NODE) return false;
-      return node.matches(RELEVANT_NODE_SELECTOR) || Boolean(node.querySelector(RELEVANT_NODE_SELECTOR));
-    });
-  }
+  updateFollowingActorCache();
+  applyEnhancements();
+  console.info("[Eventernote Lite Enhancer] active");
 
   function loadSettings() {
     try {
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-      const loaded = {
+      return {
         ...DEFAULT_SETTINGS,
         ...stored
       };
-      if (!Object.prototype.hasOwnProperty.call(stored, "extreme")) {
-        loaded.veryHot = DEFAULT_SETTINGS.veryHot;
-        loaded.extreme = DEFAULT_SETTINGS.extreme;
-      }
-      return loaded;
     } catch (_error) {
       return { ...DEFAULT_SETTINGS };
     }
   }
 
-  function applyAvailableEnhancements() {
-    if (!document.body) return;
+  function applyEnhancements() {
     document.body.classList.toggle("enpl-compact-enabled", settings.compactEnabled);
-    updateFollowingActorCache();
 
     getEventItems().forEach((item) => {
-      if (processedEventItems.has(item)) return;
       applyPopularity(item);
       applyVenueLinks(item);
-      processedEventItems.add(item);
     });
     applyFollowedActorHighlights();
   }
@@ -126,13 +92,9 @@
     if (!following) return;
 
     getPageActorLinks().forEach((actor) => {
-      if (processedActorLinks.has(actor)) return;
       const pathname = getPathname(actor.href);
       const rank = following[pathname];
-      if (!rank) {
-        processedActorLinks.add(actor);
-        return;
-      }
+      if (!rank) return;
 
       const parent = actor.parentElement;
       if (!parent) return;
@@ -142,7 +104,6 @@
       if (level !== null) {
         parent.classList.add(`enpl-followed-actor-${level}`);
       }
-      processedActorLinks.add(actor);
     });
   }
 
@@ -227,7 +188,6 @@
   }
 
   function getPopularityLevel(count) {
-    if (count >= settings.extreme) return "extreme";
     if (count >= settings.veryHot) return "very-hot";
     if (count >= settings.hot) return "hot";
     if (count >= settings.warm) return "warm";
@@ -280,15 +240,11 @@
       }
 
       .enpl-note-count-hot {
-        color: #ea580c;
-      }
-
-      .enpl-note-count-very-hot {
         color: #dc2626;
       }
 
-      .enpl-note-count-extreme {
-        color: #991b1b;
+      .enpl-note-count-very-hot {
+        color: #b91c1c;
         text-decoration: underline;
         text-decoration-thickness: 2px;
         text-underline-offset: 2px;
@@ -319,7 +275,13 @@
         background: #fef2f2;
       }
 
-      .enpl-followed-actor-5 > a,
+      .enpl-followed-actor-5 > a {
+        border-color: #ef4444;
+        color: #991b1b;
+        background: #fee2e2;
+        font-weight: 600;
+      }
+
       .enpl-followed-actor-6 > a {
         border-color: #facc15;
         color: #92400e;
