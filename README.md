@@ -13,9 +13,9 @@ Visit `https://www.eventernote.com/users` once after installation to cache your 
 
 ## Eventernote Fancy UI
 
-- Modernized navigation, typography, forms, and buttons.
-- Polished event rows with clearer visual hierarchy.
-- Refined pagination, tabs, profiles, statistics, calendars, and footer styling.
+- Bold black-and-white navigation, typography, forms, and controls.
+- Minimal three-column event rows with stronger date, title, and attendance hierarchy.
+- Editorial profiles, oversized statistics, dense calendars, tabs, tables, and footer styling.
 - Preserves Eventernote's original two-column page layouts.
 - CSS-only implementation with no network requests or DOM observers.
 
