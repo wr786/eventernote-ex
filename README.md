@@ -15,7 +15,8 @@ Visit `https://www.eventernote.com/users` once after installation to cache your 
 
 - Modernized navigation, typography, forms, and buttons.
 - Polished event rows with clearer visual hierarchy.
-- Refined pagination, tabs, profiles, tables, and footer styling.
+- Refined pagination, tabs, profiles, statistics, calendars, and footer styling.
+- Preserves Eventernote's original two-column page layouts.
 - CSS-only implementation with no network requests or DOM observers.
 
 ## Install
