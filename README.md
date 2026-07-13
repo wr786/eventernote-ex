@@ -13,9 +13,9 @@ Visit `https://www.eventernote.com/users` once after installation to cache your 
 
 ## Eventernote Fancy UI
 
-- Bold black-and-white navigation, typography, forms, and controls.
-- Minimal three-column event rows with stronger date, title, and attendance hierarchy.
-- Editorial profiles, oversized statistics, dense calendars, tabs, tables, and footer styling.
+- Material 3 Expressive-inspired color, shape, size, containment, and motion.
+- Three-column event cards with rhythmic color markers and emphasized attendance.
+- Expressive profiles, tri-color statistics, calendars, tabs, controls, and reduced-motion support.
 - Preserves Eventernote's original two-column page layouts.
 - CSS-only implementation with no network requests or DOM observers.
 
