@@ -1,8 +1,8 @@
-# Eventernote Lite Enhancer
+# Eventernote Userscripts
 
-A Tampermonkey userscript for Eventernote event list pages.
+Two independent Tampermonkey userscripts for Eventernote.
 
-## Features
+## Eventernote Lite Enhancer
 
 - Compact list mode with hidden images and denser event rows.
 - Tiny Google Maps link beside Eventernote venue links.
@@ -11,10 +11,19 @@ A Tampermonkey userscript for Eventernote event list pages.
 
 Visit `https://www.eventernote.com/users` once after installation to cache your followed actors.
 
+## Eventernote Fancy UI
+
+- Modernized navigation, typography, forms, and buttons.
+- Polished event rows with clearer visual hierarchy.
+- Refined pagination, tabs, profiles, tables, and footer styling.
+- CSS-only implementation with no network requests or DOM observers.
+
 ## Install
 
-Install `src/eventernote-power-list.user.js` in Tampermonkey, Violentmonkey, or another userscript manager.
-The script applies enhancements automatically after installation.
+Install either script independently in Tampermonkey, Violentmonkey, or another userscript manager:
+
+- `src/eventernote-power-list.user.js`
+- `src/eventernote-fancy-ui.user.js`
 
 ## Supported Pages
 
@@ -27,5 +36,5 @@ Settings are stored locally in your browser with `localStorage`.
 ## Development
 
 ```sh
-node --check src/eventernote-power-list.user.js
+npm run check
 ```
