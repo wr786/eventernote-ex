@@ -6,6 +6,7 @@ Two independent Tampermonkey userscripts for Eventernote.
 
 - Compact list mode with hidden images and denser event rows.
 - Tiny Google Maps link beside Eventernote venue links.
+- Tiny same-day event search link beside each event date.
 - Popularity highlighting on Eventernote's existing attendance count at 10, 50, and 100 attendees.
 - Followed-actor highlighting with a compact pill style and a cache updated when visiting `/users`.
 

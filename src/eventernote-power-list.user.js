@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.8.9
-// @description  Lightweight Eventernote list enhancements: compact rows, venue links, popularity, and followed actor highlighting.
+// @version      0.9.0
+// @description  Lightweight Eventernote list enhancements: compact rows, quick links, popularity, and followed actor highlighting.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -22,7 +22,8 @@
     hot: 50,
     veryHot: 100,
     followedActorHighlightEnabled: true,
-    venueLinksEnabled: true
+    venueLinksEnabled: true,
+    dateSearchLinksEnabled: true
   };
 
   const settings = loadSettings();
@@ -50,6 +51,7 @@
     getEventItems().forEach((item) => {
       applyPopularity(item);
       applyVenueLinks(item);
+      applyDateSearchLinks(item);
     });
     applyFollowedActorHighlights();
   }
@@ -83,6 +85,23 @@
     mapLink.title = `Google Maps: ${venueName}`;
     mapLink.textContent = "map";
     venueLink.insertAdjacentElement("afterend", mapLink);
+  }
+
+  function applyDateSearchLinks(item) {
+    if (!settings.dateSearchLinksEnabled) return;
+
+    const dateNode = item.querySelector(".date > p:first-child");
+    if (!dateNode || dateNode.querySelector(".enpl-date-search-link")) return;
+
+    const date = parseEventDate(textOf(dateNode));
+    if (!date) return;
+
+    const searchLink = document.createElement("a");
+    searchLink.className = "enpl-date-search-link";
+    searchLink.href = `/events/search?year=${date.year}&month=${date.month}&day=${date.day}`;
+    searchLink.title = `查看 ${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")} 的其他活动`;
+    searchLink.textContent = "all";
+    dateNode.append(" ", searchLink);
   }
 
   function applyFollowedActorHighlights() {
@@ -173,6 +192,17 @@
 
   function textOf(node) {
     return (node ? node.textContent : "").replace(/\s+/g, " ").trim();
+  }
+
+  function parseEventDate(text) {
+    const match = String(text || "").match(/\b(\d{4})-(\d{1,2})-(\d{1,2})\b/);
+    if (!match) return null;
+
+    return {
+      year: Number(match[1]),
+      month: Number(match[2]),
+      day: Number(match[3])
+    };
   }
 
   function parseNoteCount(item) {
@@ -305,6 +335,27 @@
       }
 
       .enpl-venue-link:hover {
+        border-color: #e5a64a;
+        color: #8a4f10;
+        background: #fff3d8;
+        text-decoration: none;
+      }
+
+      .enpl-date-search-link {
+        display: inline-block;
+        padding: 0 4px;
+        border: 1px solid #ddd5cc;
+        border-radius: 3px;
+        color: #9a6a32;
+        background: #fffaf2;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1.35;
+        text-decoration: none;
+        vertical-align: 1px;
+      }
+
+      .enpl-date-search-link:hover {
         border-color: #e5a64a;
         color: #8a4f10;
         background: #fff3d8;
