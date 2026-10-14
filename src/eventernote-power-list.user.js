@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.10.10
+// @version      0.10.11
 // @description  Eventernote UI enhancements: personal planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -427,7 +427,13 @@
     document.querySelectorAll(".gb_actors_list li, .gb_listview li").forEach((item) => {
       const actor = item.querySelector("a[href*='/actors/']");
       const count = getParticipationCount(item.className);
-      if (actor && count !== null) addParticipationCount(actor, count);
+      if (actor && count !== null) {
+        addParticipationCount(actor, count);
+        if (item.parentElement.matches(".gb_actors_list")) {
+          item.parentElement.classList.add("enpl-profile-actors");
+          item.classList.toggle("enpl-profile-100-plus", count >= 100);
+        }
+      }
     });
   }
 
@@ -820,6 +826,71 @@
         margin-left: .25em;
         font-variant-numeric: tabular-nums;
         white-space: nowrap;
+      }
+
+      .gb_actors_list.enpl-profile-actors {
+        display: grid;
+        gap: 6px;
+        padding: 12px;
+        border: 1px solid #e8e2d9;
+        border-radius: 16px;
+        background: linear-gradient(145deg, #fffdf9, #f5f2ed);
+      }
+
+      .gb_actors_list.enpl-profile-actors > li {
+        --enpl-profile-ink: #657286;
+        --enpl-profile-tint: #edf1f6;
+        margin: 0;
+        padding: 0;
+        font-size: 14px !important;
+        line-height: 1.5;
+      }
+
+      .enpl-profile-actors > li.s1 { --enpl-profile-ink: #a56825; --enpl-profile-tint: #fff1dc; }
+      .enpl-profile-actors > li.s2 { --enpl-profile-ink: #af592e; --enpl-profile-tint: #ffe8de; }
+      .enpl-profile-actors > li.s3 { --enpl-profile-ink: #a84664; --enpl-profile-tint: #fce3eb; }
+      .enpl-profile-actors > li.s4 { --enpl-profile-ink: #9e344b; --enpl-profile-tint: #f6dce3; }
+      .enpl-profile-actors > li.s5,
+      .enpl-profile-actors > li.s6 { --enpl-profile-ink: #8b6829; --enpl-profile-tint: #f6ead0; }
+
+      .gb_actors_list.enpl-profile-actors > li > a {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px 10px;
+        border: 1px solid var(--enpl-profile-tint);
+        border-left: 3px solid var(--enpl-profile-ink);
+        border-radius: 10px;
+        background: linear-gradient(110deg, #fff, var(--enpl-profile-tint));
+        color: #343944;
+        font-size: 14px !important;
+        font-weight: 600;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+        text-decoration: none;
+      }
+
+      .enpl-profile-actors .enpl-participation-count {
+        flex: none;
+        margin: 0;
+        color: var(--enpl-profile-ink);
+        font-size: inherit;
+        font-weight: 600;
+      }
+
+      .gb_actors_list.enpl-profile-actors > li.enpl-profile-100-plus > a {
+        border-color: #393630;
+        border-left-color: #d4b77d;
+        background: linear-gradient(115deg, #242529, #34312d);
+        color: #f3e9d5;
+      }
+
+      .enpl-profile-100-plus .enpl-participation-count { color: #e6c991; }
+      .gb_actors_list.enpl-profile-actors > li > a:hover,
+      .gb_actors_list.enpl-profile-actors > li > a:focus-visible {
+        outline: 2px solid var(--enpl-profile-ink);
+        outline-offset: 2px;
       }
 
       .enpl-venue-link {
