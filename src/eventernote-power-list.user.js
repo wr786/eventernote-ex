@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.9.0
-// @description  Lightweight Eventernote list enhancements: compact rows, quick links, popularity, and followed actor highlighting.
+// @version      0.10.0
+// @description  Lightweight Eventernote list enhancements: compact rows, quick links, popularity, followed actors, and participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -53,6 +53,7 @@
       applyVenueLinks(item);
       applyDateSearchLinks(item);
     });
+    applyFavoriteActorParticipationCounts();
     applyFollowedActorHighlights();
   }
 
@@ -112,18 +113,44 @@
 
     getPageActorLinks().forEach((actor) => {
       const pathname = getPathname(actor.href);
-      const rank = following[pathname];
-      if (!rank) return;
+      const actorClassName = following[pathname];
+      if (!actorClassName) return;
 
       const parent = actor.parentElement;
       if (!parent) return;
 
       parent.classList.add("enpl-followed-actor");
-      const level = getFollowingRankLevel(rank);
+      const level = getFollowingRankLevel(actorClassName);
       if (level !== null) {
         parent.classList.add(`enpl-followed-actor-${level}`);
       }
+
+      const count = getParticipationCount(actorClassName);
+      if (count !== null) addParticipationCount(actor, count);
     });
+  }
+
+  function applyFavoriteActorParticipationCounts() {
+    if (!/^\/users(?:\/|$)/.test(location.pathname) || /\/(?:following|follower)\/?$/.test(location.pathname)) return;
+
+    document.querySelectorAll(".gb_actors_list li, .gb_listview li").forEach((item) => {
+      const actor = item.querySelector("a[href*='/actors/']");
+      const count = getParticipationCount(item.className);
+      if (actor && count !== null) addParticipationCount(actor, count);
+    });
+  }
+
+  function addParticipationCount(actor, count) {
+    let badge = actor.nextElementSibling;
+    if (!badge || !badge.classList.contains("enpl-participation-count")) {
+      badge = document.createElement("span");
+      badge.className = "enpl-participation-count";
+      actor.insertAdjacentElement("afterend", badge);
+    }
+
+    badge.textContent = `${count}回`;
+    badge.title = `参加回数：${count}回`;
+    badge.setAttribute("aria-label", `参加回数：${count}回`);
   }
 
   function updateFollowingActorCache() {
@@ -188,6 +215,11 @@
   function getFollowingRankLevel(rank) {
     const match = String(rank || "").match(/s([0-6])/);
     return match ? match[1] : null;
+  }
+
+  function getParticipationCount(className) {
+    const match = String(className || "").match(/(?:^|\s)c(\d+)(?:\s|$)/);
+    return match ? Number(match[1]) : null;
   }
 
   function textOf(node) {
@@ -318,6 +350,23 @@
         background: #fef9c3;
         font-weight: 700;
         box-shadow: inset 0 0 0 1px rgba(250, 204, 21, .25);
+      }
+
+      .enpl-participation-count {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 5px;
+        padding: 0 6px;
+        border: 1px solid #d9e1e8;
+        border-radius: 999px;
+        color: #526273;
+        background: #f4f7f9;
+        font-size: 11px;
+        font-variant-numeric: tabular-nums;
+        line-height: 1.7;
+        text-decoration: none;
+        vertical-align: middle;
+        white-space: nowrap;
       }
 
       .enpl-venue-link {
