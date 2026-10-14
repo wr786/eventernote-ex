@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.10.6
+// @version      0.10.7
 // @description  Eventernote UI enhancements: weighted followed-actor event recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -117,42 +117,135 @@
     const originalNodes = Array.from(list.childNodes);
     const originalOrder = eventItems.slice();
     const eventSet = new Set(eventItems);
-    const followingSet = new Set(Object.keys(following));
-    const scores = new Map(originalOrder.map((item) => {
-      const actors = new Set(Array.from(item.querySelectorAll(".actor > ul > li > a[href*='/actors/'], .actors > li > a[href*='/actors/']"), (actor) => getPathname(actor.href)));
-      const score = Array.from(actors).reduce((total, pathname) => {
-        if (!followingSet.has(pathname)) return total;
-        return total + (getParticipationCount(following[pathname]) ?? 1);
-      }, 0);
-      return [item, score];
-    }));
+    const scores = new Map();
+    const eventPaths = new Set(originalOrder.map(eventPath));
+    const visited = new Set([location.href]);
+    let nextUrl = nextPage(document, location.href);
+    let pagesLoaded = 1;
+    let sorted = false;
+    let loading = false;
+    originalOrder.forEach((item) => scores.set(item, scoreEvent(item)));
 
     const button = document.createElement("button");
     button.type = "button";
     button.className = "enpl-interest-sort-button";
-    button.textContent = followingSet.size ? "按关注推荐" : "关注推荐（先访问关注页）";
-    button.title = followingSet.size ? "按关注艺人的参加回数加权排序" : "先访问一次 Eventernote 关注页，缓存关注艺人和参加回数";
+    button.textContent = Object.keys(following).length ? "按关注推荐" : "关注推荐（先访问关注页）";
+    button.title = "按关注艺人的参加回数加权排序，并加载后续搜索结果";
     button.setAttribute("aria-pressed", "false");
-    button.disabled = !followingSet.size;
+    button.disabled = !Object.keys(following).length;
 
+    const more = document.createElement("button");
+    more.type = "button";
+    more.className = "enpl-interest-sort-button";
+    more.textContent = "加载更多推荐";
+    more.hidden = true;
+    const status = document.createElement("span");
+    status.setAttribute("role", "status");
     const controls = document.createElement("div");
     controls.className = "enpl-interest-sort-controls";
-    controls.append(button);
+    controls.append(button, " ", more, " ", status);
     list.insertAdjacentElement("beforebegin", controls);
 
-    let sorted = false;
-    button.addEventListener("click", () => {
-      const order = sorted
-        ? originalOrder
-        : originalOrder.slice().sort((left, right) => scores.get(right) - scores.get(left));
-      const fragment = document.createDocumentFragment();
-      let eventIndex = 0;
-      originalNodes.forEach((node) => fragment.append(eventSet.has(node) ? order[eventIndex++] : node));
-      list.replaceChildren(fragment);
-      sorted = !sorted;
+    function eventPath(item) {
+      const link = item.querySelector("h4 a[href*='/events/'], a[href^='/events/']");
+      return link ? getPathname(link.href) : "";
+    }
+
+    function scoreEvent(item) {
+      const actors = new Set(Array.from(item.querySelectorAll(".actor > ul > li > a[href*='/actors/'], .actors > li > a[href*='/actors/']"), (actor) => getPathname(actor.href)));
+      return Array.from(actors).reduce((total, pathname) => {
+        if (!Object.prototype.hasOwnProperty.call(following, pathname)) return total;
+        return total + (getParticipationCount(following[pathname]) ?? 1);
+      }, 0);
+    }
+
+    function nextPage(root, base) {
+      const link = root.querySelector(".pagination li.next:not(.disabled) a[href]");
+      if (!link) return null;
+      const url = new URL(link.getAttribute("href"), base);
+      return url.origin === location.origin && /^\/events\//.test(url.pathname) ? url.href : null;
+    }
+
+    function render() {
+      if (sorted) {
+        const order = originalOrder.slice().sort((left, right) => scores.get(right) - scores.get(left));
+        const fragment = document.createDocumentFragment();
+        let eventIndex = 0;
+        originalNodes.forEach((node) => fragment.append(eventSet.has(node) ? order[eventIndex++] : node));
+        order.slice(eventIndex).forEach((item) => fragment.append(item));
+        list.replaceChildren(fragment);
+        applyFollowedActorHighlights();
+      } else {
+        list.replaceChildren(...originalNodes);
+      }
       button.textContent = sorted ? "恢复原排序" : "按关注推荐";
       button.setAttribute("aria-pressed", String(sorted));
+      more.hidden = !sorted || !nextUrl;
+    }
+
+    async function loadMore() {
+      if (loading || !nextUrl) return;
+      loading = true;
+      button.disabled = true;
+      more.disabled = true;
+      try {
+        // shortcut: fetch up to 10 pages per click; use another batch for larger searches.
+        const pageLimit = pagesLoaded === 1 ? 9 : 10;
+        for (let page = 0; page < pageLimit && nextUrl; page++) {
+          if (visited.has(nextUrl)) {
+            nextUrl = null;
+            break;
+          }
+          status.textContent = `正在加载… 已有 ${originalOrder.length} 场`;
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 20000);
+          let response;
+          let html;
+          try {
+            response = await fetch(nextUrl, { credentials: "same-origin", signal: controller.signal });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            html = await response.text();
+          } finally {
+            clearTimeout(timeout);
+          }
+          const pageDocument = new DOMParser().parseFromString(html, "text/html");
+          const items = getEventItems(pageDocument);
+          if (!items.length) throw new Error("No event results in the next page");
+          items.forEach((item) => {
+            const pathname = eventPath(item);
+            if (!pathname || eventPaths.has(pathname)) return;
+            eventPaths.add(pathname);
+            const imported = document.importNode(item, true);
+            scores.set(imported, scoreEvent(imported));
+            originalOrder.push(imported);
+            applyPopularity(imported);
+            applyVenueLinks(imported);
+            applyDateSearchLinks(imported);
+          });
+          visited.add(nextUrl);
+          pagesLoaded++;
+          nextUrl = nextPage(pageDocument, response.url);
+          render();
+        }
+        status.textContent = `已推荐 ${originalOrder.length} 场 · ${pagesLoaded} 页${nextUrl ? " · 可继续加载" : " · 已加载到底"}`;
+      } catch (error) {
+        status.textContent = `已有 ${originalOrder.length} 场 · 加载失败，可点击加载更多重试`;
+        console.warn("[Eventernote Lite Enhancer] recommendation loading failed", error);
+      } finally {
+        loading = false;
+        button.disabled = false;
+        more.disabled = false;
+        more.hidden = !sorted || !nextUrl;
+      }
+    }
+
+    button.addEventListener("click", async () => {
+      sorted = !sorted;
+      render();
+      if (sorted && pagesLoaded === 1 && nextUrl) await loadMore();
+      else status.textContent = sorted ? `已推荐 ${originalOrder.length} 场 · ${pagesLoaded} 页` : "";
     });
+    more.addEventListener("click", loadMore);
   }
 
   function applyFollowedActorHighlights() {
@@ -243,8 +336,8 @@
     localStorage.setItem(FOLLOWING_CACHE_KEY, JSON.stringify({ updatedAt: Date.now(), actors }));
   }
 
-  function getEventItems() {
-    const containers = Array.from(document.querySelectorAll(".gb_event_list > ul > li, .gb_event_list > li, .event_list > li"));
+  function getEventItems(root = document) {
+    const containers = Array.from(root.querySelectorAll(".gb_event_list > ul > li, .gb_event_list > li, .event_list > li"));
     return containers.filter((item) => item.querySelector("a[href^='/events/'], a[href*='eventernote.com/events/']"));
   }
 
