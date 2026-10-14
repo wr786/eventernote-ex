@@ -8,7 +8,7 @@ Two independent Tampermonkey userscripts for Eventernote.
 - Tiny Google Maps link beside Eventernote venue links.
 - Tiny same-day event search link beside each event date.
 - Popularity highlighting on Eventernote's existing attendance count at 10, 50, and 100 attendees.
-- Followed-actor highlights use count-scaled gradients on event appearance lists, while profile artist rankings show `[n回]` beside each name; the cache updates when visiting `/users`.
+- Followed-actor highlights keep the original orange/red/gold milestone colors on event appearance lists, with gradients deepening by participation count; profile artist rankings show `[n回]` beside each name. The cache updates when visiting `/users`.
 
 This replaces the separate [Eventernote 参加回数表示](https://greasyfork.org/ja/scripts/369760-eventernote-%E5%8F%82%E5%8A%A0%E5%9B%9E%E6%95%B0%E8%A1%A8%E7%A4%BA) userscript. Disable that copy to avoid duplicate counts.
 

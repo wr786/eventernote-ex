@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.10.2
-// @description  Eventernote UI enhancements: compact events, followed-performer gradients, popularity cues, venue maps, date search, and profile participation counts.
+// @version      0.10.3
+// @description  Eventernote UI enhancements: compact events, milestone-colored performer gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -128,10 +128,8 @@
       const count = getParticipationCount(actorClassName);
       if (count !== null) {
         // shortcut: cap gradient depth at 50 appearances to keep labels readable; raise it if higher counts need more separation.
-        const lightness = Math.max(58, 96 - Math.min(count, 50) * 0.76);
-        parent.style.setProperty("--enpl-actor-gradient-start", `hsl(38 100% ${Math.min(lightness + 4, 99)}%)`);
-        parent.style.setProperty("--enpl-actor-gradient-end", `hsl(26 95% ${lightness}%)`);
-        parent.classList.toggle("enpl-followed-actor-deep", lightness < 74);
+        parent.style.setProperty("--enpl-actor-gradient-depth", `${Math.min(count, 50) * 0.7}%`);
+        parent.classList.toggle("enpl-followed-actor-deep", count >= 30);
       }
     });
   }
@@ -321,35 +319,59 @@
       }
 
       .enpl-followed-actor > a {
+        --enpl-actor-gradient-start: #fff7ed;
+        --enpl-actor-gradient-end: #ffedd5;
+        --enpl-actor-gradient-deep: #fdba74;
+        --enpl-actor-text-deep: #7c2d12;
         display: inline-flex;
         align-items: center;
         border: 1px solid #fdba74;
         border-radius: 999px;
         color: #b45309;
-        background: linear-gradient(135deg, var(--enpl-actor-gradient-start, #fff7ed), var(--enpl-actor-gradient-end, #ffedd5));
+        background: linear-gradient(135deg, var(--enpl-actor-gradient-start), var(--enpl-actor-gradient-end));
+        background: linear-gradient(135deg,
+          color-mix(in srgb, var(--enpl-actor-gradient-start) calc(100% - var(--enpl-actor-gradient-depth, 0%)), var(--enpl-actor-gradient-deep) var(--enpl-actor-gradient-depth, 0%)),
+          color-mix(in srgb, var(--enpl-actor-gradient-end) calc(100% - var(--enpl-actor-gradient-depth, 0%)), var(--enpl-actor-gradient-deep) var(--enpl-actor-gradient-depth, 0%))
+        );
         padding: 2px 7px;
         text-decoration: none;
       }
 
       .enpl-followed-actor-1 > a,
       .enpl-followed-actor-2 > a {
+        --enpl-actor-gradient-start: #ffedd5;
+        --enpl-actor-gradient-end: #fff7ed;
+        --enpl-actor-gradient-deep: #fb923c;
+        --enpl-actor-text-deep: #7c2d12;
         border-color: #fb923c;
         color: #c2410c;
       }
 
       .enpl-followed-actor-3 > a,
       .enpl-followed-actor-4 > a {
+        --enpl-actor-gradient-start: #fef2f2;
+        --enpl-actor-gradient-end: #fff5f5;
+        --enpl-actor-gradient-deep: #f87171;
+        --enpl-actor-text-deep: #7f1d1d;
         border-color: #f87171;
         color: #b91c1c;
       }
 
       .enpl-followed-actor-5 > a {
+        --enpl-actor-gradient-start: #fee2e2;
+        --enpl-actor-gradient-end: #fff1f2;
+        --enpl-actor-gradient-deep: #ef4444;
+        --enpl-actor-text-deep: #7f1d1d;
         border-color: #ef4444;
         color: #991b1b;
         font-weight: 600;
       }
 
       .enpl-followed-actor-6 > a {
+        --enpl-actor-gradient-start: #fef9c3;
+        --enpl-actor-gradient-end: #fffde7;
+        --enpl-actor-gradient-deep: #ca8a04;
+        --enpl-actor-text-deep: #713f12;
         border-color: #facc15;
         color: #92400e;
         font-weight: 700;
@@ -357,7 +379,7 @@
       }
 
       .enpl-followed-actor-deep > a {
-        color: #431407;
+        color: var(--enpl-actor-text-deep);
       }
 
       .enpl-participation-count {
