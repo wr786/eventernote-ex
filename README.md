@@ -7,6 +7,7 @@ Two independent Tampermonkey userscripts for Eventernote.
 - Compact list mode with hidden images and denser event rows.
 - Tiny Google Maps link beside Eventernote venue links.
 - Tiny same-day event search link beside each event date.
+- Same-day itinerary view groups loaded events by date and start time, with venues, end times, gaps, and overlap cues; updates as recommendation pages load.
 - Popularity highlighting on Eventernote's existing attendance count at 10, 50, and 100 attendees.
 - Event search recommendations combine up to 10 pages initially and load more on demand, ranked by the summed participation counts of followed performers; toggle back to the original page anytime.
 - Followed-actor highlights keep the original orange/red/gold milestones with jewel-toned gradients that deepen by participation count, switching to black and champagne gold at 100+ appearances; profile artist rankings show `[n回]` beside each name. The cache updates when visiting `/users`.

@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.10.7
-// @description  Eventernote UI enhancements: weighted followed-actor event recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
+// @version      0.10.8
+// @description  Eventernote UI enhancements: same-day itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -55,6 +55,7 @@
       applyDateSearchLinks(item);
     });
     applyFollowedActorEventSort(eventItems);
+    applySameDaySchedule(eventItems);
     applyFavoriteActorParticipationCounts();
     applyFollowedActorHighlights();
   }
@@ -246,6 +247,119 @@
       else status.textContent = sorted ? `已推荐 ${originalOrder.length} 场 · ${pagesLoaded} 页` : "";
     });
     more.addEventListener("click", loadMore);
+  }
+
+  function applySameDaySchedule(eventItems) {
+    if (!eventItems.length) return;
+    const list = eventItems[0].parentElement;
+    if (!list || eventItems.some((item) => item.parentElement !== list)) return;
+
+    let controls = list.previousElementSibling;
+    if (!controls || !controls.classList.contains("enpl-interest-sort-controls")) {
+      controls = document.createElement("div");
+      controls.className = "enpl-interest-sort-controls";
+      list.insertAdjacentElement("beforebegin", controls);
+    }
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "enpl-interest-sort-button";
+    button.textContent = "同日行程";
+    button.setAttribute("aria-pressed", "false");
+    controls.append(" ", button);
+    const view = document.createElement("section");
+    view.className = "enpl-schedule";
+    view.setAttribute("aria-label", "同日活动行程");
+    view.hidden = true;
+    list.insertAdjacentElement("afterend", view);
+    let active = false;
+
+    function make(tag, className, text) {
+      const node = document.createElement(tag);
+      node.className = className;
+      node.textContent = text;
+      return node;
+    }
+
+    function refresh() {
+      const events = Array.from(list.children).map(readScheduleEvent).filter(Boolean);
+      events.sort((left, right) => (left.date || "\uffff").localeCompare(right.date || "\uffff") || (left.start ?? 1440) - (right.start ?? 1440));
+      const fragment = document.createDocumentFragment();
+      fragment.append(make("p", "enpl-schedule-note", "按开演时间排列当前已加载活动；场次间隔不含路程，终演时间以页面信息为准。"));
+      let date;
+      let previous;
+      let group;
+      events.forEach((event) => {
+        if (event.date !== date || !group) {
+          date = event.date;
+          previous = null;
+          group = make("div", "enpl-schedule-day", "");
+          group.append(make("h3", "enpl-schedule-date", date || "日期未定"));
+          fragment.append(group);
+        }
+        if (previous && event.start !== null) {
+          const gap = previous.end === null || previous.start === null || previous.end < previous.start ? null : event.start - previous.end;
+          const label = gap === null ? "上一场终演时间未知或跨日，间隔待确认" : gap < 0 ? `与上一场重叠 ${formatScheduleDuration(-gap)}` : `场次间隔 ${formatScheduleDuration(gap)}`;
+          group.append(make("p", gap !== null && gap < 0 ? "enpl-schedule-gap enpl-schedule-overlap" : "enpl-schedule-gap", label));
+        }
+        const row = make("article", "enpl-schedule-row", "");
+        row.append(make("span", "enpl-schedule-time", formatScheduleTime(event.start)));
+        const details = make("div", "enpl-schedule-details", "");
+        const title = make("a", "enpl-schedule-title", event.title);
+        title.href = event.href;
+        details.append(title);
+        const venue = make(event.venueHref ? "a" : "span", "enpl-schedule-venue", event.venue || "场馆未定");
+        if (event.venueHref) venue.href = event.venueHref;
+        details.append(venue);
+        details.append(make("p", "enpl-schedule-meta", `开场 ${formatScheduleTime(event.open)} · 终演 ${formatScheduleTime(event.end)}${event.start !== null && event.end !== null && event.end < event.start ? " · 跨日时间待确认" : ""}`));
+        row.append(details);
+        group.append(row);
+        previous = event;
+      });
+      view.replaceChildren(fragment);
+    }
+
+    button.addEventListener("click", () => {
+      active = !active;
+      if (active) refresh();
+      list.classList.toggle("enpl-schedule-source-hidden", active);
+      view.hidden = !active;
+      button.textContent = active ? "返回活动列表" : "同日行程";
+      button.setAttribute("aria-pressed", String(active));
+    });
+    new MutationObserver(() => { if (active) refresh(); }).observe(list, { childList: true });
+  }
+
+  function readScheduleEvent(item) {
+    const title = item.querySelector("h4 a[href*='/events/']");
+    if (!title) return null;
+    const date = parseEventDate(textOf(item.querySelector(".date > p:first-child")));
+    const venue = item.querySelector(".place a[href*='/places/']");
+    const times = textOf(item.querySelector(".event .place .s"));
+    return {
+      date: date ? `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}` : "",
+      title: textOf(title), href: title.href,
+      venue: textOf(venue), venueHref: venue ? venue.href : "",
+      open: parseScheduleTime(times, "開場"),
+      start: parseScheduleTime(times, "開演"),
+      end: parseScheduleTime(times, "終演")
+    };
+  }
+
+  function parseScheduleTime(text, label) {
+    const match = text.match(new RegExp(`(?:^|\\s)${label}\\s+(\\d{1,2}):(\\d{2})(?=\\s|$)`));
+    if (!match) return null;
+    const hour = Number(match[1]);
+    const minute = Number(match[2]);
+    return hour < 24 && minute < 60 ? hour * 60 + minute : null;
+  }
+
+  function formatScheduleTime(minutes) {
+    return minutes === null ? "未定" : `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+  }
+
+  function formatScheduleDuration(minutes) {
+    const hours = Math.floor(minutes / 60);
+    return hours ? `${hours} 小时${minutes % 60 ? ` ${minutes % 60} 分钟` : ""}` : `${minutes} 分钟`;
   }
 
   function applyFollowedActorHighlights() {
@@ -576,6 +690,91 @@
       .enpl-interest-sort-button:disabled {
         cursor: not-allowed;
         opacity: .65;
+      }
+
+      .enpl-schedule-source-hidden,
+      .enpl-schedule[hidden] {
+        display: none !important;
+      }
+
+      .enpl-schedule {
+        margin: 12px 0;
+        color: #334155;
+      }
+
+      .enpl-schedule-note,
+      .enpl-schedule-meta {
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .enpl-schedule-day {
+        margin-bottom: 20px;
+        padding: 14px;
+        border: 1px solid #e3daef;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #faf7ff, #fff);
+      }
+
+      .enpl-schedule-date {
+        margin: 0 0 12px;
+        color: #5c3a7a;
+        font-size: 16px;
+      }
+
+      .enpl-schedule-row {
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 12px;
+        padding: 12px 0;
+      }
+
+      .enpl-schedule-time {
+        color: #5c3a7a;
+        font-size: 18px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .enpl-schedule-details {
+        border-left: 2px solid #d6c7ee;
+        padding-left: 14px;
+      }
+
+      .enpl-schedule-title,
+      .enpl-schedule-venue {
+        display: block;
+        overflow-wrap: anywhere;
+      }
+
+      .enpl-schedule-title {
+        font-weight: 600;
+        line-height: 1.5;
+      }
+
+      .enpl-schedule-venue {
+        margin-top: 5px;
+        color: #64748b;
+        font-size: 12px;
+      }
+
+      .enpl-schedule-meta {
+        margin: 5px 0 0;
+      }
+
+      .enpl-schedule-gap {
+        margin: 0 0 0 84px;
+        padding: 5px 14px;
+        color: #64748b;
+        border-left: 2px dashed #d6c7ee;
+        font-size: 12px;
+      }
+
+      .enpl-schedule-overlap {
+        color: #be123c;
+        border-color: #fda4af;
+        background: #fff1f2;
       }
 
       .enpl-participation-count {
