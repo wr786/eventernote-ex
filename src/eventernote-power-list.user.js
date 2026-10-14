@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.10.3
-// @description  Eventernote UI enhancements: compact events, milestone-colored performer gradients, popularity cues, venue maps, and profile participation counts.
+// @version      0.10.4
+// @description  Eventernote UI enhancements: compact events, jewel-toned milestone performer gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -128,7 +128,7 @@
       const count = getParticipationCount(actorClassName);
       if (count !== null) {
         // shortcut: cap gradient depth at 50 appearances to keep labels readable; raise it if higher counts need more separation.
-        parent.style.setProperty("--enpl-actor-gradient-depth", `${Math.min(count, 50) * 0.7}%`);
+        parent.style.setProperty("--enpl-actor-gradient-depth", `${Math.min(count, 50)}%`);
         parent.classList.toggle("enpl-followed-actor-deep", count >= 30);
       }
     });
@@ -319,63 +319,72 @@
       }
 
       .enpl-followed-actor > a {
-        --enpl-actor-gradient-start: #fff7ed;
-        --enpl-actor-gradient-end: #ffedd5;
-        --enpl-actor-gradient-deep: #fdba74;
+        --enpl-actor-gradient-start: #fff3e5;
+        --enpl-actor-gradient-end: #ffd9b8;
+        --enpl-actor-gradient-deep: #f97316;
+        --enpl-actor-border: #fb923c;
+        --enpl-actor-text: #9a3412;
         --enpl-actor-text-deep: #7c2d12;
+        --enpl-actor-glow: rgba(249, 115, 22, .24);
         display: inline-flex;
         align-items: center;
-        border: 1px solid #fdba74;
+        border: 1px solid var(--enpl-actor-border);
         border-radius: 999px;
-        color: #b45309;
+        color: var(--enpl-actor-text);
         background: linear-gradient(135deg, var(--enpl-actor-gradient-start), var(--enpl-actor-gradient-end));
-        background: linear-gradient(135deg,
-          color-mix(in srgb, var(--enpl-actor-gradient-start) calc(100% - var(--enpl-actor-gradient-depth, 0%)), var(--enpl-actor-gradient-deep) var(--enpl-actor-gradient-depth, 0%)),
-          color-mix(in srgb, var(--enpl-actor-gradient-end) calc(100% - var(--enpl-actor-gradient-depth, 0%)), var(--enpl-actor-gradient-deep) var(--enpl-actor-gradient-depth, 0%))
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, .56), rgba(255, 255, 255, 0) 56%),
+          linear-gradient(135deg,
+            color-mix(in srgb, var(--enpl-actor-gradient-start) calc(100% - var(--enpl-actor-gradient-depth, 0%)), var(--enpl-actor-gradient-deep) var(--enpl-actor-gradient-depth, 0%)),
+            color-mix(in srgb, var(--enpl-actor-gradient-end) calc(100% - var(--enpl-actor-gradient-depth, 0%)), var(--enpl-actor-gradient-deep) var(--enpl-actor-gradient-depth, 0%))
         );
-        padding: 2px 7px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .82), 0 2px 5px var(--enpl-actor-glow);
+        padding: 3px 8px;
         text-decoration: none;
       }
 
       .enpl-followed-actor-1 > a,
       .enpl-followed-actor-2 > a {
-        --enpl-actor-gradient-start: #ffedd5;
-        --enpl-actor-gradient-end: #fff7ed;
-        --enpl-actor-gradient-deep: #fb923c;
+        --enpl-actor-gradient-start: #fff3e5;
+        --enpl-actor-gradient-end: #ffd9b8;
+        --enpl-actor-gradient-deep: #f97316;
+        --enpl-actor-border: #fb923c;
+        --enpl-actor-text: #9a3412;
         --enpl-actor-text-deep: #7c2d12;
-        border-color: #fb923c;
-        color: #c2410c;
+        --enpl-actor-glow: rgba(249, 115, 22, .24);
       }
 
       .enpl-followed-actor-3 > a,
       .enpl-followed-actor-4 > a {
-        --enpl-actor-gradient-start: #fef2f2;
-        --enpl-actor-gradient-end: #fff5f5;
-        --enpl-actor-gradient-deep: #f87171;
-        --enpl-actor-text-deep: #7f1d1d;
-        border-color: #f87171;
-        color: #b91c1c;
+        --enpl-actor-gradient-start: #fff0f3;
+        --enpl-actor-gradient-end: #ffc4d1;
+        --enpl-actor-gradient-deep: #e11d48;
+        --enpl-actor-border: #fb7185;
+        --enpl-actor-text: #9f1239;
+        --enpl-actor-text-deep: #881337;
+        --enpl-actor-glow: rgba(225, 29, 72, .23);
       }
 
       .enpl-followed-actor-5 > a {
-        --enpl-actor-gradient-start: #fee2e2;
-        --enpl-actor-gradient-end: #fff1f2;
-        --enpl-actor-gradient-deep: #ef4444;
-        --enpl-actor-text-deep: #7f1d1d;
-        border-color: #ef4444;
-        color: #991b1b;
+        --enpl-actor-gradient-start: #ffe3e8;
+        --enpl-actor-gradient-end: #fda4b3;
+        --enpl-actor-gradient-deep: #be123c;
+        --enpl-actor-border: #e11d48;
+        --enpl-actor-text: #881337;
+        --enpl-actor-text-deep: #701a2c;
+        --enpl-actor-glow: rgba(190, 18, 60, .25);
         font-weight: 600;
       }
 
       .enpl-followed-actor-6 > a {
-        --enpl-actor-gradient-start: #fef9c3;
-        --enpl-actor-gradient-end: #fffde7;
-        --enpl-actor-gradient-deep: #ca8a04;
-        --enpl-actor-text-deep: #713f12;
-        border-color: #facc15;
-        color: #92400e;
+        --enpl-actor-gradient-start: #fff7d6;
+        --enpl-actor-gradient-end: #f5d98f;
+        --enpl-actor-gradient-deep: #b7791f;
+        --enpl-actor-border: #d6a72c;
+        --enpl-actor-text: #78500a;
+        --enpl-actor-text-deep: #5f3b08;
+        --enpl-actor-glow: rgba(161, 98, 7, .22);
         font-weight: 700;
-        box-shadow: inset 0 0 0 1px rgba(250, 204, 21, .25);
       }
 
       .enpl-followed-actor-deep > a {
