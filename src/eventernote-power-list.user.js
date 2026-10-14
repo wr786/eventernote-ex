@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.10.5
-// @description  Eventernote UI enhancements: milestone and black-gold performer gradients, popularity cues, venue maps, and profile participation counts.
+// @version      0.10.6
+// @description  Eventernote UI enhancements: weighted followed-actor event recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -48,11 +48,13 @@
   function applyEnhancements() {
     document.body.classList.toggle("enpl-compact-enabled", settings.compactEnabled);
 
-    getEventItems().forEach((item) => {
+    const eventItems = getEventItems();
+    eventItems.forEach((item) => {
       applyPopularity(item);
       applyVenueLinks(item);
       applyDateSearchLinks(item);
     });
+    applyFollowedActorEventSort(eventItems);
     applyFavoriteActorParticipationCounts();
     applyFollowedActorHighlights();
   }
@@ -103,6 +105,54 @@
     searchLink.title = `查看 ${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")} 的其他活动`;
     searchLink.textContent = "all";
     dateNode.append(" ", searchLink);
+  }
+
+  function applyFollowedActorEventSort(eventItems) {
+    if (!/^\/events\/(?:search(?:\/|$)|month(?:\/|$))/.test(location.pathname) || !eventItems.length) return;
+
+    const list = eventItems[0].parentElement;
+    const following = getFollowingActorMap() || {};
+    if (!list || eventItems.some((item) => item.parentElement !== list)) return;
+
+    const originalNodes = Array.from(list.childNodes);
+    const originalOrder = eventItems.slice();
+    const eventSet = new Set(eventItems);
+    const followingSet = new Set(Object.keys(following));
+    const scores = new Map(originalOrder.map((item) => {
+      const actors = new Set(Array.from(item.querySelectorAll(".actor > ul > li > a[href*='/actors/'], .actors > li > a[href*='/actors/']"), (actor) => getPathname(actor.href)));
+      const score = Array.from(actors).reduce((total, pathname) => {
+        if (!followingSet.has(pathname)) return total;
+        return total + (getParticipationCount(following[pathname]) ?? 1);
+      }, 0);
+      return [item, score];
+    }));
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "enpl-interest-sort-button";
+    button.textContent = followingSet.size ? "按关注推荐" : "关注推荐（先访问关注页）";
+    button.title = followingSet.size ? "按关注艺人的参加回数加权排序" : "先访问一次 Eventernote 关注页，缓存关注艺人和参加回数";
+    button.setAttribute("aria-pressed", "false");
+    button.disabled = !followingSet.size;
+
+    const controls = document.createElement("div");
+    controls.className = "enpl-interest-sort-controls";
+    controls.append(button);
+    list.insertAdjacentElement("beforebegin", controls);
+
+    let sorted = false;
+    button.addEventListener("click", () => {
+      const order = sorted
+        ? originalOrder
+        : originalOrder.slice().sort((left, right) => scores.get(right) - scores.get(left));
+      const fragment = document.createDocumentFragment();
+      let eventIndex = 0;
+      originalNodes.forEach((node) => fragment.append(eventSet.has(node) ? order[eventIndex++] : node));
+      list.replaceChildren(fragment);
+      sorted = !sorted;
+      button.textContent = sorted ? "恢复原排序" : "按关注推荐";
+      button.setAttribute("aria-pressed", String(sorted));
+    });
   }
 
   function applyFollowedActorHighlights() {
@@ -407,6 +457,32 @@
             color-mix(in srgb, var(--enpl-actor-gradient-end) calc(100% - var(--enpl-actor-gradient-depth, 0%)), var(--enpl-actor-gradient-deep) var(--enpl-actor-gradient-depth, 0%))
         );
         box-shadow: inset 0 1px 0 rgba(255, 231, 183, .2), 0 2px 6px var(--enpl-actor-glow);
+      }
+
+      .enpl-interest-sort-controls {
+        margin: 0 0 10px;
+        text-align: right;
+      }
+
+      .enpl-interest-sort-button {
+        padding: 5px 10px;
+        border: 1px solid #c9a96b;
+        border-radius: 999px;
+        color: #78500a;
+        background: #fff7d6;
+        font: inherit;
+        line-height: 1.4;
+        cursor: pointer;
+      }
+
+      .enpl-interest-sort-button:hover:not(:disabled) {
+        color: #fff0c2;
+        background: #292318;
+      }
+
+      .enpl-interest-sort-button:disabled {
+        cursor: not-allowed;
+        opacity: .65;
       }
 
       .enpl-participation-count {
