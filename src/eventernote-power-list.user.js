@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.10.1
-// @description  Lightweight Eventernote list enhancements: compact rows, quick links, popularity, followed actors, and participation counts.
+// @version      0.10.2
+// @description  Eventernote UI enhancements: compact events, followed-performer gradients, popularity cues, venue maps, date search, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -126,7 +126,12 @@
       }
 
       const count = getParticipationCount(actorClassName);
-      if (count !== null) addParticipationCount(actor, count);
+      if (count !== null) {
+        const lightness = Math.max(58, 96 - Math.min(count, 50) * 0.76);
+        parent.style.setProperty("--enpl-actor-gradient-start", `hsl(38 100% ${Math.min(lightness + 4, 99)}%)`);
+        parent.style.setProperty("--enpl-actor-gradient-end", `hsl(26 95% ${lightness}%)`);
+        parent.classList.toggle("enpl-followed-actor-deep", lightness < 74);
+      }
     });
   }
 
@@ -318,10 +323,10 @@
         display: inline-flex;
         align-items: center;
         border: 1px solid #fdba74;
-        border-radius: 4px;
+        border-radius: 999px;
         color: #b45309;
-        background: #fff7ed;
-        padding: 1px 5px;
+        background: linear-gradient(135deg, var(--enpl-actor-gradient-start, #fff7ed), var(--enpl-actor-gradient-end, #ffedd5));
+        padding: 2px 7px;
         text-decoration: none;
       }
 
@@ -329,29 +334,29 @@
       .enpl-followed-actor-2 > a {
         border-color: #fb923c;
         color: #c2410c;
-        background: #ffedd5;
       }
 
       .enpl-followed-actor-3 > a,
       .enpl-followed-actor-4 > a {
         border-color: #f87171;
         color: #b91c1c;
-        background: #fef2f2;
       }
 
       .enpl-followed-actor-5 > a {
         border-color: #ef4444;
         color: #991b1b;
-        background: #fee2e2;
         font-weight: 600;
       }
 
       .enpl-followed-actor-6 > a {
         border-color: #facc15;
         color: #92400e;
-        background: #fef9c3;
         font-weight: 700;
         box-shadow: inset 0 0 0 1px rgba(250, 204, 21, .25);
+      }
+
+      .enpl-followed-actor-deep > a {
+        color: #431407;
       }
 
       .enpl-participation-count {
