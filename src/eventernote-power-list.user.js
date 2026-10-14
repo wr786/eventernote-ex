@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.10.9
-// @description  Eventernote UI enhancements: same-day itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
+// @version      0.10.10
+// @description  Eventernote UI enhancements: personal planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -55,7 +55,7 @@
       applyDateSearchLinks(item);
     });
     applyFollowedActorEventSort(eventItems);
-    applySameDaySchedule(eventItems);
+    applySameDaySchedule();
     applyFavoriteActorParticipationCounts();
     applyFollowedActorHighlights();
   }
@@ -249,7 +249,16 @@
     more.addEventListener("click", loadMore);
   }
 
-  function applySameDaySchedule(eventItems) {
+  function applySameDaySchedule() {
+    const ownProfile = Array.from(document.querySelectorAll("a[href]")).find((link) => textOf(link) === "自分のページを確認");
+    const pathname = location.pathname.replace(/\/$/, "");
+    const ownPath = ownProfile ? getPathname(ownProfile.href).replace(/\/$/, "") : "";
+    if (pathname !== "/users" && (!ownPath || pathname !== ownPath)) return;
+
+    const heading = Array.from(document.querySelectorAll(".gb_subtitle")).find((node) => /参加予定イベント/.test(textOf(node)));
+    const container = heading && heading.nextElementSibling;
+    if (!container || !container.classList.contains("gb_event_list")) return;
+    const eventItems = getEventItems(container);
     if (!eventItems.length) return;
     const list = eventItems[0].parentElement;
     if (!list || eventItems.some((item) => item.parentElement !== list)) return;
@@ -263,12 +272,16 @@
     const button = document.createElement("button");
     button.type = "button";
     button.className = "enpl-interest-sort-button";
-    button.textContent = "同日行程";
+    button.textContent = "参加予定的行程";
     button.setAttribute("aria-pressed", "false");
-    controls.append(" ", button);
+    const datePicker = document.createElement("select");
+    datePicker.className = "enpl-schedule-date-select";
+    datePicker.setAttribute("aria-label", "行程日期");
+    datePicker.hidden = true;
+    controls.append(" ", button, " ", datePicker);
     const view = document.createElement("section");
     view.className = "enpl-schedule";
-    view.setAttribute("aria-label", "同日活动行程");
+    view.setAttribute("aria-label", "我的参加予定行程");
     view.hidden = true;
     list.insertAdjacentElement("afterend", view);
     let active = false;
@@ -283,12 +296,23 @@
     function refresh() {
       const events = Array.from(list.children).map(readScheduleEvent).filter(Boolean);
       events.sort((left, right) => (left.date || "\uffff").localeCompare(right.date || "\uffff") || (left.start ?? 1440) - (right.start ?? 1440));
+      const selectedDate = datePicker.value || "";
+      const dates = Array.from(new Set(events.map((event) => event.date || "unknown")));
+      const allDates = make("option", "", "全部日期");
+      allDates.value = "";
+      datePicker.replaceChildren(allDates);
+      dates.forEach((date) => {
+        const option = make("option", "", date === "unknown" ? "日期未定" : date);
+        option.value = date;
+        datePicker.append(option);
+      });
+      datePicker.value = dates.includes(selectedDate) ? selectedDate : "";
       const fragment = document.createDocumentFragment();
-      fragment.append(make("p", "enpl-schedule-note", "按开演时间排列当前已加载活动；场次间隔不含路程，终演时间以页面信息为准。"));
+      fragment.append(make("p", "enpl-schedule-note", "仅显示此页面列出的本人参加予定，按日期和开演时间排列；场次间隔不含路程，终演时间以页面信息为准。"));
       let date;
       let previous;
       let group;
-      events.forEach((event) => {
+      events.filter((event) => !datePicker.value || (event.date || "unknown") === datePicker.value).forEach((event) => {
         if (event.date !== date || !group) {
           date = event.date;
           previous = null;
@@ -326,9 +350,11 @@
       if (active) refresh();
       list.classList.toggle("enpl-schedule-source-hidden", active);
       view.hidden = !active;
-      button.textContent = active ? "返回活动列表" : "同日行程";
+      datePicker.hidden = !active;
+      button.textContent = active ? "返回参加予定列表" : "参加予定的行程";
       button.setAttribute("aria-pressed", String(active));
     });
+    datePicker.addEventListener("change", refresh);
     new MutationObserver(() => { if (active) refresh(); }).observe(list, { childList: true });
   }
 
@@ -695,7 +721,17 @@
         opacity: .65;
       }
 
+      .enpl-schedule-date-select {
+        padding: 5px 10px;
+        border: 1px solid #d6c7ee;
+        border-radius: 999px;
+        color: #5c3a7a;
+        background: #faf7ff;
+        font: inherit;
+      }
+
       .enpl-schedule-source-hidden,
+      .enpl-schedule-date-select[hidden],
       .enpl-schedule[hidden] {
         display: none !important;
       }
