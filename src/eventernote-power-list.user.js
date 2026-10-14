@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.10.11
+// @version      0.10.12
 // @description  Eventernote UI enhancements: personal planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -416,7 +416,7 @@
         // shortcut: cap gradient depth at 50 appearances to keep labels readable; raise it if higher counts need more separation.
         parent.style.setProperty("--enpl-actor-gradient-depth", `${Math.min(count, 50)}%`);
         parent.classList.toggle("enpl-followed-actor-deep", count >= 30);
-        parent.classList.toggle("enpl-followed-actor-100-plus", count >= 100);
+        parent.dataset.enplMilestone = getParticipationMilestone(count);
       }
     });
   }
@@ -431,10 +431,14 @@
         addParticipationCount(actor, count);
         if (item.parentElement.matches(".gb_actors_list")) {
           item.parentElement.classList.add("enpl-profile-actors");
-          item.classList.toggle("enpl-profile-100-plus", count >= 100);
+          item.dataset.enplMilestone = getParticipationMilestone(count);
         }
       }
     });
+  }
+
+  function getParticipationMilestone(count) {
+    return count >= 200 ? "200" : count >= 150 ? "150" : count >= 100 ? "100" : "0";
   }
 
   function addParticipationCount(actor, count) {
@@ -684,21 +688,41 @@
         color: var(--enpl-actor-text-deep);
       }
 
-      .enpl-followed-actor-100-plus > a {
-        --enpl-actor-gradient-start: #12110f;
-        --enpl-actor-gradient-end: #292318;
-        --enpl-actor-gradient-deep: #554222;
-        --enpl-actor-border: #c9a96b;
-        --enpl-actor-text: #f1dfb6;
-        --enpl-actor-text-deep: #fff0c2;
-        --enpl-actor-glow: rgba(201, 169, 107, .28);
-        background:
-          linear-gradient(135deg, rgba(255, 230, 180, .2), rgba(255, 230, 180, 0) 56%),
-          linear-gradient(135deg,
-            color-mix(in srgb, var(--enpl-actor-gradient-start) calc(100% - var(--enpl-actor-gradient-depth, 0%)), var(--enpl-actor-gradient-deep) var(--enpl-actor-gradient-depth, 0%)),
-            color-mix(in srgb, var(--enpl-actor-gradient-end) calc(100% - var(--enpl-actor-gradient-depth, 0%)), var(--enpl-actor-gradient-deep) var(--enpl-actor-gradient-depth, 0%))
-        );
-        box-shadow: inset 0 1px 0 rgba(255, 231, 183, .2), 0 2px 6px var(--enpl-actor-glow);
+      [data-enpl-milestone="100"] {
+        --enpl-milestone-start: #eefcff;
+        --enpl-milestone-end: #bce9fb;
+        --enpl-milestone-deep: #38bdf8;
+        --enpl-milestone-ink: #075985;
+        --enpl-milestone-border: #67cbea;
+        --enpl-milestone-glow: rgba(56, 189, 248, .2);
+      }
+
+      [data-enpl-milestone="150"] {
+        --enpl-milestone-start: #f5f0ff;
+        --enpl-milestone-end: #ddd0ff;
+        --enpl-milestone-deep: #a78bfa;
+        --enpl-milestone-ink: #5b21b6;
+        --enpl-milestone-border: #b49aee;
+        --enpl-milestone-glow: rgba(167, 139, 250, .22);
+      }
+
+      [data-enpl-milestone="200"] {
+        --enpl-milestone-start: #fff0fa;
+        --enpl-milestone-end: #ffcce5;
+        --enpl-milestone-deep: #f472b6;
+        --enpl-milestone-ink: #9d174d;
+        --enpl-milestone-border: #f397c7;
+        --enpl-milestone-glow: rgba(244, 114, 182, .22);
+      }
+
+      .enpl-followed-actor[data-enpl-milestone]:not([data-enpl-milestone="0"]) > a {
+        --enpl-actor-gradient-start: var(--enpl-milestone-start);
+        --enpl-actor-gradient-end: var(--enpl-milestone-end);
+        --enpl-actor-gradient-deep: var(--enpl-milestone-deep);
+        --enpl-actor-border: var(--enpl-milestone-border);
+        --enpl-actor-text: var(--enpl-milestone-ink);
+        --enpl-actor-text-deep: var(--enpl-milestone-ink);
+        --enpl-actor-glow: var(--enpl-milestone-glow);
       }
 
       .enpl-interest-sort-controls {
@@ -879,14 +903,18 @@
         font-weight: 600;
       }
 
-      .gb_actors_list.enpl-profile-actors > li.enpl-profile-100-plus > a {
-        border-color: #393630;
-        border-left-color: #d4b77d;
-        background: linear-gradient(115deg, #242529, #34312d);
-        color: #f3e9d5;
+      .gb_actors_list.enpl-profile-actors > li[data-enpl-milestone]:not([data-enpl-milestone="0"]) {
+        --enpl-profile-ink: var(--enpl-milestone-ink);
+        --enpl-profile-tint: var(--enpl-milestone-end);
       }
 
-      .enpl-profile-100-plus .enpl-participation-count { color: #e6c991; }
+      .gb_actors_list.enpl-profile-actors > li[data-enpl-milestone]:not([data-enpl-milestone="0"]) > a {
+        border-color: var(--enpl-milestone-end);
+        border-left-color: var(--enpl-milestone-border);
+        background: linear-gradient(115deg, var(--enpl-milestone-start), var(--enpl-milestone-end));
+        color: var(--enpl-milestone-ink);
+      }
+
       .gb_actors_list.enpl-profile-actors > li > a:hover,
       .gb_actors_list.enpl-profile-actors > li > a:focus-visible {
         outline: 2px solid var(--enpl-profile-ink);

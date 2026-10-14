@@ -10,8 +10,8 @@ Two independent Tampermonkey userscripts for Eventernote.
 - Personal itinerary on your own planned-event profile section, grouped by date and start time with a date selector, venues, end times, gaps, and overlap cues. Search results and followed-artist event suggestions are excluded.
 - Popularity highlighting on Eventernote's existing attendance count at 10, 50, and 100 attendees.
 - Event search recommendations combine up to 10 pages initially and load more on demand, ranked by the summed participation counts of followed performers; toggle back to the original page anytime.
-- Followed-actor highlights keep the original orange/red/gold milestones with jewel-toned gradients that deepen by participation count, switching to black and champagne gold at 100+ appearances; profile artist rankings show `[n回]` beside each name. The cache updates when visiting `/users`.
-- Profile favorite artists use uniform-size name/count rows with milestone accents and subtle gradients, including charcoal/champagne styling at 100+; long names wrap without separating the count into its own tag.
+- Followed-actor highlights keep the original orange/red/gold milestones with jewel-toned gradients that deepen by participation count, switching to ice blue at 100–149, iris violet at 150–199, and rose pink at 200+ appearances; profile artist rankings show `[n回]` beside each name. The cache updates when visiting `/users`.
+- Profile favorite artists use uniform-size name/count rows with milestone accents and subtle gradients, including coordinated ice-blue, iris-violet, and rose-pink milestones at 100/150/200; long names wrap without separating the count into its own tag.
 
 This replaces the separate [Eventernote 参加回数表示](https://greasyfork.org/ja/scripts/369760-eventernote-%E5%8F%82%E5%8A%A0%E5%9B%9E%E6%95%B0%E8%A1%A8%E7%A4%BA) userscript. Disable that copy to avoid duplicate counts.
 
