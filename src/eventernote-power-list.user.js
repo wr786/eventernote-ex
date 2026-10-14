@@ -127,6 +127,7 @@
 
       const count = getParticipationCount(actorClassName);
       if (count !== null) {
+        // shortcut: cap gradient depth at 50 appearances to keep labels readable; raise it if higher counts need more separation.
         const lightness = Math.max(58, 96 - Math.min(count, 50) * 0.76);
         parent.style.setProperty("--enpl-actor-gradient-start", `hsl(38 100% ${Math.min(lightness + 4, 99)}%)`);
         parent.style.setProperty("--enpl-actor-gradient-end", `hsl(26 95% ${lightness}%)`);
