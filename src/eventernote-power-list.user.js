@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.10.4
-// @description  Eventernote UI enhancements: compact events, jewel-toned milestone performer gradients, popularity cues, venue maps, and profile participation counts.
+// @version      0.10.5
+// @description  Eventernote UI enhancements: milestone and black-gold performer gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -130,6 +130,7 @@
         // shortcut: cap gradient depth at 50 appearances to keep labels readable; raise it if higher counts need more separation.
         parent.style.setProperty("--enpl-actor-gradient-depth", `${Math.min(count, 50)}%`);
         parent.classList.toggle("enpl-followed-actor-deep", count >= 30);
+        parent.classList.toggle("enpl-followed-actor-100-plus", count >= 100);
       }
     });
   }
@@ -389,6 +390,23 @@
 
       .enpl-followed-actor-deep > a {
         color: var(--enpl-actor-text-deep);
+      }
+
+      .enpl-followed-actor-100-plus > a {
+        --enpl-actor-gradient-start: #12110f;
+        --enpl-actor-gradient-end: #292318;
+        --enpl-actor-gradient-deep: #554222;
+        --enpl-actor-border: #c9a96b;
+        --enpl-actor-text: #f1dfb6;
+        --enpl-actor-text-deep: #fff0c2;
+        --enpl-actor-glow: rgba(201, 169, 107, .28);
+        background:
+          linear-gradient(135deg, rgba(255, 230, 180, .2), rgba(255, 230, 180, 0) 56%),
+          linear-gradient(135deg,
+            color-mix(in srgb, var(--enpl-actor-gradient-start) calc(100% - var(--enpl-actor-gradient-depth, 0%)), var(--enpl-actor-gradient-deep) var(--enpl-actor-gradient-depth, 0%)),
+            color-mix(in srgb, var(--enpl-actor-gradient-end) calc(100% - var(--enpl-actor-gradient-depth, 0%)), var(--enpl-actor-gradient-deep) var(--enpl-actor-gradient-depth, 0%))
+        );
+        box-shadow: inset 0 1px 0 rgba(255, 231, 183, .2), 0 2px 6px var(--enpl-actor-glow);
       }
 
       .enpl-participation-count {
