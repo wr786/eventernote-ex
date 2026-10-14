@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.10.8
+// @version      0.10.9
 // @description  Eventernote UI enhancements: same-day itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -298,7 +298,10 @@
         }
         if (previous && event.start !== null) {
           const gap = previous.end === null || previous.start === null || previous.end < previous.start ? null : event.start - previous.end;
-          const label = gap === null ? "上一场终演时间未知或跨日，间隔待确认" : gap < 0 ? `与上一场重叠 ${formatScheduleDuration(-gap)}` : `场次间隔 ${formatScheduleDuration(gap)}`;
+          const overlapEnd = event.end !== null && event.end > event.start && gap !== null && gap < 0 ? Math.min(previous.end, event.end) : null;
+          const label = gap === null ? "上一场终演时间未知或跨日，间隔待确认" : gap < 0
+            ? overlapEnd === null ? `开演时上一场尚未结束（距终演 ${formatScheduleDuration(-gap)}）` : `与上一场重叠 ${formatScheduleDuration(overlapEnd - event.start)}`
+            : `场次间隔 ${formatScheduleDuration(gap)}`;
           group.append(make("p", gap !== null && gap < 0 ? "enpl-schedule-gap enpl-schedule-overlap" : "enpl-schedule-gap", label));
         }
         const row = make("article", "enpl-schedule-row", "");
