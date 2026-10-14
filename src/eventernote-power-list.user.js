@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.10.0
+// @version      0.10.1
 // @description  Lightweight Eventernote list enhancements: compact rows, quick links, popularity, followed actors, and participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -141,14 +141,16 @@
   }
 
   function addParticipationCount(actor, count) {
-    let badge = actor.nextElementSibling;
-    if (!badge || !badge.classList.contains("enpl-participation-count")) {
-      badge = document.createElement("span");
+    let badge = actor.querySelector(".enpl-participation-count");
+    if (!badge) {
+      badge = actor.nextElementSibling && actor.nextElementSibling.classList.contains("enpl-participation-count")
+        ? actor.nextElementSibling
+        : document.createElement("span");
       badge.className = "enpl-participation-count";
-      actor.insertAdjacentElement("afterend", badge);
+      actor.append(badge);
     }
 
-    badge.textContent = `${count}回`;
+    badge.textContent = `[${count}回]`;
     badge.title = `参加回数：${count}回`;
     badge.setAttribute("aria-label", `参加回数：${count}回`);
   }
@@ -353,19 +355,8 @@
       }
 
       .enpl-participation-count {
-        display: inline-flex;
-        align-items: center;
-        margin-left: 5px;
-        padding: 0 6px;
-        border: 1px solid #d9e1e8;
-        border-radius: 999px;
-        color: #526273;
-        background: #f4f7f9;
-        font-size: 11px;
+        margin-left: .25em;
         font-variant-numeric: tabular-nums;
-        line-height: 1.7;
-        text-decoration: none;
-        vertical-align: middle;
         white-space: nowrap;
       }
 
