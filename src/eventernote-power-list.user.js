@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.10.12
+// @version      0.10.13
 // @description  Eventernote UI enhancements: personal planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -653,34 +653,34 @@
 
       .enpl-followed-actor-3 > a,
       .enpl-followed-actor-4 > a {
-        --enpl-actor-gradient-start: #fff0f3;
-        --enpl-actor-gradient-end: #ffc4d1;
-        --enpl-actor-gradient-deep: #e11d48;
-        --enpl-actor-border: #fb7185;
-        --enpl-actor-text: #9f1239;
-        --enpl-actor-text-deep: #881337;
-        --enpl-actor-glow: rgba(225, 29, 72, .23);
+        --enpl-actor-gradient-start: #fff2e8;
+        --enpl-actor-gradient-end: #ffd6ba;
+        --enpl-actor-gradient-deep: #f9734b;
+        --enpl-actor-border: #fba17c;
+        --enpl-actor-text: #9a3f20;
+        --enpl-actor-text-deep: #84351d;
+        --enpl-actor-glow: rgba(249, 115, 75, .23);
       }
 
       .enpl-followed-actor-5 > a {
-        --enpl-actor-gradient-start: #ffe3e8;
-        --enpl-actor-gradient-end: #fda4b3;
-        --enpl-actor-gradient-deep: #be123c;
-        --enpl-actor-border: #e11d48;
-        --enpl-actor-text: #881337;
-        --enpl-actor-text-deep: #701a2c;
-        --enpl-actor-glow: rgba(190, 18, 60, .25);
+        --enpl-actor-gradient-start: #ffece0;
+        --enpl-actor-gradient-end: #ffc5a7;
+        --enpl-actor-gradient-deep: #ef7144;
+        --enpl-actor-border: #f9734b;
+        --enpl-actor-text: #84351d;
+        --enpl-actor-text-deep: #78301c;
+        --enpl-actor-glow: rgba(239, 113, 68, .25);
         font-weight: 600;
       }
 
       .enpl-followed-actor-6 > a {
-        --enpl-actor-gradient-start: #fff7d6;
-        --enpl-actor-gradient-end: #f5d98f;
-        --enpl-actor-gradient-deep: #b7791f;
-        --enpl-actor-border: #d6a72c;
-        --enpl-actor-text: #78500a;
-        --enpl-actor-text-deep: #5f3b08;
-        --enpl-actor-glow: rgba(161, 98, 7, .22);
+        --enpl-actor-gradient-start: #ffe5d5;
+        --enpl-actor-gradient-end: #ffb996;
+        --enpl-actor-gradient-deep: #e96036;
+        --enpl-actor-border: #ef9c72;
+        --enpl-actor-text: #8f361e;
+        --enpl-actor-text-deep: #7c2d19;
+        --enpl-actor-glow: rgba(233, 96, 54, .22);
         font-weight: 700;
       }
 
@@ -689,30 +689,30 @@
       }
 
       [data-enpl-milestone="100"] {
-        --enpl-milestone-start: #eefcff;
-        --enpl-milestone-end: #bce9fb;
-        --enpl-milestone-deep: #38bdf8;
-        --enpl-milestone-ink: #075985;
-        --enpl-milestone-border: #67cbea;
-        --enpl-milestone-glow: rgba(56, 189, 248, .2);
+        --enpl-milestone-start: #fff0e8;
+        --enpl-milestone-end: #ffb99f;
+        --enpl-milestone-deep: #fb714c;
+        --enpl-milestone-ink: #8b2e1d;
+        --enpl-milestone-border: #f58c6b;
+        --enpl-milestone-glow: rgba(251, 113, 76, .2);
       }
 
       [data-enpl-milestone="150"] {
-        --enpl-milestone-start: #f5f0ff;
-        --enpl-milestone-end: #ddd0ff;
-        --enpl-milestone-deep: #a78bfa;
-        --enpl-milestone-ink: #5b21b6;
-        --enpl-milestone-border: #b49aee;
-        --enpl-milestone-glow: rgba(167, 139, 250, .22);
+        --enpl-milestone-start: #ffe5eb;
+        --enpl-milestone-end: #ff8da8;
+        --enpl-milestone-deep: #ef476f;
+        --enpl-milestone-ink: #861735;
+        --enpl-milestone-border: #ed6e8d;
+        --enpl-milestone-glow: rgba(239, 71, 111, .22);
       }
 
       [data-enpl-milestone="200"] {
-        --enpl-milestone-start: #fff0fa;
-        --enpl-milestone-end: #ffcce5;
-        --enpl-milestone-deep: #f472b6;
-        --enpl-milestone-ink: #9d174d;
-        --enpl-milestone-border: #f397c7;
-        --enpl-milestone-glow: rgba(244, 114, 182, .22);
+        --enpl-milestone-start: #ffc7d7;
+        --enpl-milestone-end: #f45b83;
+        --enpl-milestone-deep: #d92355;
+        --enpl-milestone-ink: #680f2d;
+        --enpl-milestone-border: #d93e68;
+        --enpl-milestone-glow: rgba(217, 35, 85, .25);
       }
 
       .enpl-followed-actor[data-enpl-milestone]:not([data-enpl-milestone="0"]) > a {
@@ -872,10 +872,10 @@
 
       .enpl-profile-actors > li.s1 { --enpl-profile-ink: #a56825; --enpl-profile-tint: #fff1dc; }
       .enpl-profile-actors > li.s2 { --enpl-profile-ink: #af592e; --enpl-profile-tint: #ffe8de; }
-      .enpl-profile-actors > li.s3 { --enpl-profile-ink: #a84664; --enpl-profile-tint: #fce3eb; }
-      .enpl-profile-actors > li.s4 { --enpl-profile-ink: #9e344b; --enpl-profile-tint: #f6dce3; }
-      .enpl-profile-actors > li.s5,
-      .enpl-profile-actors > li.s6 { --enpl-profile-ink: #8b6829; --enpl-profile-tint: #f6ead0; }
+      .enpl-profile-actors > li.s3 { --enpl-profile-ink: #a3542e; --enpl-profile-tint: #ffe7d5; }
+      .enpl-profile-actors > li.s4 { --enpl-profile-ink: #a34829; --enpl-profile-tint: #ffddc5; }
+      .enpl-profile-actors > li.s5 { --enpl-profile-ink: #994023; --enpl-profile-tint: #ffd2b6; }
+      .enpl-profile-actors > li.s6 { --enpl-profile-ink: #8f361e; --enpl-profile-tint: #ffc6a6; }
 
       .gb_actors_list.enpl-profile-actors > li > a {
         display: flex;
