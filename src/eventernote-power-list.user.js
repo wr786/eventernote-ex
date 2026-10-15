@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.10.13
-// @description  Eventernote UI enhancements: personal planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
+// @version      0.11.0
+// @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=eventernote.com
@@ -57,6 +57,7 @@
     applyFollowedActorEventSort(eventItems);
     applySameDaySchedule();
     applyFavoriteActorParticipationCounts();
+    applyPersonalDashboard();
     applyFollowedActorHighlights();
   }
 
@@ -356,6 +357,243 @@
     });
     datePicker.addEventListener("change", refresh);
     new MutationObserver(() => { if (active) refresh(); }).observe(list, { childList: true });
+  }
+
+  function applyPersonalDashboard() {
+    const ownLink = Array.from(document.querySelectorAll("a[href]")).find((link) => textOf(link) === "自分のページを確認");
+    const ownPath = ownLink ? getPathname(ownLink.href).replace(/\/$/, "") : "";
+    const pathname = location.pathname.replace(/\/$/, "");
+    if (!ownPath || (pathname !== "/users" && pathname !== ownPath) || document.querySelector(".enpl-personal")) return;
+    const heading = Array.from(document.querySelectorAll(".gb_subtitle")).find((node) => /参加予定イベント/.test(textOf(node)));
+    if (!heading) return;
+    const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+    let month = today.slice(0, 7);
+    let year = Number(today.slice(0, 4));
+    let selectedDate = "";
+    let complete = false;
+    let busy = false;
+    let records = getEventItems(heading.nextElementSibling).map(readPersonalEvent).filter(Boolean);
+    const favorites = Array.from(document.querySelectorAll(".gb_actors_list li")).map((item) => {
+      const actor = item.querySelector("a[href*='/actors/']");
+      return actor ? { href: actor.href, name: Array.from(actor.childNodes).filter((node) => node.nodeType === 3).map((node) => node.textContent).join("").trim() } : null;
+    }).filter(Boolean);
+    function make(tag, className, text) {
+      const element = document.createElement(tag);
+      element.className = className;
+      element.textContent = text;
+      return element;
+    }
+    function button(text, action) {
+      const element = make("button", "enpl-personal-button", text);
+      element.type = "button";
+      element.addEventListener("click", action);
+      return element;
+    }
+    const panel = make("section", "enpl-personal", "");
+    panel.setAttribute("aria-label", "我的现场");
+    const top = make("div", "enpl-personal-top", "");
+    const intro = make("div", "", "");
+    intro.append(make("p", "enpl-personal-eyebrow", "MY LIVE JOURNAL"), make("h2", "", "我的现场"));
+    const load = button("读取完整参加记录", loadRecords);
+    top.append(intro, load);
+    const status = make("p", "enpl-personal-note", "月历先显示主页列出的予定。读取完整记录后，可查看全年予定、年度回顾与里程碑预测；数据仅在本页使用。");
+    status.setAttribute("role", "status");
+    const tabs = make("div", "enpl-personal-tabs", "");
+    const calendar = make("div", "", "");
+    const recap = make("div", "", "");
+    const milestones = make("div", "", "");
+    const views = [calendar, recap, milestones];
+    const labels = ["参加予定月历", "个人年度回顾", "里程碑倒计时"];
+    const tabButtons = labels.map((label, index) => {
+      const tab = button(label, () => {
+        views.forEach((view, i) => { view.hidden = i !== index; tabButtons[i].setAttribute("aria-pressed", String(i === index)); });
+      });
+      tab.setAttribute("aria-pressed", String(index === 0));
+      tabs.append(tab);
+      views[index].hidden = index !== 0;
+      return tab;
+    });
+    panel.append(top, status, tabs, ...views);
+    heading.insertAdjacentElement("beforebegin", panel);
+    render();
+
+    async function loadRecords() {
+      if (busy) return;
+      busy = true;
+      load.disabled = true;
+      const events = new Map();
+      const visited = new Set();
+      let expectedCount = null;
+      let url = new URL(`${ownPath}/events`, location.origin);
+      try {
+        while (url) {
+          if (visited.has(url.href) || visited.size >= 100) throw new Error("分页重复或超过 100 页，未完成读取");
+          visited.add(url.href);
+          status.textContent = `正在读取第 ${visited.size} 页 · 已读取 ${events.size} 场`;
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 20000);
+          let response;
+          let html;
+          try {
+            response = await fetch(url.href, { credentials: "same-origin", signal: controller.signal });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            html = await response.text();
+          } finally { clearTimeout(timeout); }
+          if (new URL(response.url).origin !== location.origin || new URL(response.url).pathname.replace(/\/$/, "") !== `${ownPath}/events`) throw new Error("参加记录页面已跳转，请确认登录状态");
+          const root = new DOMParser().parseFromString(html, "text/html");
+          const title = Array.from(root.querySelectorAll(".gb_subtitle")).find((node) => /参加イベント一覧/.test(textOf(node)));
+          if (!title) throw new Error("未找到参加记录，可能需要重新登录");
+          const total = textOf(title).match(/\(([\d,]+)件\)/);
+          if (expectedCount === null && total) expectedCount = Number(total[1].replace(/,/g, ""));
+          const items = getEventItems(root).map(readPersonalEvent).filter(Boolean);
+          if (!items.length && !/\(0件\)/.test(textOf(title))) throw new Error("参加记录格式已变化");
+          items.forEach((event) => events.set(getPathname(event.href), event));
+          const next = root.querySelector(".pagination li.next:not(.disabled) a[href]");
+          url = next ? new URL(next.getAttribute("href"), response.url) : null;
+          if (url && (url.origin !== location.origin || url.pathname.replace(/\/$/, "") !== `${ownPath}/events`)) throw new Error("分页链接不属于本人的参加记录");
+        }
+        if (expectedCount !== null && events.size !== expectedCount) throw new Error(`读取 ${events.size} 场，与页面总数 ${expectedCount} 不符，请重试`);
+        records = Array.from(events.values()).sort((a, b) => a.date.localeCompare(b.date) || (a.start ?? 1440) - (b.start ?? 1440));
+        complete = true;
+        status.textContent = `完整读取 ${records.length} 场 · ${visited.size} 页。回顾按日本日期截至 ${today}，未来登记单列为予定；登记不代表实际到场。`;
+        load.textContent = "刷新参加记录";
+        render();
+      } catch (error) {
+        status.textContent = `读取未完成：${error.message}。${complete ? "保留上次完整结果。" : "仍使用主页预览，不生成年度统计。"}可点击重试。`;
+      } finally {
+        busy = false;
+        load.disabled = false;
+      }
+    }
+
+    function render() { renderCalendar(); renderRecap(); renderMilestones(); }
+
+    function renderCalendar() {
+      calendar.replaceChildren();
+      const controls = make("div", "enpl-personal-controls", "");
+      const picker = make("input", "", "");
+      picker.type = "month";
+      picker.value = month;
+      picker.setAttribute("aria-label", "予定月历月份");
+      picker.addEventListener("change", () => { if (/^\d{4}-\d{2}$/.test(picker.value)) { month = picker.value; selectedDate = ""; renderCalendar(); } });
+      function shift(amount) {
+        const date = new Date(Number(month.slice(0, 4)), Number(month.slice(5)) - 1 + amount, 1);
+        month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+        selectedDate = "";
+        renderCalendar();
+      }
+      controls.append(button("上一月", () => shift(-1)), picker, button("下一月", () => shift(1)), button("本月", () => { month = today.slice(0, 7); selectedDate = ""; renderCalendar(); }));
+      calendar.append(controls, make("p", "enpl-personal-note", complete ? "仅显示今天及之后的本人登记予定，点击日期查看场次。" : "主页予定预览 · 尚未读取的月份不能视为没有活动。"));
+      const planned = records.filter((event) => event.date >= today && event.date.startsWith(month));
+      const grid = make("div", "enpl-calendar-grid", "");
+      ["一", "二", "三", "四", "五", "六", "日"].forEach((day) => grid.append(make("span", "enpl-calendar-weekday", day)));
+      const first = new Date(Number(month.slice(0, 4)), Number(month.slice(5)) - 1, 1);
+      for (let i = 0; i < (first.getDay() + 6) % 7; i++) grid.append(make("span", "", ""));
+      const days = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+      for (let day = 1; day <= days; day++) {
+        const date = `${month}-${String(day).padStart(2, "0")}`;
+        const count = planned.filter((event) => event.date === date).length;
+        const cell = button("", () => { selectedDate = selectedDate === date ? "" : date; renderCalendar(); });
+        cell.className = `enpl-calendar-day${count ? " enpl-calendar-busy" : ""}${date === today ? " enpl-calendar-today" : ""}`;
+        cell.setAttribute("aria-label", `${date}，${count} 场${complete ? "" : "（预览）"}`);
+        cell.setAttribute("aria-pressed", String(selectedDate === date));
+        cell.append(make("span", "", String(day)));
+        if (count) cell.append(make("small", "", `${count} 场`));
+        grid.append(cell);
+      }
+      calendar.append(grid);
+      const events = planned.filter((event) => !selectedDate || event.date === selectedDate);
+      calendar.append(make("h3", "", `${selectedDate || month} · ${events.length} 场${complete ? "予定" : "预览"}`));
+      if (!events.length) calendar.append(make("p", "enpl-personal-note", complete ? "当前日期没有登记予定。" : "当前预览没有场次，可读取完整记录。"));
+      events.forEach((event) => {
+        const row = make("div", "enpl-personal-event", "");
+        const link = make("a", "", event.title);
+        link.href = event.href;
+        row.append(make("span", "enpl-personal-note", `${event.date} · ${formatScheduleTime(event.start)}`), link, make("small", "enpl-personal-note", event.venue || "场馆未定"));
+        calendar.append(row);
+      });
+    }
+
+    function renderRecap() {
+      recap.replaceChildren();
+      if (!complete) { recap.append(make("p", "enpl-personal-empty", "读取完整参加记录，解锁你的年度现场回顾。")); return; }
+      const picker = make("select", "", "");
+      picker.setAttribute("aria-label", "年度回顾年份");
+      const years = Array.from(new Set([Number(today.slice(0, 4)), ...records.map((event) => Number(event.date.slice(0, 4)))])).sort((a, b) => b - a);
+      years.forEach((value) => { const option = make("option", "", `${value} 年`); option.value = value; picker.append(option); });
+      picker.value = String(year);
+      picker.addEventListener("change", () => { year = Number(picker.value); renderRecap(); });
+      const events = records.filter((event) => event.date.startsWith(`${year}-`) && event.date <= today);
+      const future = records.filter((event) => event.date.startsWith(`${year}-`) && event.date > today);
+      const venues = new Set(events.filter((event) => event.venueHref).map((event) => getPathname(event.venueHref)));
+      const stats = make("div", "enpl-personal-stats", "");
+      [[events.length, "场登记"], [new Set(events.map((event) => event.date)).size, "个现场日"], [venues.size, "个场馆"], [future.length, "场未来予定"]].forEach(([value, label]) => {
+        const tile = make("div", "", ""); tile.append(make("strong", "", String(value)), make("span", "", label)); stats.append(tile);
+      });
+      recap.append(picker, make("h3", "enpl-recap-title", `${year} · 你的现场足迹`), stats);
+      const months = Array.from({ length: 12 }, (_, index) => events.filter((event) => Number(event.date.slice(5, 7)) === index + 1).length);
+      const chart = make("div", "enpl-recap-months", "");
+      months.forEach((count, index) => {
+        const bar = make("div", "", "");
+        const fill = make("span", "enpl-recap-bar", ""); fill.style.height = `${count ? 8 + count / Math.max(1, ...months) * 52 : 2}px`;
+        bar.append(make("small", "", String(count)), fill, make("small", "", `${index + 1}月`)); chart.append(bar);
+      });
+      recap.append(chart);
+      function ranking(title, entries) {
+        const counts = new Map();
+        entries.forEach((entry) => { const key = getPathname(entry.href); const found = counts.get(key); counts.set(key, { ...entry, count: (found ? found.count : 0) + 1 }); });
+        const section = make("div", "enpl-recap-ranking", ""); section.append(make("h3", "", title));
+        Array.from(counts.values()).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)).slice(0, 5).forEach((entry, index) => {
+          const row = make("a", "", `${index + 1}. ${entry.name} · ${entry.count} 场`); row.href = entry.href; section.append(row);
+        });
+        if (!counts.size) section.append(make("p", "enpl-personal-note", "暂无记录"));
+        return section;
+      }
+      const ranks = make("div", "enpl-recap-rankings", "");
+      ranks.append(ranking("见得最多的艺人", events.flatMap((event) => event.actors)), ranking("最常去的场馆", events.filter((event) => event.venueHref).map((event) => ({ name: event.venue, href: event.venueHref }))));
+      recap.append(ranks, make("p", "enpl-personal-note", `依据当前仍登记的活动，按活动日期截至 ${today}；今天的活动不判断是否已结束。艺人统计为出演场次，同场每位艺人只计一次。`));
+    }
+
+    function renderMilestones() {
+      milestones.replaceChildren();
+      if (!complete) { milestones.append(make("p", "enpl-personal-empty", "读取完整参加记录，看看下一次里程碑还有多远。")); return; }
+      milestones.append(make("p", "enpl-personal-note", "只看关注艺人：从历史登记重算截至今天的出演场次，未来予定不计入已达成次数。预测以予定全部参加为前提，不代表已经达成。"));
+      const cards = favorites.map((actor) => {
+        const key = getPathname(actor.href);
+        const appearances = records.filter((event) => event.actors.some((entry) => getPathname(entry.href) === key));
+        const count = appearances.filter((event) => event.date <= today).length;
+        const goal = nextParticipationGoal(count);
+        const planned = appearances.filter((event) => event.date > today);
+        return { ...actor, count, goal, remaining: goal - count, planned, target: planned[goal - count - 1] };
+      }).sort((a, b) => a.remaining - b.remaining || b.count - a.count);
+      if (!cards.length) milestones.append(make("p", "enpl-personal-empty", "关注艺人后，这里会显示下一目标。"));
+      const grid = make("div", "enpl-milestone-grid", "");
+      cards.forEach((actor) => {
+        const card = make("article", "enpl-milestone-card", "");
+        card.dataset.enplMilestone = getParticipationMilestone(actor.count);
+        const link = make("a", "", actor.name); link.href = actor.href;
+        const progress = make("progress", "", ""); progress.max = actor.goal; progress.value = actor.count;
+        progress.setAttribute("aria-label", `${actor.name}：${actor.count} / ${actor.goal} 回`);
+        card.append(link, make("strong", "", `还差 ${actor.remaining} 场`), make("small", "enpl-personal-note", `${actor.count} → ${actor.goal} 回`), progress);
+        if (actor.target) {
+          const target = make("a", "enpl-personal-note", `可能达成：${actor.target.date} · ${actor.target.title}`); target.href = actor.target.href; card.append(target);
+        } else card.append(make("small", "enpl-personal-note", `已有 ${actor.planned.length} 场未来予定，还需 ${Math.max(0, actor.remaining - actor.planned.length)} 场`));
+        grid.append(card);
+      });
+      milestones.append(grid);
+    }
+  }
+
+  function readPersonalEvent(item) {
+    const event = readScheduleEvent(item);
+    if (!event || !event.date) return null;
+    const actors = new Map();
+    item.querySelectorAll(".actor a[href*='/actors/']").forEach((actor) => actors.set(getPathname(actor.href), { name: textOf(actor), href: new URL(actor.getAttribute("href"), location.origin).href }));
+    return { ...event, href: new URL(item.querySelector("h4 a").getAttribute("href"), location.origin).href, actors: Array.from(actors.values()) };
+  }
+
+  function nextParticipationGoal(count) {
+    return [10, 20, 30, 50, 100, 150, 200].find((goal) => goal > count) || (Math.floor(count / 50) + 1) * 50;
   }
 
   function readScheduleEvent(item) {
@@ -919,6 +1157,64 @@
       .gb_actors_list.enpl-profile-actors > li > a:focus-visible {
         outline: 2px solid var(--enpl-profile-ink);
         outline-offset: 2px;
+      }
+
+      .enpl-personal {
+        margin: 0 0 24px;
+        padding: 20px;
+        border: 1px solid #f2d5c8;
+        border-radius: 20px;
+        color: #493d3d;
+        background: linear-gradient(135deg, #fff9f2, #fff3f5 75%, #fff);
+      }
+      .enpl-personal [hidden] { display: none !important; }
+      .enpl-personal h2 { margin: 0; color: #873e32; font-size: 24px; line-height: 1.4; }
+      .enpl-personal h3 { margin: 18px 0 10px; font-size: 15px; line-height: 1.5; }
+      .enpl-personal-top, .enpl-personal-controls, .enpl-personal-tabs { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+      .enpl-personal-top { justify-content: space-between; }
+      .enpl-personal-eyebrow { margin: 0 0 3px; color: #aa6556; font-size: 10px; letter-spacing: .16em; }
+      .enpl-personal-note { color: #796968; font-size: 12px; line-height: 1.65; }
+      .enpl-personal > .enpl-personal-note { margin: 12px 0; }
+      .enpl-personal-button {
+        padding: 7px 12px; border: 1px solid #ecc8b9; border-radius: 12px;
+        background: #fffaf6; color: #914b39; font: inherit; font-size: 12px; cursor: pointer;
+      }
+      .enpl-personal-button:hover { background: #ffe4d6; }
+      .enpl-personal-button:focus-visible { outline: 2px solid #bd564b; outline-offset: 2px; }
+      .enpl-personal-button:disabled { opacity: .6; cursor: wait; }
+      .enpl-personal-tabs { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f1dcd4; }
+      .enpl-personal-tabs [aria-pressed="true"] { background: #a94442; color: white; border-color: #a94442; }
+      .enpl-personal input[type="month"], .enpl-personal select { width: auto; max-width: 100%; margin: 0; border-radius: 10px; border-color: #e8cbbf; color: #744238; }
+      .enpl-personal-controls { margin-bottom: 10px; }
+      .enpl-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+      .enpl-calendar-weekday { padding: 5px 0; text-align: center; color: #997b73; font-size: 12px; }
+      .enpl-calendar-day { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 54px; padding: 4px; border-radius: 10px; border-color: transparent; color: #80716b; background: #fffaf8; }
+      .enpl-calendar-day small { font-size: 10px; }
+      .enpl-calendar-busy { color: #a13c36; background: linear-gradient(135deg, #ffe6d0, #ffbcae); font-weight: 600; }
+      .enpl-calendar-today { border-color: #b74f42; }
+      .enpl-calendar-day[aria-pressed="true"] { outline: 2px solid #a94442; outline-offset: 0; }
+      .enpl-personal-event { display: grid; gap: 3px; padding: 10px 0; border-bottom: 1px solid #f0dfd7; }
+      .enpl-personal-event > a { color: #8c443d; font-size: 13px; line-height: 1.6; }
+      .enpl-personal-empty { padding: 30px 12px; text-align: center; color: #96726b; }
+      .enpl-personal-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+      .enpl-personal-stats > div { display: grid; padding: 12px 5px; text-align: center; border: 1px solid #f1d4c8; border-radius: 14px; background: #fffaf6; }
+      .enpl-personal-stats strong { font-size: 27px; line-height: 1.5; color: #a94442; font-variant-numeric: tabular-nums; }
+      .enpl-personal-stats span { color: #96726b; font-size: 11px; }
+      .enpl-recap-months { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: end; gap: 4px; margin: 22px 0 8px; }
+      .enpl-recap-months > div { display: grid; justify-items: center; align-content: end; gap: 4px; font-size: 10px; color: #96726b; }
+      .enpl-recap-bar { width: 75%; border-radius: 5px 5px 2px 2px; background: linear-gradient(#e89478, #ba4d51); }
+      .enpl-recap-rankings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+      .enpl-recap-ranking > a { display: block; padding: 7px 0; border-bottom: 1px solid #efdbd2; color: #8f5147; font-size: 12px; overflow-wrap: anywhere; }
+      .enpl-milestone-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .enpl-milestone-card { display: grid; gap: 7px; padding: 14px; border: 1px solid var(--enpl-milestone-border, #edc7b3); border-radius: 14px; background: linear-gradient(125deg, #fff, var(--enpl-milestone-start, #fff0e4)); }
+      .enpl-milestone-card > a { color: var(--enpl-milestone-ink, #8f5147); font-size: 12px; overflow-wrap: anywhere; line-height: 1.5; }
+      .enpl-milestone-card > strong { color: var(--enpl-milestone-ink, #a94442); font-size: 20px; line-height: 1.5; }
+      .enpl-milestone-card progress { width: 100%; height: 7px; accent-color: var(--enpl-milestone-border, #d98463); }
+      @media (max-width: 600px) {
+        .enpl-personal { padding: 12px; }
+        .enpl-personal-stats, .enpl-recap-rankings, .enpl-milestone-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .enpl-recap-rankings { grid-template-columns: minmax(0, 1fr); }
+        .enpl-calendar-day { min-height: 44px; }
       }
 
       .enpl-venue-link {

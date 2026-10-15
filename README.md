@@ -7,6 +7,8 @@ Two independent Tampermonkey userscripts for Eventernote.
 - Compact list mode with hidden images and denser event rows.
 - Tiny Google Maps link beside Eventernote venue links.
 - Tiny same-day event search link beside each event date.
+- “我的现场” on your own profile: a month calendar of planned events, annual attendance recap with monthly distribution and top performers/venues, and followed-artist milestone countdowns with tentative achievement dates.
+- Click “读取完整参加记录” to read all pages of your own registered events (up to 100 pages, with progress and retry). Until completion, the calendar is explicitly a homepage preview and annual statistics remain locked. Records stay in page memory; future registrations are separated from past dates using Japan time. Countdown totals are recalculated from historical events rather than adding plans to the site's potentially plan-inclusive counters.
 - Personal itinerary on your own planned-event profile section, grouped by date and start time with a date selector, venues, end times, gaps, and overlap cues. Search results and followed-artist event suggestions are excluded.
 - Popularity highlighting on Eventernote's existing attendance count at 10, 50, and 100 attendees.
 - Event search recommendations combine up to 10 pages initially and load more on demand, ranked by the summed participation counts of followed performers; toggle back to the original page anytime.
