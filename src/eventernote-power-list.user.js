@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Eventernote Lite Enhancer
+// @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.11.2
+// @version      0.11.3
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -31,7 +31,7 @@
   injectStyles();
   updateFollowingActorCache();
   applyEnhancements();
-  console.info("[Eventernote Lite Enhancer] active");
+  console.info("[Eventernote EX] active");
 
   function loadSettings() {
     try {
@@ -232,7 +232,7 @@
         status.textContent = `已推荐 ${originalOrder.length} 场 · ${pagesLoaded} 页${nextUrl ? " · 可继续加载" : " · 已加载到底"}`;
       } catch (error) {
         status.textContent = `已有 ${originalOrder.length} 场 · 加载失败，可点击加载更多重试`;
-        console.warn("[Eventernote Lite Enhancer] recommendation loading failed", error);
+        console.warn("[Eventernote EX] recommendation loading failed", error);
       } finally {
         loading = false;
         button.disabled = false;

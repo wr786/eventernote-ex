@@ -2,7 +2,7 @@
 
 Two independent Tampermonkey userscripts for Eventernote.
 
-## Eventernote Lite Enhancer
+## Eventernote EX
 
 - Compact list mode with hidden images and denser event rows.
 - Tiny Google Maps link beside Eventernote venue links.
