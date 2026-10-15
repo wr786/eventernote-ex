@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.11.1
+// @version      0.11.2
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -389,7 +389,8 @@
       element.addEventListener("click", action);
       return element;
     }
-    const panel = make("section", "enpl-personal", "");
+    const panel = make("details", "enpl-personal", "");
+    const summary = make("summary", "enpl-personal-summary", "我的现场 · 月历 / 年度回顾 / 里程碑");
     panel.setAttribute("aria-label", "我的现场");
     const top = make("div", "enpl-personal-top", "");
     const intro = make("div", "", "");
@@ -413,7 +414,7 @@
       views[index].hidden = index !== 0;
       return tab;
     });
-    panel.append(top, status, tabs, ...views);
+    panel.append(summary, top, status, tabs, ...views);
     heading.insertAdjacentElement("beforebegin", panel);
     render();
 
@@ -1171,6 +1172,10 @@
         color: #493d3d;
         background: linear-gradient(135deg, #fff9f2, #fff3f5 75%, #fff);
       }
+      .enpl-personal:not([open]) { padding: 12px 16px; }
+      .enpl-personal-summary { color: #873e32; font-size: 14px; font-weight: 600; line-height: 1.6; cursor: pointer; }
+      .enpl-personal[open] > .enpl-personal-summary { margin-bottom: 16px; }
+      .enpl-personal-summary:focus-visible { outline: 2px solid #bd564b; outline-offset: 4px; border-radius: 4px; }
       .enpl-personal [hidden] { display: none !important; }
       .enpl-personal h2 { margin: 0; color: #873e32; font-size: 24px; line-height: 1.4; }
       .enpl-personal h3 { margin: 18px 0 10px; font-size: 15px; line-height: 1.5; }
