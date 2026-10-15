@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Lite Enhancer
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.11.0
+// @version      0.11.1
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -424,6 +424,7 @@
       const events = new Map();
       const visited = new Set();
       let expectedCount = null;
+      let rowsRead = 0;
       let url = new URL(`${ownPath}/events`, location.origin);
       try {
         while (url) {
@@ -445,17 +446,20 @@
           if (!title) throw new Error("未找到参加记录，可能需要重新登录");
           const total = textOf(title).match(/\(([\d,]+)件\)/);
           if (expectedCount === null && total) expectedCount = Number(total[1].replace(/,/g, ""));
-          const items = getEventItems(root).map(readPersonalEvent).filter(Boolean);
+          const rawItems = getEventItems(root);
+          const items = rawItems.map(readPersonalEvent).filter(Boolean);
+          if (items.length !== rawItems.length) throw new Error("部分活动日期无法读取，未生成不完整统计");
+          rowsRead += rawItems.length;
           if (!items.length && !/\(0件\)/.test(textOf(title))) throw new Error("参加记录格式已变化");
           items.forEach((event) => events.set(getPathname(event.href), event));
           const next = root.querySelector(".pagination li.next:not(.disabled) a[href]");
           url = next ? new URL(next.getAttribute("href"), response.url) : null;
           if (url && (url.origin !== location.origin || url.pathname.replace(/\/$/, "") !== `${ownPath}/events`)) throw new Error("分页链接不属于本人的参加记录");
         }
-        if (expectedCount !== null && events.size !== expectedCount) throw new Error(`读取 ${events.size} 场，与页面总数 ${expectedCount} 不符，请重试`);
+        if (expectedCount !== null && rowsRead !== expectedCount) throw new Error(`读取 ${rowsRead} 条，与页面总数 ${expectedCount} 不符，请重试`);
         records = Array.from(events.values()).sort((a, b) => a.date.localeCompare(b.date) || (a.start ?? 1440) - (b.start ?? 1440));
         complete = true;
-        status.textContent = `完整读取 ${records.length} 场 · ${visited.size} 页。回顾按日本日期截至 ${today}，未来登记单列为予定；登记不代表实际到场。`;
+        status.textContent = `完整读取 ${rowsRead} 条 · 去重后 ${records.length} 场 · ${visited.size} 页。回顾按日本日期截至 ${today}，未来登记单列为予定；登记不代表实际到场。`;
         load.textContent = "刷新参加记录";
         render();
       } catch (error) {
