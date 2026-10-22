@@ -23,7 +23,7 @@ Visit `https://www.eventernote.com/users` once after installation to cache follo
 
 [Install on GreasyFork](https://greasyfork.org/zh-CN/scripts/601552-eventernote-air).
 
-- A separate Apple-inspired theme: quiet neutral surfaces, translucent dark navigation, system typography, subtle borders and structured forms/detail tables.
+- A separate Apple-inspired theme: a tinted canvas, light glass navigation, separate event cards, date tiles, a layered sidebar, system typography and structured forms/detail tables.
 - Complements Eventernote EX: keeps event row geometry, compact mode, performer metals, participation typography, hidden states, sorting and personal dashboard controls under EX's ownership.
 - CSS rules are scoped to `body.ena-enabled`; the script only adds this marker and a stylesheet. No event handlers, observers, storage, external fonts or network requests.
 - Preserves the site's fixed desktop two-column layout; respects reduced transparency, increased contrast, and print output. No decorative motion.
