@@ -1,6 +1,6 @@
 # Eventernote Userscripts
 
-Independent Tampermonkey userscripts for Eventernote. Use Eventernote EX for features and Eventernote Air for the new visual theme.
+Independent Tampermonkey userscripts for Eventernote.
 
 ## Eventernote EX
 
@@ -19,17 +19,7 @@ This replaces the separate [Eventernote 参加回数表示](https://greasyfork.o
 
 Visit `https://www.eventernote.com/users` once after installation to cache followed actors and their participation counts.
 
-## Eventernote Air
-
-[Install on GreasyFork](https://greasyfork.org/zh-CN/scripts/601552-eventernote-air).
-
-- A separate Apple-inspired theme: a tinted canvas, light glass navigation, separate event cards, date tiles, a layered sidebar, system typography and structured forms/detail tables.
-- Complements Eventernote EX: keeps event row geometry, compact mode, performer metals, participation typography, hidden states, sorting and personal dashboard controls under EX's ownership.
-- CSS rules are scoped to `body.ena-enabled`; the script only adds this marker and a stylesheet. No event handlers, observers, storage, external fonts or network requests.
-- Preserves the site's fixed desktop two-column layout; respects reduced transparency, increased contrast, and print output. No decorative motion.
-- Install alongside EX, or use Air alone. Fancy UI below is an alternative older theme; choose one visual theme at a time.
-
-## Eventernote Fancy UI (legacy alternative)
+## Eventernote Fancy UI
 
 - Material 3 Expressive-inspired color, shape, size, containment, and motion.
 - Three-column event cards with rhythmic color markers and emphasized attendance.
@@ -42,7 +32,6 @@ Visit `https://www.eventernote.com/users` once after installation to cache follo
 Install the scripts independently in Tampermonkey, Violentmonkey, or another userscript manager:
 
 - `src/eventernote-power-list.user.js`
-- `src/eventernote-air.user.js` (visual companion for EX)
 - `src/eventernote-fancy-ui.user.js` (older alternative theme)
 
 ## Supported Pages
