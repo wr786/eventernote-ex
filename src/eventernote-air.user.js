@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Air
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.1.0
+// @version      0.1.1
 // @description  A calm, Apple-inspired visual theme for Eventernote. Refined surfaces, typography, navigation and forms, designed to complement Eventernote EX.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -85,7 +85,8 @@
     }
     body.ena-enabled .page-title h1 { color: #20232a; font-weight: 600; letter-spacing: -.035em; }
     body.ena-enabled .page-title p { color: var(--ena-muted); }
-    body.ena-enabled .gb_top_box { box-sizing: border-box; padding: 22px; border: 1px solid var(--ena-line); border-radius: 20px; background: #fff; box-shadow: 0 5px 24px rgba(30,40,60,.035); }
+    body.ena-enabled .row:has(> .gb_top_box) { display: flex; align-items: stretch; }
+    body.ena-enabled .gb_top_box { height: auto; min-height: 280px; box-sizing: border-box; padding: 22px; border: 1px solid var(--ena-line); border-radius: 20px; background: #fff; box-shadow: 0 5px 24px rgba(30,40,60,.035); }
     body.ena-enabled .gb_top_box h2 { color: #34363e; font-size: 21px; font-weight: 600; letter-spacing: -.02em; }
     body.ena-enabled .gb_top_box p { color: var(--ena-muted); line-height: 1.7; }
 
