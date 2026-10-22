@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.11.6
+// @version      0.11.7
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -576,7 +576,7 @@
       const grid = make("div", "enpl-milestone-grid", "");
       cards.forEach((actor) => {
         const card = make("article", "enpl-milestone-card", "");
-        card.dataset.enplMilestone = getParticipationMilestone(actor.count);
+        card.dataset.enplTier = getParticipationTier(actor.count);
         const link = make("a", "", actor.name); link.href = actor.href;
         const progress = make("progress", "", ""); progress.max = actor.goal; progress.value = actor.count;
         progress.setAttribute("aria-label", `${actor.name}：${actor.count} / ${actor.goal} 回`);
@@ -650,18 +650,8 @@
       if (!parent) return;
 
       parent.classList.add("enpl-followed-actor");
-      const level = getFollowingRankLevel(actorClassName);
-      if (level !== null) {
-        parent.classList.add(`enpl-followed-actor-${level}`);
-      }
-
-      const count = getParticipationCount(actorClassName);
-      if (count !== null) {
-        // shortcut: cap gradient depth at 50 appearances to keep labels readable; raise it if higher counts need more separation.
-        parent.style.setProperty("--enpl-actor-gradient-depth", `${Math.min(count, 50)}%`);
-        parent.classList.toggle("enpl-followed-actor-deep", count >= 30);
-        parent.dataset.enplMilestone = getParticipationMilestone(count);
-      }
+      actor.classList.add("enpl-metal-chip");
+      parent.dataset.enplTier = getParticipationTier(getParticipationCount(actorClassName) ?? 0);
     });
   }
 
@@ -682,8 +672,7 @@
             name.title = textOf(name);
             actor.prepend(name);
           }
-          item.dataset.enplMilestone = getParticipationMilestone(count);
-          item.dataset.enplProfileTier = getProfileParticipationTier(count)[2];
+          item.dataset.enplTier = getParticipationTier(count);
         }
       }
     });
@@ -735,9 +724,9 @@
         const badge = item.querySelector(".enpl-participation-count");
         const count = getParticipationCount(item.className);
         if (badge && count !== null) {
-          const [, tierName] = getProfileParticipationTier(count);
-          badge.textContent = original ? `[${count}回]` : `${tierName} · ${count}回`;
-          badge.title = original ? `参加回数：${count}回` : `${tierName} · 参加回数：${count}回`;
+          badge.classList.toggle("enpl-metal-chip", !original);
+          badge.textContent = original ? `[${count}回]` : `${count}回`;
+          badge.title = `参加回数：${count}回`;
           badge.setAttribute("aria-label", badge.title);
         }
       });
@@ -758,20 +747,9 @@
     });
   }
 
-  function getProfileParticipationTier(count) {
-    return [
-      [200, "赤钻", "ruby"],
-      [150, "黑钻", "diamond"],
-      [100, "黑金", "black-gold"],
-      [50, "黄金", "gold"],
-      [30, "白银", "silver"],
-      [10, "青铜", "bronze"],
-      [0, "黑铁", "iron"]
-    ].find(([minimum]) => count >= minimum);
-  }
-
-  function getParticipationMilestone(count) {
-    return count >= 200 ? "200" : count >= 150 ? "150" : count >= 100 ? "100" : "0";
+  function getParticipationTier(count) {
+    return [[200, "ruby"], [150, "diamond"], [100, "black-gold"], [50, "gold"], [30, "silver"], [10, "bronze"], [0, "iron"]]
+      .find(([minimum]) => count >= minimum)[1];
   }
 
   function addParticipationCount(actor, count) {
@@ -846,11 +824,6 @@
   function getFollowingActorMap() {
     const cache = loadFollowingActorCache();
     return cache ? cache.actors : null;
-  }
-
-  function getFollowingRankLevel(rank) {
-    const match = String(rank || "").match(/s([0-6])/);
-    return match ? match[1] : null;
   }
 
   function getParticipationCount(className) {
@@ -948,115 +921,19 @@
         text-underline-offset: 2px;
       }
 
-      .enpl-followed-actor > a {
-        --enpl-actor-gradient-start: #fff3e5;
-        --enpl-actor-gradient-end: #ffd9b8;
-        --enpl-actor-gradient-deep: #f97316;
-        --enpl-actor-border: #fb923c;
-        --enpl-actor-text: #9a3412;
-        --enpl-actor-text-deep: #7c2d12;
-        --enpl-actor-glow: rgba(249, 115, 22, .24);
-        display: inline-flex;
-        align-items: center;
-        border: 1px solid var(--enpl-actor-border);
-        border-radius: 999px;
-        color: var(--enpl-actor-text);
-        background: linear-gradient(135deg, var(--enpl-actor-gradient-start), var(--enpl-actor-gradient-end));
-        background:
-          linear-gradient(135deg, rgba(255, 255, 255, .56), rgba(255, 255, 255, 0) 56%),
-          linear-gradient(135deg,
-            color-mix(in srgb, var(--enpl-actor-gradient-start) calc(100% - var(--enpl-actor-gradient-depth, 0%)), var(--enpl-actor-gradient-deep) var(--enpl-actor-gradient-depth, 0%)),
-            color-mix(in srgb, var(--enpl-actor-gradient-end) calc(100% - var(--enpl-actor-gradient-depth, 0%)), var(--enpl-actor-gradient-deep) var(--enpl-actor-gradient-depth, 0%))
-        );
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .82), 0 2px 5px var(--enpl-actor-glow);
-        padding: 3px 8px;
-        text-decoration: none;
-      }
-
-      .enpl-followed-actor-1 > a,
-      .enpl-followed-actor-2 > a {
-        --enpl-actor-gradient-start: #fff3e5;
-        --enpl-actor-gradient-end: #ffd9b8;
-        --enpl-actor-gradient-deep: #f97316;
-        --enpl-actor-border: #fb923c;
-        --enpl-actor-text: #9a3412;
-        --enpl-actor-text-deep: #7c2d12;
-        --enpl-actor-glow: rgba(249, 115, 22, .24);
-      }
-
-      .enpl-followed-actor-3 > a,
-      .enpl-followed-actor-4 > a {
-        --enpl-actor-gradient-start: #fff2e8;
-        --enpl-actor-gradient-end: #ffd6ba;
-        --enpl-actor-gradient-deep: #f9734b;
-        --enpl-actor-border: #fba17c;
-        --enpl-actor-text: #9a3f20;
-        --enpl-actor-text-deep: #84351d;
-        --enpl-actor-glow: rgba(249, 115, 75, .23);
-      }
-
-      .enpl-followed-actor-5 > a {
-        --enpl-actor-gradient-start: #ffece0;
-        --enpl-actor-gradient-end: #ffc5a7;
-        --enpl-actor-gradient-deep: #ef7144;
-        --enpl-actor-border: #f9734b;
-        --enpl-actor-text: #84351d;
-        --enpl-actor-text-deep: #78301c;
-        --enpl-actor-glow: rgba(239, 113, 68, .25);
+      .enpl-metal-chip {
+        border-radius: 9px;
+        color: var(--enpl-metal-ink);
+        background: linear-gradient(120deg, var(--enpl-metal-start), var(--enpl-metal-end));
+        box-shadow: inset 0 0 0 1px var(--enpl-metal-edge), inset 0 1px 0 rgba(255, 255, 255, .25);
         font-weight: 600;
+        letter-spacing: .01em;
+        line-height: 1.4;
       }
-
-      .enpl-followed-actor-6 > a {
-        --enpl-actor-gradient-start: #ffe5d5;
-        --enpl-actor-gradient-end: #ffb996;
-        --enpl-actor-gradient-deep: #e96036;
-        --enpl-actor-border: #ef9c72;
-        --enpl-actor-text: #8f361e;
-        --enpl-actor-text-deep: #7c2d19;
-        --enpl-actor-glow: rgba(233, 96, 54, .22);
-        font-weight: 700;
-      }
-
-      .enpl-followed-actor-deep > a {
-        color: var(--enpl-actor-text-deep);
-      }
-
-      [data-enpl-milestone="100"] {
-        --enpl-milestone-start: #fff0e8;
-        --enpl-milestone-end: #ffb99f;
-        --enpl-milestone-deep: #fb714c;
-        --enpl-milestone-ink: #8b2e1d;
-        --enpl-milestone-border: #f58c6b;
-        --enpl-milestone-glow: rgba(251, 113, 76, .2);
-      }
-
-      [data-enpl-milestone="150"] {
-        --enpl-milestone-start: #ffe5eb;
-        --enpl-milestone-end: #ff8da8;
-        --enpl-milestone-deep: #ef476f;
-        --enpl-milestone-ink: #861735;
-        --enpl-milestone-border: #ed6e8d;
-        --enpl-milestone-glow: rgba(239, 71, 111, .22);
-      }
-
-      [data-enpl-milestone="200"] {
-        --enpl-milestone-start: #ffc7d7;
-        --enpl-milestone-end: #f45b83;
-        --enpl-milestone-deep: #d92355;
-        --enpl-milestone-ink: #680f2d;
-        --enpl-milestone-border: #d93e68;
-        --enpl-milestone-glow: rgba(217, 35, 85, .25);
-      }
-
-      .enpl-followed-actor[data-enpl-milestone]:not([data-enpl-milestone="0"]) > a {
-        --enpl-actor-gradient-start: var(--enpl-milestone-start);
-        --enpl-actor-gradient-end: var(--enpl-milestone-end);
-        --enpl-actor-gradient-deep: var(--enpl-milestone-deep);
-        --enpl-actor-border: var(--enpl-milestone-border);
-        --enpl-actor-text: var(--enpl-milestone-ink);
-        --enpl-actor-text-deep: var(--enpl-milestone-ink);
-        --enpl-actor-glow: var(--enpl-milestone-glow);
-      }
+      .enpl-followed-actor > a { display: inline-flex; align-items: center; max-width: 100%; padding: 4px 9px; font-size: 12px; overflow-wrap: anywhere; text-decoration: none; }
+      a.enpl-metal-chip:hover { color: var(--enpl-metal-ink); text-decoration: none; }
+      a.enpl-metal-chip:active { filter: brightness(.94); }
+      a.enpl-metal-chip:focus-visible { outline: 2px solid var(--enpl-metal-accent); outline-offset: 2px; }
 
       .enpl-interest-sort-controls {
         margin: 0 0 10px;
@@ -1199,33 +1076,31 @@
         font-optical-sizing: auto;
       }
       .gb_actors_list.enpl-profile-actors > li {
-        --enpl-profile-ink: #636366;
-        --enpl-profile-tint: #f2f2f7;
         margin: 0;
         padding: 0;
         font-size: 14px !important;
         line-height: 1.5;
       }
-      .enpl-profile-actors > li[data-enpl-profile-tier="iron"] {
-        --enpl-profile-ink: #f2f3f5; --enpl-profile-start: #59616b; --enpl-profile-end: #363b43; --enpl-profile-edge: #727b86; --enpl-profile-accent: #59616b;
+      [data-enpl-tier="iron"] {
+        --enpl-metal-ink: #f2f3f5; --enpl-metal-start: #59616b; --enpl-metal-end: #363b43; --enpl-metal-edge: #727b86; --enpl-metal-accent: #59616b;
       }
-      .enpl-profile-actors > li[data-enpl-profile-tier="bronze"] {
-        --enpl-profile-ink: #61351e; --enpl-profile-start: #f3d5b6; --enpl-profile-end: #cd9564; --enpl-profile-edge: #b77c4f; --enpl-profile-accent: #a3683e;
+      [data-enpl-tier="bronze"] {
+        --enpl-metal-ink: #61351e; --enpl-metal-start: #f3d5b6; --enpl-metal-end: #cd9564; --enpl-metal-edge: #b77c4f; --enpl-metal-accent: #a3683e;
       }
-      .enpl-profile-actors > li[data-enpl-profile-tier="silver"] {
-        --enpl-profile-ink: #3c4859; --enpl-profile-start: #f5f7fb; --enpl-profile-end: #c1cbd9; --enpl-profile-edge: #a1adbd; --enpl-profile-accent: #7d8a9e;
+      [data-enpl-tier="silver"] {
+        --enpl-metal-ink: #3c4859; --enpl-metal-start: #f5f7fb; --enpl-metal-end: #c1cbd9; --enpl-metal-edge: #a1adbd; --enpl-metal-accent: #7d8a9e;
       }
-      .enpl-profile-actors > li[data-enpl-profile-tier="gold"] {
-        --enpl-profile-ink: #654610; --enpl-profile-start: #fff0b6; --enpl-profile-end: #e6bc57; --enpl-profile-edge: #c89a36; --enpl-profile-accent: #b78924;
+      [data-enpl-tier="gold"] {
+        --enpl-metal-ink: #654610; --enpl-metal-start: #fff0b6; --enpl-metal-end: #e6bc57; --enpl-metal-edge: #c89a36; --enpl-metal-accent: #b78924;
       }
-      .enpl-profile-actors > li[data-enpl-profile-tier="black-gold"] {
-        --enpl-profile-ink: #f4dfa6; --enpl-profile-start: #3c3529; --enpl-profile-end: #1e1e21; --enpl-profile-edge: #bd9d5b; --enpl-profile-accent: #ae8843;
+      [data-enpl-tier="black-gold"] {
+        --enpl-metal-ink: #f4dfa6; --enpl-metal-start: #3c3529; --enpl-metal-end: #1e1e21; --enpl-metal-edge: #bd9d5b; --enpl-metal-accent: #ae8843;
       }
-      .enpl-profile-actors > li[data-enpl-profile-tier="diamond"] {
-        --enpl-profile-ink: #e1e8ff; --enpl-profile-start: #343a55; --enpl-profile-end: #121724; --enpl-profile-edge: #9aabd8; --enpl-profile-accent: #626f9e;
+      [data-enpl-tier="diamond"] {
+        --enpl-metal-ink: #e1e8ff; --enpl-metal-start: #343a55; --enpl-metal-end: #121724; --enpl-metal-edge: #9aabd8; --enpl-metal-accent: #626f9e;
       }
-      .enpl-profile-actors > li[data-enpl-profile-tier="ruby"] {
-        --enpl-profile-ink: #ffe4ea; --enpl-profile-start: #a93553; --enpl-profile-end: #62162e; --enpl-profile-edge: #da8099; --enpl-profile-accent: #b3395c;
+      [data-enpl-tier="ruby"] {
+        --enpl-metal-ink: #ffe4ea; --enpl-metal-start: #a93553; --enpl-metal-end: #62162e; --enpl-metal-edge: #da8099; --enpl-metal-accent: #b3395c;
       }
       .gb_actors_list.enpl-profile-actors > li > a {
         display: flex;
@@ -1246,25 +1121,18 @@
       .gb_actors_list.enpl-profile-actors > li + li > a { border-top: 1px solid rgba(60, 60, 67, .09); }
       .enpl-profile-name { min-width: 0; white-space: nowrap; }
       .enpl-profile-actors .enpl-profile-name { overflow: hidden; text-overflow: ellipsis; }
-      .enpl-profile-actors .enpl-profile-name::before { content: ""; display: inline-block; width: 5px; height: 5px; margin-right: 8px; border-radius: 1px; background: var(--enpl-profile-accent); transform: rotate(45deg); vertical-align: 2px; }
+      .enpl-profile-actors .enpl-profile-name::before { content: ""; display: inline-block; width: 5px; height: 5px; margin-right: 8px; border-radius: 1px; background: var(--enpl-metal-accent); transform: rotate(45deg); vertical-align: 2px; }
       .enpl-profile-actors .enpl-participation-count {
         flex: none;
         min-width: 3.4em;
         margin: 0;
         padding: 4px 9px;
-        border-radius: 9px;
-        color: var(--enpl-profile-ink);
-        background: linear-gradient(120deg, var(--enpl-profile-start), var(--enpl-profile-end));
         font-size: 12px;
-        font-weight: 600;
-        letter-spacing: .01em;
-        line-height: 1.4;
         text-align: center;
-        box-shadow: inset 0 0 0 1px var(--enpl-profile-edge), inset 0 1px 0 rgba(255, 255, 255, .25);
       }
-      .gb_actors_list.enpl-profile-actors > li > a:hover { color: var(--enpl-profile-accent); background: #fafafa; }
+      .gb_actors_list.enpl-profile-actors > li > a:hover { color: var(--enpl-metal-accent); background: #fafafa; }
       .gb_actors_list.enpl-profile-actors > li > a:active { background: #f2f2f4; }
-      .gb_actors_list.enpl-profile-actors > li > a:focus-visible { outline: 2px solid var(--enpl-profile-accent); outline-offset: 1px; border-radius: 5px; }
+      .gb_actors_list.enpl-profile-actors > li > a:focus-visible { outline: 2px solid var(--enpl-metal-accent); outline-offset: 1px; border-radius: 5px; }
       .enpl-profile-original > li > a { display: flex; align-items: baseline; gap: .25em; white-space: nowrap; max-width: 100%; padding: 2px 0; }
       .enpl-profile-original .enpl-profile-name, .enpl-profile-original .enpl-participation-count { flex: none; font-size: inherit; line-height: inherit; }
       .enpl-profile-original .enpl-participation-count { margin: 0; }
@@ -1324,10 +1192,10 @@
       .enpl-recap-rankings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
       .enpl-recap-ranking > a { display: block; padding: 7px 0; border-bottom: 1px solid #efdbd2; color: #8f5147; font-size: 12px; overflow-wrap: anywhere; }
       .enpl-milestone-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-      .enpl-milestone-card { display: grid; gap: 7px; padding: 14px; border: 1px solid var(--enpl-milestone-border, #edc7b3); border-radius: 14px; background: linear-gradient(125deg, #fff, var(--enpl-milestone-start, #fff0e4)); }
-      .enpl-milestone-card > a { color: var(--enpl-milestone-ink, #8f5147); font-size: 12px; overflow-wrap: anywhere; line-height: 1.5; }
-      .enpl-milestone-card > strong { color: var(--enpl-milestone-ink, #a94442); font-size: 20px; line-height: 1.5; }
-      .enpl-milestone-card progress { width: 100%; height: 7px; accent-color: var(--enpl-milestone-border, #d98463); }
+      .enpl-milestone-card { display: grid; gap: 7px; padding: 14px; border: 1px solid var(--enpl-metal-edge, #edc7b3); border-radius: 14px; background: #fffaf7; }
+      .enpl-milestone-card > a { color: var(--enpl-metal-accent, #8f5147); font-size: 12px; overflow-wrap: anywhere; line-height: 1.5; }
+      .enpl-milestone-card > strong { color: var(--enpl-metal-accent, #a94442); font-size: 20px; line-height: 1.5; }
+      .enpl-milestone-card progress { width: 100%; height: 7px; accent-color: var(--enpl-metal-accent, #d98463); }
       @media (max-width: 600px) {
         .enpl-personal { padding: 12px; }
         .enpl-personal-stats, .enpl-recap-rankings, .enpl-milestone-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
