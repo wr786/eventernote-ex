@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote Air
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.2.0
+// @version      0.2.1
 // @description  A distinct Apple-inspired Eventernote redesign: light glass navigation, separate event cards, date tiles and a layered sidebar. Complements Eventernote EX.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -41,6 +41,7 @@
       -webkit-backdrop-filter: blur(20px) saturate(140%);
     }
     body.ena-enabled .navbar .logo img { filter: brightness(0); opacity: .84; }
+    body.ena-enabled .navbar .caret { border-top-color: #53657e; border-bottom-color: #53657e; }
     body.ena-enabled .navbar .topic { color: #7c8698; font-size: 10px; letter-spacing: .02em; }
     body.ena-enabled .navbar .nav > li > a {
       margin: 0 2px;
@@ -107,6 +108,10 @@
       background-color: #fff;
       box-shadow: 0 5px 18px rgba(48,69,106,.055);
     }
+    body.ena-enabled.enpl-compact-enabled .gb_event_list > ul > li,
+    body.ena-enabled.enpl-compact-enabled .gb_event_list > li { padding-top: 8px; padding-bottom: 8px; }
+    body.ena-enabled:not(.enpl-compact-enabled) .gb_event_list > ul > li,
+    body.ena-enabled:not(.enpl-compact-enabled) .gb_event_list > li { padding-top: 14px; padding-bottom: 14px; }
     body.ena-enabled .gb_event_list > ul > li:hover,
     body.ena-enabled .gb_event_list > li:hover { background-color: #fcfdff; border-color: #b7c9e4; box-shadow: 0 7px 24px rgba(48,69,106,.09); }
     body.ena-enabled .gb_event_list .event > h4 > a { color: var(--ena-link); font-weight: 600; text-decoration: none; }
