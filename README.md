@@ -13,7 +13,7 @@ Two independent Tampermonkey userscripts for Eventernote.
 - Popularity highlighting on Eventernote's existing attendance count at 10, 50, and 100 attendees.
 - Event search recommendations combine up to 10 pages initially and load more on demand, ranked by the summed participation counts of followed performers; toggle back to the original page anytime.
 - Followed-actor highlights use a progressively warmer, richer palette from apricot through coral to rose and berry red, with coral at 100–149, rose red at 150–199, and berry red at 200+ appearances; profile artist rankings show `[n回]` beside each name. The cache updates when visiting `/users`.
-- Profile favorite artists can switch between gradient badges and the original site typography (size varies with participation count, with parenthesized counts); the selection is remembered locally. Gradient badges use uniform-size name/count rows with milestone accents and subtle gradients, including coordinated coral, rose-red, and berry-red milestones at 100/150/200; long names wrap without separating the count into its own tag.
+- Profile artists switch between a refined grouped list (quiet separators, system typography, warm milestone count capsules) and the original typography. Original mode fits long names and counts onto one line as the column resizes; list mode truncates unusually long names with a full-name tooltip. The selection is remembered locally.
 
 This replaces the separate [Eventernote 参加回数表示](https://greasyfork.org/ja/scripts/369760-eventernote-%E5%8F%82%E5%8A%A0%E5%9B%9E%E6%95%B0%E8%A1%A8%E7%A4%BA) userscript. Disable that copy to avoid duplicate counts.
 

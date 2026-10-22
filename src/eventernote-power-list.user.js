@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.11.4
+// @version      0.11.5
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -376,7 +376,7 @@
     let records = getEventItems(heading.nextElementSibling).map(readPersonalEvent).filter(Boolean);
     const favorites = Array.from(document.querySelectorAll(".gb_actors_list li")).map((item) => {
       const actor = item.querySelector("a[href*='/actors/']");
-      return actor ? { href: actor.href, name: Array.from(actor.childNodes).filter((node) => node.nodeType === 3).map((node) => node.textContent).join("").trim() } : null;
+      return actor ? { href: actor.href, name: textOf(actor.querySelector(".enpl-profile-name")) || Array.from(actor.childNodes).filter((node) => node.nodeType === 3).map((node) => node.textContent).join("").trim() } : null;
     }).filter(Boolean);
     function make(tag, className, text) {
       const element = document.createElement(tag);
@@ -675,6 +675,13 @@
         addParticipationCount(actor, count);
         if (item.parentElement.matches(".gb_actors_list")) {
           item.parentElement.classList.add("enpl-profile-actor-source");
+          if (!actor.querySelector(".enpl-profile-name")) {
+            const name = document.createElement("span");
+            name.className = "enpl-profile-name";
+            Array.from(actor.childNodes).filter((node) => node !== actor.querySelector(".enpl-participation-count")).forEach((node) => name.append(node));
+            name.title = textOf(name);
+            actor.prepend(name);
+          }
           item.dataset.enplMilestone = getParticipationMilestone(count);
         }
       }
@@ -686,7 +693,7 @@
       controls.append("显示模式 ");
       const picker = document.createElement("select");
       picker.setAttribute("aria-label", "艺人参加回数显示模式");
-      [["badges", "渐变名牌"], ["original", "原版（字号随回数）"]].forEach(([value, name]) => {
+      [["badges", "精致名册"], ["original", "原版（单行自适应）"]].forEach(([value, name]) => {
         const option = document.createElement("option");
         option.value = value;
         option.textContent = name;
@@ -707,6 +714,13 @@
       });
       controls.append(picker, status);
       list.insertAdjacentElement("beforebegin", controls);
+      let previousWidth;
+      new ResizeObserver(() => {
+        const width = list.clientWidth;
+        if (width === previousWidth) return;
+        previousWidth = width;
+        fitOriginalProfileActors(list);
+      }).observe(list);
     });
     applyProfileActorDisplayMode();
   }
@@ -715,13 +729,26 @@
     const original = settings.profileActorDisplayMode === "original";
     document.querySelectorAll(".enpl-profile-actor-source").forEach((list) => {
       list.classList.toggle("enpl-profile-actors", !original);
+      list.classList.toggle("enpl-profile-original", original);
       list.querySelectorAll("li").forEach((item) => {
         const badge = item.querySelector(".enpl-participation-count");
         const count = getParticipationCount(item.className);
-        if (badge && count !== null) badge.textContent = original ? `（${count}）` : `[${count}回]`;
+        if (badge && count !== null) badge.textContent = original ? `（${count}）` : `${count}回`;
       });
+      fitOriginalProfileActors(list);
       const picker = list.previousElementSibling?.querySelector("select");
       if (picker) picker.value = original ? "original" : "badges";
+    });
+  }
+
+  function fitOriginalProfileActors(list) {
+    list.querySelectorAll("li > a").forEach((actor) => {
+      actor.style.removeProperty("font-size");
+      if (!list.classList.contains("enpl-profile-original") || !actor.clientWidth) return;
+      const size = parseFloat(getComputedStyle(actor).fontSize);
+      if (actor.scrollWidth > actor.clientWidth) {
+        actor.style.setProperty("font-size", `${Math.floor(size * (actor.clientWidth - 2) / actor.scrollWidth * 10) / 10}px`, "important");
+      }
     });
   }
 
@@ -1140,75 +1167,83 @@
         white-space: nowrap;
       }
 
-      .enpl-profile-mode { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 8px 0; color: #796968; font-size: 12px; }
-      .enpl-profile-mode select { width: auto; max-width: 100%; margin: 0; border: 1px solid #e8cbbf; border-radius: 8px; color: #744238; font-size: 12px; }
+      .enpl-profile-mode { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 10px 2px; color: #6e6e73; font-size: 12px; font-family: system-ui, sans-serif; }
+      .enpl-profile-mode select { width: auto; max-width: 100%; margin: 0; padding: 4px 8px; border: 1px solid #d8d8dc; border-radius: 8px; color: #3a3a3c; background: #f5f5f7; font: inherit; }
       .gb_actors_list.enpl-profile-actors {
         display: grid;
-        gap: 6px;
-        padding: 12px;
-        border: 1px solid #e8e2d9;
-        border-radius: 16px;
-        background: linear-gradient(145deg, #fffdf9, #f5f2ed);
+        gap: 0;
+        padding: 5px 14px;
+        border: 1px solid rgba(60, 60, 67, .12);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, .92);
+        box-shadow: 0 3px 16px rgba(35, 30, 30, .04), inset 0 1px 0 #fff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-optical-sizing: auto;
       }
-
       .gb_actors_list.enpl-profile-actors > li {
-        --enpl-profile-ink: #657286;
-        --enpl-profile-tint: #edf1f6;
+        --enpl-profile-ink: #636366;
+        --enpl-profile-tint: #f2f2f7;
         margin: 0;
         padding: 0;
         font-size: 14px !important;
         line-height: 1.5;
       }
-
-      .enpl-profile-actors > li.s1 { --enpl-profile-ink: #a56825; --enpl-profile-tint: #fff1dc; }
-      .enpl-profile-actors > li.s2 { --enpl-profile-ink: #af592e; --enpl-profile-tint: #ffe8de; }
-      .enpl-profile-actors > li.s3 { --enpl-profile-ink: #a3542e; --enpl-profile-tint: #ffe7d5; }
-      .enpl-profile-actors > li.s4 { --enpl-profile-ink: #a34829; --enpl-profile-tint: #ffddc5; }
-      .enpl-profile-actors > li.s5 { --enpl-profile-ink: #994023; --enpl-profile-tint: #ffd2b6; }
-      .enpl-profile-actors > li.s6 { --enpl-profile-ink: #8f361e; --enpl-profile-tint: #ffc6a6; }
-
+      .enpl-profile-actors > li.s1 { --enpl-profile-ink: #9c6825; --enpl-profile-tint: #fff4e3; }
+      .enpl-profile-actors > li.s2 { --enpl-profile-ink: #a45d2c; --enpl-profile-tint: #fff0e3; }
+      .enpl-profile-actors > li.s3 { --enpl-profile-ink: #ad542c; --enpl-profile-tint: #ffeadc; }
+      .enpl-profile-actors > li.s4 { --enpl-profile-ink: #ac4929; --enpl-profile-tint: #ffe5d7; }
+      .enpl-profile-actors > li.s5 { --enpl-profile-ink: #a94028; --enpl-profile-tint: #ffddce; }
+      .enpl-profile-actors > li.s6 { --enpl-profile-ink: #a43b24; --enpl-profile-tint: #ffd7c5; }
       .gb_actors_list.enpl-profile-actors > li > a {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
-        padding: 8px 10px;
-        border: 1px solid var(--enpl-profile-tint);
-        border-left: 3px solid var(--enpl-profile-ink);
-        border-radius: 10px;
-        background: linear-gradient(110deg, #fff, var(--enpl-profile-tint));
-        color: #343944;
+        gap: 12px;
+        min-height: 46px;
+        padding: 0 2px;
+        border: 0;
+        border-radius: 0;
+        color: #252528;
+        background: transparent;
         font-size: 14px !important;
-        font-weight: 600;
+        font-weight: 500;
         line-height: 1.5;
-        overflow-wrap: anywhere;
         text-decoration: none;
       }
-
+      .gb_actors_list.enpl-profile-actors > li + li > a { border-top: 1px solid rgba(60, 60, 67, .09); }
+      .enpl-profile-name { min-width: 0; white-space: nowrap; }
+      .enpl-profile-actors .enpl-profile-name { overflow: hidden; text-overflow: ellipsis; }
       .enpl-profile-actors .enpl-participation-count {
         flex: none;
+        min-width: 3.4em;
         margin: 0;
+        padding: 4px 9px;
+        border-radius: 9px;
         color: var(--enpl-profile-ink);
-        font-size: inherit;
+        background: var(--enpl-profile-tint);
+        font-size: 12px;
         font-weight: 600;
+        letter-spacing: .01em;
+        line-height: 1.4;
+        text-align: center;
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .025);
       }
-
       .gb_actors_list.enpl-profile-actors > li[data-enpl-milestone]:not([data-enpl-milestone="0"]) {
         --enpl-profile-ink: var(--enpl-milestone-ink);
-        --enpl-profile-tint: var(--enpl-milestone-end);
+        --enpl-profile-tint: var(--enpl-milestone-start);
       }
-
-      .gb_actors_list.enpl-profile-actors > li[data-enpl-milestone]:not([data-enpl-milestone="0"]) > a {
-        border-color: var(--enpl-milestone-end);
-        border-left-color: var(--enpl-milestone-border);
-        background: linear-gradient(115deg, var(--enpl-milestone-start), var(--enpl-milestone-end));
-        color: var(--enpl-milestone-ink);
+      .enpl-profile-actors > li[data-enpl-milestone]:not([data-enpl-milestone="0"]) .enpl-participation-count {
+        background: linear-gradient(120deg, var(--enpl-milestone-start), var(--enpl-milestone-end));
       }
-
-      .gb_actors_list.enpl-profile-actors > li > a:hover,
-      .gb_actors_list.enpl-profile-actors > li > a:focus-visible {
-        outline: 2px solid var(--enpl-profile-ink);
-        outline-offset: 2px;
+      .gb_actors_list.enpl-profile-actors > li > a:hover { color: var(--enpl-profile-ink); background: #fafafa; }
+      .gb_actors_list.enpl-profile-actors > li > a:active { background: #f2f2f4; }
+      .gb_actors_list.enpl-profile-actors > li > a:focus-visible { outline: 2px solid var(--enpl-profile-ink); outline-offset: 1px; border-radius: 5px; }
+      .enpl-profile-original > li > a { display: flex; align-items: baseline; gap: .25em; white-space: nowrap; max-width: 100%; padding: 2px 0; }
+      .enpl-profile-original .enpl-profile-name, .enpl-profile-original .enpl-participation-count { flex: none; font-size: inherit; line-height: inherit; }
+      .enpl-profile-original .enpl-participation-count { margin: 0; }
+      @media (prefers-contrast: more) {
+        .gb_actors_list.enpl-profile-actors { border-color: #76767b; background: #fff; box-shadow: none; }
+        .gb_actors_list.enpl-profile-actors > li + li > a { border-color: #76767b; }
       }
 
       .enpl-personal {
