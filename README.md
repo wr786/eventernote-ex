@@ -1,51 +1,107 @@
 # Eventernote EX
 
-Independent Tampermonkey userscripts for Eventernote.
+**简体中文** · [English](README.en.md) · [日本語](README.ja.md)
 
-## Eventernote EX
+让 [Eventernote](https://www.eventernote.com/) 的活动搜索、个人予定和参加回顾更顺手。
 
-[Source](https://github.com/wr786/eventernote-ex) · [Install on GreasyFork](https://greasyfork.org/zh-CN/scripts/583130-eventernote-ex)
+[安装脚本](https://greasyfork.org/zh-CN/scripts/583130-eventernote-ex) · [源码](src/eventernote-power-list.user.js) · [反馈问题](https://github.com/wr786/eventernote-ex/issues)
 
-- Compact list mode with hidden images and denser event rows.
-- Tiny Google Maps link beside Eventernote venue links.
-- Tiny same-day event search link beside each event date.
-- “我的现场” starts collapsed on your own profile; click its heading to expand/collapse. Includes: a month calendar of planned events, annual attendance recap with monthly distribution and top performers/venues, and followed-artist milestone countdowns with tentative achievement dates.
-- Click “读取完整参加记录” to read all pages of your own registered events (up to 100 pages, with progress and retry). Until completion, the calendar is explicitly a homepage preview and annual statistics remain locked. Records stay in page memory; future registrations are separated from past dates using Japan time. Countdown totals are recalculated from historical events rather than adding plans to the site's potentially plan-inclusive counters.
-- Personal itinerary on your own planned-event profile section, grouped by date and start time with a date selector, venues, end times, gaps, and overlap cues. Search results and followed-artist event suggestions are excluded.
-- Popularity highlighting on Eventernote's existing attendance count at 10, 50, and 100 attendees.
-- Event search recommendations combine up to 10 pages initially and load more on demand, ranked by the summed participation counts of followed performers; toggle back to the original page anytime.
-- Followed-actor event badges and profile count capsules share one seven-tier metallic palette and capsule style. Event badges show performer names only; profile capsules show counts only. Profile artist rankings retain `[n回]`. The following cache updates when visiting `/users`.
-- Profile artists switch between a refined grouped list (quiet separators, system typography, metallic rank count capsules: iron 0–9, bronze 10–29, silver 30–49, gold 50–99, black gold 100–149, black diamond 150–199, ruby 200+) and the original typography. Original mode displays `[n回]` and fits long names and counts onto one line as the column resizes; list mode truncates unusually long names with a full-name tooltip. The selection is remembered locally.
+## 快速开始
 
-This replaces the separate [Eventernote 参加回数表示](https://greasyfork.org/ja/scripts/369760-eventernote-%E5%8F%82%E5%8A%A0%E5%9B%9E%E6%95%B0%E8%A1%A8%E7%A4%BA) userscript. Disable that copy to avoid duplicate counts.
+1. 在浏览器中安装 Tampermonkey、Violentmonkey 等用户脚本管理器。
+2. 打开 [GreasyFork 安装页](https://greasyfork.org/zh-CN/scripts/583130-eventernote-ex)，安装 **Eventernote EX**。
+3. 登录 Eventernote，访问一次[自己的主页](https://www.eventernote.com/users)，缓存关注艺人和站内参加回数。
 
-Visit `https://www.eventernote.com/users` once after installation to cache followed actors and their participation counts.
+之后即可在活动搜索中使用「按关注推荐」，在个人页切换回数显示模式、展开「我的现场」。关注或回数发生变化后，再访问自己的主页刷新缓存。
 
-## Eventernote Fancy UI
+> 若同时装有独立的 [Eventernote 参加回数表示](https://greasyfork.org/ja/scripts/369760) 脚本，请停用它，避免重复显示回数。
 
-- Material 3 Expressive-inspired color, shape, size, containment, and motion.
-- Three-column event cards with rhythmic color markers and emphasized attendance.
-- Expressive profiles, tri-color statistics, calendars, tabs, controls, and reduced-motion support.
-- Preserves Eventernote's original two-column page layouts.
-- CSS-only implementation with no network requests or DOM observers.
+## 活动搜索与浏览
 
-## Install
+| 功能 | 用法与范围 |
+| --- | --- |
+| 跨页关注推荐 | 在活动搜索、月度活动列表中点击「按关注推荐」，按出演关注艺人的参加回数之和排序。首次最多合并 10 页；「加载更多推荐」每次再读取最多 10 页。支持去重、进度、失败重试与恢复原排序。 |
+| 关注艺人名牌 | 关注艺人的出演名牌使用七档金属配色，与个人页回数胶囊统一。出演名牌只显示名字，不追加回数或等级文字。 |
+| 活动热度 | 在原有参加人数上突出 10 / 50 / 100 人档位，与个人参加回数分开显示。 |
+| 场馆地图 | 场馆链接旁的 `map` 可打开 Google Maps 搜索。 |
+| 同日搜索 | 日期旁的 `all` 可查看当天其他活动。 |
+| 紧凑浏览 | 在适用的活动列表中压缩行距、隐藏缩略图。 |
 
-Install the scripts independently in Tampermonkey, Violentmonkey, or another userscript manager:
+## 个人页
 
-- `src/eventernote-power-list.user.js`
-- `src/eventernote-fancy-ui.user.js` (older alternative theme)
+### 回数显示模式
 
-## Supported Pages
+在艺人列表旁选择显示模式，偏好会保存在本地：
 
-- `https://www.eventernote.com/*`
+- **精致名册**：统一字号、细分隔线和右对齐的金属回数胶囊，仅显示 `126回`。过长名字单行省略，悬停可看全名。
+- **原版（单行自适应）**：保留网站原有字号层级与颜色，回数显示为 `[126回]`；名字过长时自动缩小，保持同一行。
 
-## Settings
+艺人排名页也会在名字旁显示 `[n回]`。
 
-Settings are stored locally in your browser with `localStorage`.
+### 七档金属配色
 
-## Development
+活动出演名牌与精致名册共用以下门槛；等级名称用于说明，不显示在名牌文字中。
+
+| 站内参加回数 | 等级 |
+| ---: | --- |
+| 0–9 | 黑铁 |
+| 10–29 | 青铜 |
+| 30–49 | 白银 |
+| 50–99 | 黄金 |
+| 100–149 | 黑金 |
+| 150–199 | 黑钻 |
+| 200+ | 赤钻 |
+
+### 我的现场
+
+位于自己的主页，**默认收起**。点击标题展开，再点收起；收起不会清空本页已经读取的数据。
+
+| 视图 | 内容 |
+| --- | --- |
+| 参加予定月历 | 按月份显示今天及之后的本人登记予定，点击日期查看当天活动、时间和场馆。 |
+| 个人年度回顾 | 选择年份，查看截至今天的登记场数、现场日、场馆数、每月分布、艺人及场馆排行；未来予定单独统计。 |
+| 里程碑倒计时 | 从完整记录重算关注艺人的历史出演场次，显示距离下一目标还差几场，并结合未来予定提示可能达成的日期与活动。目标依次为 10 / 20 / 30 / 50 / 100 / 150 / 200 回，之后每 50 回一个目标。 |
+
+先点击 **「读取完整参加记录」**，逐页读取本人记录，最多 100 页，带进度、总数校验、活动去重和失败重试。读取完成前，月历只是主页予定预览，年度回顾与倒计时不会用不完整数据生成统计。
+
+### 参加予定的行程
+
+在本人主页的参加予定列表中打开，按日期、开演时间排列，可筛选日期，查看场馆、开场、终演、场次间隔和重叠提示，也可返回列表。
+
+该行程仅使用**当前主页列出的本人予定**，不包含搜索结果或关注艺人的活动建议；完整记录月历与它的数据范围不同。
+
+## 数据与使用限制
+
+- 设置和关注艺人缓存保存在浏览器 `localStorage`；「我的现场」读取的完整记录只保留在当前页面内存中，刷新后需重新读取。跨页读取会请求 Eventernote 自身的页面。
+- 年度回顾和倒计时按**日本日期**区分历史与未来；当天活动不判断是否已经结束。站内登记不等于实际到场。
+- 名册采用站内回数；倒计时从去重后的历史活动重算，两者统计口径可能不同。预测以未来予定全部参加为前提，不代表已经达成。
+- 场次间隔**不包含路程**。未知时间、跨日时间和网站未更新的终演时间，需要自行确认。
+- Eventernote 的页面结构变化可能影响功能。当前没有专门的手机布局。
+
+## 仓库中的其他脚本
+
+[Eventernote Fancy UI](src/eventernote-fancy-ui.user.js) 是保留在仓库中的独立旧版主题，采用 Material 3 Expressive 风格。它不是 EX 的安装前提，也不会随 EX 自动安装。
+
+## 开发
+
+```text
+src/eventernote-power-list.user.js  # Eventernote EX 主脚本
+src/eventernote-fancy-ui.user.js    # 独立旧版主题
+README.md                         # 中文文档（默认）
+README.en.md                      # English
+README.ja.md                      # 日本語
+```
+
+支持页面：`https://www.eventernote.com/*`。
 
 ```sh
 npm run check
 ```
+
+此命令检查两个用户脚本的 JavaScript 语法。没有构建步骤。
+
+历史文件名、userscript namespace 和存储 key 保持稳定，以兼容已有安装及本地设置。三份 README 是文档翻译，不会切换脚本界面的语言。
+
+## 许可证
+
+[MIT](LICENSE)
