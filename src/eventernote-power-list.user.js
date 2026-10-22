@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.11.7
+// @version      0.11.8
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1082,7 +1082,7 @@
         line-height: 1.5;
       }
       [data-enpl-tier="iron"] {
-        --enpl-metal-ink: #f2f3f5; --enpl-metal-start: #59616b; --enpl-metal-end: #363b43; --enpl-metal-edge: #727b86; --enpl-metal-accent: #59616b;
+        --enpl-metal-ink: #202733; --enpl-metal-start: #c2c7ce; --enpl-metal-end: #929ba7; --enpl-metal-edge: #7e8896; --enpl-metal-accent: #647080;
       }
       [data-enpl-tier="bronze"] {
         --enpl-metal-ink: #61351e; --enpl-metal-start: #f3d5b6; --enpl-metal-end: #cd9564; --enpl-metal-edge: #b77c4f; --enpl-metal-accent: #a3683e;
@@ -1094,10 +1094,10 @@
         --enpl-metal-ink: #654610; --enpl-metal-start: #fff0b6; --enpl-metal-end: #e6bc57; --enpl-metal-edge: #c89a36; --enpl-metal-accent: #b78924;
       }
       [data-enpl-tier="black-gold"] {
-        --enpl-metal-ink: #f4dfa6; --enpl-metal-start: #3c3529; --enpl-metal-end: #1e1e21; --enpl-metal-edge: #bd9d5b; --enpl-metal-accent: #ae8843;
+        --enpl-metal-ink: #ffe9b0; --enpl-metal-start: #594422; --enpl-metal-end: #221c14; --enpl-metal-edge: #e5b85a; --enpl-metal-accent: #a77b22;
       }
       [data-enpl-tier="diamond"] {
-        --enpl-metal-ink: #e1e8ff; --enpl-metal-start: #343a55; --enpl-metal-end: #121724; --enpl-metal-edge: #9aabd8; --enpl-metal-accent: #626f9e;
+        --enpl-metal-ink: #edf4ff; --enpl-metal-start: #3d438c; --enpl-metal-end: #211b4d; --enpl-metal-edge: #b8c9ff; --enpl-metal-accent: #6465ad;
       }
       [data-enpl-tier="ruby"] {
         --enpl-metal-ink: #ffe4ea; --enpl-metal-start: #a93553; --enpl-metal-end: #62162e; --enpl-metal-edge: #da8099; --enpl-metal-accent: #b3395c;
