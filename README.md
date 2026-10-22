@@ -1,8 +1,10 @@
-# Eventernote Userscripts
+# Eventernote EX
 
 Independent Tampermonkey userscripts for Eventernote.
 
 ## Eventernote EX
+
+[Source](https://github.com/wr786/eventernote-ex) · [Install on GreasyFork](https://greasyfork.org/zh-CN/scripts/583130-eventernote-ex)
 
 - Compact list mode with hidden images and denser event rows.
 - Tiny Google Maps link beside Eventernote venue links.
