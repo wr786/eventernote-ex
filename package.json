@@ -4,7 +4,7 @@
   "private": true,
   "description": "Independent Tampermonkey userscripts for Eventernote functionality and visual enhancements.",
   "scripts": {
-    "check": "node --check src/eventernote-power-list.user.js && node --check src/eventernote-fancy-ui.user.js"
+    "check": "node --check src/eventernote-power-list.user.js && node --check src/eventernote-fancy-ui.user.js && node --check src/eventernote-air.user.js"
   },
   "keywords": [
     "eventernote",

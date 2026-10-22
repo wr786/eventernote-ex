@@ -1,6 +1,6 @@
 # Eventernote Userscripts
 
-Two independent Tampermonkey userscripts for Eventernote.
+Independent Tampermonkey userscripts for Eventernote. Use Eventernote EX for features and Eventernote Air for the new visual theme.
 
 ## Eventernote EX
 
@@ -19,7 +19,15 @@ This replaces the separate [Eventernote 参加回数表示](https://greasyfork.o
 
 Visit `https://www.eventernote.com/users` once after installation to cache followed actors and their participation counts.
 
-## Eventernote Fancy UI
+## Eventernote Air
+
+- A separate Apple-inspired theme: quiet neutral surfaces, translucent dark navigation, system typography, subtle borders and structured forms/detail tables.
+- Complements Eventernote EX: keeps event row geometry, compact mode, performer metals, participation typography, hidden states, sorting and personal dashboard controls under EX's ownership.
+- CSS rules are scoped to `body.ena-enabled`; the script only adds this marker and a stylesheet. No event handlers, observers, storage, external fonts or network requests.
+- Preserves the site's fixed desktop two-column layout; respects reduced transparency, increased contrast, and print output. No decorative motion.
+- Install alongside EX, or use Air alone. Fancy UI below is an alternative older theme; choose one visual theme at a time.
+
+## Eventernote Fancy UI (legacy alternative)
 
 - Material 3 Expressive-inspired color, shape, size, containment, and motion.
 - Three-column event cards with rhythmic color markers and emphasized attendance.
@@ -29,10 +37,11 @@ Visit `https://www.eventernote.com/users` once after installation to cache follo
 
 ## Install
 
-Install either script independently in Tampermonkey, Violentmonkey, or another userscript manager:
+Install the scripts independently in Tampermonkey, Violentmonkey, or another userscript manager:
 
 - `src/eventernote-power-list.user.js`
-- `src/eventernote-fancy-ui.user.js`
+- `src/eventernote-air.user.js` (visual companion for EX)
+- `src/eventernote-fancy-ui.user.js` (older alternative theme)
 
 ## Supported Pages
 
