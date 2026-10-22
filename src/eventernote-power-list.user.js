@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.11.3
+// @version      0.11.4
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -16,6 +16,7 @@
   const STORAGE_KEY = "eventernote-power-list.settings.v2";
   const FOLLOWING_CACHE_KEY = "eventernote-lite-enhancer.following.v1";
   const DEFAULT_SETTINGS = {
+    profileActorDisplayMode: "badges",
     compactEnabled: true,
     popularityEnabled: true,
     warm: 10,
@@ -673,10 +674,54 @@
       if (actor && count !== null) {
         addParticipationCount(actor, count);
         if (item.parentElement.matches(".gb_actors_list")) {
-          item.parentElement.classList.add("enpl-profile-actors");
+          item.parentElement.classList.add("enpl-profile-actor-source");
           item.dataset.enplMilestone = getParticipationMilestone(count);
         }
       }
+    });
+    document.querySelectorAll(".enpl-profile-actor-source").forEach((list) => {
+      if (list.previousElementSibling?.classList.contains("enpl-profile-mode")) return;
+      const controls = document.createElement("label");
+      controls.className = "enpl-profile-mode";
+      controls.append("显示模式 ");
+      const picker = document.createElement("select");
+      picker.setAttribute("aria-label", "艺人参加回数显示模式");
+      [["badges", "渐变名牌"], ["original", "原版（字号随回数）"]].forEach(([value, name]) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = name;
+        picker.append(option);
+      });
+      picker.value = settings.profileActorDisplayMode === "original" ? "original" : "badges";
+      const status = document.createElement("span");
+      status.setAttribute("role", "status");
+      picker.addEventListener("change", () => {
+        settings.profileActorDisplayMode = picker.value;
+        applyProfileActorDisplayMode();
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+          status.textContent = "";
+        } catch (_error) {
+          status.textContent = "本次生效，无法保存偏好";
+        }
+      });
+      controls.append(picker, status);
+      list.insertAdjacentElement("beforebegin", controls);
+    });
+    applyProfileActorDisplayMode();
+  }
+
+  function applyProfileActorDisplayMode() {
+    const original = settings.profileActorDisplayMode === "original";
+    document.querySelectorAll(".enpl-profile-actor-source").forEach((list) => {
+      list.classList.toggle("enpl-profile-actors", !original);
+      list.querySelectorAll("li").forEach((item) => {
+        const badge = item.querySelector(".enpl-participation-count");
+        const count = getParticipationCount(item.className);
+        if (badge && count !== null) badge.textContent = original ? `（${count}）` : `[${count}回]`;
+      });
+      const picker = list.previousElementSibling?.querySelector("select");
+      if (picker) picker.value = original ? "original" : "badges";
     });
   }
 
@@ -1095,6 +1140,8 @@
         white-space: nowrap;
       }
 
+      .enpl-profile-mode { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 8px 0; color: #796968; font-size: 12px; }
+      .enpl-profile-mode select { width: auto; max-width: 100%; margin: 0; border: 1px solid #e8cbbf; border-radius: 8px; color: #744238; font-size: 12px; }
       .gb_actors_list.enpl-profile-actors {
         display: grid;
         gap: 6px;
