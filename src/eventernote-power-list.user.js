@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.11.5
+// @version      0.11.6
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -683,6 +683,7 @@
             actor.prepend(name);
           }
           item.dataset.enplMilestone = getParticipationMilestone(count);
+          item.dataset.enplProfileTier = getProfileParticipationTier(count)[2];
         }
       }
     });
@@ -733,7 +734,12 @@
       list.querySelectorAll("li").forEach((item) => {
         const badge = item.querySelector(".enpl-participation-count");
         const count = getParticipationCount(item.className);
-        if (badge && count !== null) badge.textContent = original ? `（${count}）` : `${count}回`;
+        if (badge && count !== null) {
+          const [, tierName] = getProfileParticipationTier(count);
+          badge.textContent = original ? `[${count}回]` : `${tierName} · ${count}回`;
+          badge.title = original ? `参加回数：${count}回` : `${tierName} · 参加回数：${count}回`;
+          badge.setAttribute("aria-label", badge.title);
+        }
       });
       fitOriginalProfileActors(list);
       const picker = list.previousElementSibling?.querySelector("select");
@@ -750,6 +756,18 @@
         actor.style.setProperty("font-size", `${Math.floor(size * (actor.clientWidth - 2) / actor.scrollWidth * 10) / 10}px`, "important");
       }
     });
+  }
+
+  function getProfileParticipationTier(count) {
+    return [
+      [200, "赤钻", "ruby"],
+      [150, "黑钻", "diamond"],
+      [100, "黑金", "black-gold"],
+      [50, "黄金", "gold"],
+      [30, "白银", "silver"],
+      [10, "青铜", "bronze"],
+      [0, "黑铁", "iron"]
+    ].find(([minimum]) => count >= minimum);
   }
 
   function getParticipationMilestone(count) {
@@ -1188,12 +1206,27 @@
         font-size: 14px !important;
         line-height: 1.5;
       }
-      .enpl-profile-actors > li.s1 { --enpl-profile-ink: #9c6825; --enpl-profile-tint: #fff4e3; }
-      .enpl-profile-actors > li.s2 { --enpl-profile-ink: #a45d2c; --enpl-profile-tint: #fff0e3; }
-      .enpl-profile-actors > li.s3 { --enpl-profile-ink: #ad542c; --enpl-profile-tint: #ffeadc; }
-      .enpl-profile-actors > li.s4 { --enpl-profile-ink: #ac4929; --enpl-profile-tint: #ffe5d7; }
-      .enpl-profile-actors > li.s5 { --enpl-profile-ink: #a94028; --enpl-profile-tint: #ffddce; }
-      .enpl-profile-actors > li.s6 { --enpl-profile-ink: #a43b24; --enpl-profile-tint: #ffd7c5; }
+      .enpl-profile-actors > li[data-enpl-profile-tier="iron"] {
+        --enpl-profile-ink: #f2f3f5; --enpl-profile-start: #59616b; --enpl-profile-end: #363b43; --enpl-profile-edge: #727b86; --enpl-profile-accent: #59616b;
+      }
+      .enpl-profile-actors > li[data-enpl-profile-tier="bronze"] {
+        --enpl-profile-ink: #61351e; --enpl-profile-start: #f3d5b6; --enpl-profile-end: #cd9564; --enpl-profile-edge: #b77c4f; --enpl-profile-accent: #a3683e;
+      }
+      .enpl-profile-actors > li[data-enpl-profile-tier="silver"] {
+        --enpl-profile-ink: #3c4859; --enpl-profile-start: #f5f7fb; --enpl-profile-end: #c1cbd9; --enpl-profile-edge: #a1adbd; --enpl-profile-accent: #7d8a9e;
+      }
+      .enpl-profile-actors > li[data-enpl-profile-tier="gold"] {
+        --enpl-profile-ink: #654610; --enpl-profile-start: #fff0b6; --enpl-profile-end: #e6bc57; --enpl-profile-edge: #c89a36; --enpl-profile-accent: #b78924;
+      }
+      .enpl-profile-actors > li[data-enpl-profile-tier="black-gold"] {
+        --enpl-profile-ink: #f4dfa6; --enpl-profile-start: #3c3529; --enpl-profile-end: #1e1e21; --enpl-profile-edge: #bd9d5b; --enpl-profile-accent: #ae8843;
+      }
+      .enpl-profile-actors > li[data-enpl-profile-tier="diamond"] {
+        --enpl-profile-ink: #e1e8ff; --enpl-profile-start: #343a55; --enpl-profile-end: #121724; --enpl-profile-edge: #9aabd8; --enpl-profile-accent: #626f9e;
+      }
+      .enpl-profile-actors > li[data-enpl-profile-tier="ruby"] {
+        --enpl-profile-ink: #ffe4ea; --enpl-profile-start: #a93553; --enpl-profile-end: #62162e; --enpl-profile-edge: #da8099; --enpl-profile-accent: #b3395c;
+      }
       .gb_actors_list.enpl-profile-actors > li > a {
         display: flex;
         align-items: center;
@@ -1213,6 +1246,7 @@
       .gb_actors_list.enpl-profile-actors > li + li > a { border-top: 1px solid rgba(60, 60, 67, .09); }
       .enpl-profile-name { min-width: 0; white-space: nowrap; }
       .enpl-profile-actors .enpl-profile-name { overflow: hidden; text-overflow: ellipsis; }
+      .enpl-profile-actors .enpl-profile-name::before { content: ""; display: inline-block; width: 5px; height: 5px; margin-right: 8px; border-radius: 1px; background: var(--enpl-profile-accent); transform: rotate(45deg); vertical-align: 2px; }
       .enpl-profile-actors .enpl-participation-count {
         flex: none;
         min-width: 3.4em;
@@ -1220,24 +1254,17 @@
         padding: 4px 9px;
         border-radius: 9px;
         color: var(--enpl-profile-ink);
-        background: var(--enpl-profile-tint);
+        background: linear-gradient(120deg, var(--enpl-profile-start), var(--enpl-profile-end));
         font-size: 12px;
         font-weight: 600;
         letter-spacing: .01em;
         line-height: 1.4;
         text-align: center;
-        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .025);
+        box-shadow: inset 0 0 0 1px var(--enpl-profile-edge), inset 0 1px 0 rgba(255, 255, 255, .25);
       }
-      .gb_actors_list.enpl-profile-actors > li[data-enpl-milestone]:not([data-enpl-milestone="0"]) {
-        --enpl-profile-ink: var(--enpl-milestone-ink);
-        --enpl-profile-tint: var(--enpl-milestone-start);
-      }
-      .enpl-profile-actors > li[data-enpl-milestone]:not([data-enpl-milestone="0"]) .enpl-participation-count {
-        background: linear-gradient(120deg, var(--enpl-milestone-start), var(--enpl-milestone-end));
-      }
-      .gb_actors_list.enpl-profile-actors > li > a:hover { color: var(--enpl-profile-ink); background: #fafafa; }
+      .gb_actors_list.enpl-profile-actors > li > a:hover { color: var(--enpl-profile-accent); background: #fafafa; }
       .gb_actors_list.enpl-profile-actors > li > a:active { background: #f2f2f4; }
-      .gb_actors_list.enpl-profile-actors > li > a:focus-visible { outline: 2px solid var(--enpl-profile-ink); outline-offset: 1px; border-radius: 5px; }
+      .gb_actors_list.enpl-profile-actors > li > a:focus-visible { outline: 2px solid var(--enpl-profile-accent); outline-offset: 1px; border-radius: 5px; }
       .enpl-profile-original > li > a { display: flex; align-items: baseline; gap: .25em; white-space: nowrap; max-width: 100%; padding: 2px 0; }
       .enpl-profile-original .enpl-profile-name, .enpl-profile-original .enpl-participation-count { flex: none; font-size: inherit; line-height: inherit; }
       .enpl-profile-original .enpl-participation-count { margin: 0; }
