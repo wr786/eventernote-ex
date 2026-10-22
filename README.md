@@ -78,15 +78,10 @@
 - 场次间隔**不包含路程**。未知时间、跨日时间和网站未更新的终演时间，需要自行确认。
 - Eventernote 的页面结构变化可能影响功能。当前没有专门的手机布局。
 
-## 仓库中的其他脚本
-
-[Eventernote Fancy UI](src/eventernote-fancy-ui.user.js) 是保留在仓库中的独立旧版主题，采用 Material 3 Expressive 风格。它不是 EX 的安装前提，也不会随 EX 自动安装。
-
 ## 开发
 
 ```text
 src/eventernote-power-list.user.js  # Eventernote EX 主脚本
-src/eventernote-fancy-ui.user.js    # 独立旧版主题
 README.md                         # 中文文档（默认）
 README.en.md                      # English
 README.ja.md                      # 日本語
@@ -98,7 +93,7 @@ README.ja.md                      # 日本語
 npm run check
 ```
 
-此命令检查两个用户脚本的 JavaScript 语法。没有构建步骤。
+此命令检查 EX 用户脚本的 JavaScript 语法。没有构建步骤。
 
 历史文件名、userscript namespace 和存储 key 保持稳定，以兼容已有安装及本地设置。三份 README 是文档翻译，不会切换脚本界面的语言。
 

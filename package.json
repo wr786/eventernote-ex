@@ -2,9 +2,9 @@
   "name": "eventernote-ex",
   "version": "0.1.0",
   "private": true,
-  "description": "Independent Tampermonkey userscripts for Eventernote functionality and visual enhancements.",
+  "description": "Eventernote EX userscript for event discovery, personal plans, and attendance recaps.",
   "scripts": {
-    "check": "node --check src/eventernote-power-list.user.js && node --check src/eventernote-fancy-ui.user.js"
+    "check": "node --check src/eventernote-power-list.user.js"
   },
   "keywords": [
     "eventernote",

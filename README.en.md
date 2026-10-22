@@ -78,15 +78,10 @@ This itinerary uses **only your own plans currently listed on the profile**. Sea
 - Gaps **exclude travel time**. Unknown times, overnight events, and end times not updated by the site need manual confirmation.
 - Site markup changes may affect functionality. There is no dedicated mobile layout.
 
-## Other script in this repository
-
-[Eventernote Fancy UI](src/eventernote-fancy-ui.user.js) is an independent older theme inspired by Material 3 Expressive. EX does not require it or install it automatically.
-
 ## Development
 
 ```text
 src/eventernote-power-list.user.js  # Eventernote EX
-src/eventernote-fancy-ui.user.js    # Independent older theme
 README.md                         # Chinese documentation (default)
 README.en.md                      # English
 README.ja.md                      # Japanese
@@ -98,7 +93,7 @@ Supported pages: `https://www.eventernote.com/*`.
 npm run check
 ```
 
-This command checks both userscripts' JavaScript syntax. No build step is required.
+This command checks the EX userscript's JavaScript syntax. No build step is required.
 
 Historical filenames, userscript namespaces, and storage keys remain stable for existing installations and preferences. These README translations do not change the script's interface language.
 

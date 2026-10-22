@@ -78,15 +78,10 @@
 - 空き時間に**移動時間は含まれません**。時刻未定、日をまたぐイベント、サイト上で未更新の終演時刻は個別に確認してください。
 - サイトの構造変更により機能が動かなくなる場合があります。専用のモバイルレイアウトはありません。
 
-## リポジトリー内の別スクリプト
-
-[Eventernote Fancy UI](src/eventernote-fancy-ui.user.js) は、Material 3 Expressive を参考にした独立した旧テーマです。EX の利用に必要なものではなく、EX と一緒に自動インストールされることもありません。
-
 ## 開発
 
 ```text
 src/eventernote-power-list.user.js  # Eventernote EX
-src/eventernote-fancy-ui.user.js    # 独立した旧テーマ
 README.md                         # 中国語ドキュメント（既定）
 README.en.md                      # English
 README.ja.md                      # 日本語
@@ -98,7 +93,7 @@ README.ja.md                      # 日本語
 npm run check
 ```
 
-このコマンドは両スクリプトの JavaScript 構文を確認します。ビルドは不要です。
+このコマンドは EX スクリプトの JavaScript 構文を確認します。ビルドは不要です。
 
 既存のインストールと設定を維持するため、従来のファイル名、userscript namespace、保存用 key を継続して使用しています。README の翻訳はドキュメント用で、スクリプトの画面表示言語を切り替えるものではありません。
 
