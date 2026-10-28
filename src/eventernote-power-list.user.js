@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.12.0
+// @version      0.12.1
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -713,7 +713,9 @@
       if (list.previousElementSibling?.classList.contains("enpl-profile-mode")) return;
       const controls = document.createElement("div");
       controls.className = "enpl-profile-mode";
-      controls.append("显示模式 ");
+      const displayField = document.createElement("label");
+      displayField.className = "enpl-profile-field";
+      displayField.append("显示模式");
       const picker = document.createElement("select");
       picker.setAttribute("aria-label", "艺人参加回数显示模式");
       [["badges", "精致名册"], ["original", "原版（单行自适应）"]].forEach(([value, name]) => {
@@ -735,7 +737,8 @@
           status.textContent = "本次生效，无法保存偏好";
         }
       });
-      controls.append(picker, status);
+      displayField.append(picker);
+      controls.append(displayField, status);
       const ownPath = getOwnProfilePath();
       const pathname = location.pathname.replace(/\/$/, "");
       if (ownPath && (pathname === "/users" || pathname === ownPath)) {
@@ -789,7 +792,10 @@
             progress.textContent = `读取失败：${error.message}。保留原统计，可重新选择重试。`;
           }
         });
-        controls.append("统计范围 ", scope, progress);
+        const scopeField = document.createElement("label");
+        scopeField.className = "enpl-profile-field";
+        scopeField.append("统计范围", scope);
+        controls.append(scopeField, progress);
       }
       list.insertAdjacentElement("beforebegin", controls);
       let previousWidth;
@@ -1152,8 +1158,11 @@
         white-space: nowrap;
       }
 
-      .enpl-profile-mode { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 10px 2px; color: #6e6e73; font-size: 12px; font-family: system-ui, sans-serif; }
-      .enpl-profile-mode select { width: auto; max-width: 100%; margin: 0; padding: 4px 8px; border: 1px solid #d8d8dc; border-radius: 8px; color: #3a3a3c; background: #f5f5f7; font: inherit; }
+      .enpl-profile-mode { display: grid; gap: 8px; margin: 10px 2px; color: #6e6e73; font-size: 12px; font-family: system-ui, sans-serif; }
+      .enpl-profile-field { display: grid; grid-template-columns: 4em minmax(0, 1fr); align-items: center; gap: 8px; margin: 0; font: inherit; white-space: nowrap; }
+      .enpl-profile-mode > [role="status"]:empty { display: none; }
+      .enpl-profile-mode > [role="status"] { min-width: 0; line-height: 1.5; overflow-wrap: anywhere; }
+      .enpl-profile-mode select { box-sizing: border-box; width: 100%; min-width: 0; max-width: 100%; margin: 0; padding: 4px 8px; border: 1px solid #d8d8dc; border-radius: 8px; color: #3a3a3c; background: #f5f5f7; font: inherit; }
       .gb_actors_list.enpl-profile-actors {
         display: grid;
         gap: 0;
