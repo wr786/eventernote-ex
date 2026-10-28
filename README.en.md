@@ -38,6 +38,8 @@ Choose a mode beside the performer list. Your preference is saved locally:
 
 Performer ranking pages also show `[n回]` beside names.
 
+On your own profile, **Count scope** switches between all site registrations (including future plans) and through today. The latter reads the complete history, excludes future events using the Japan date, deduplicates events, and updates counts, metal tiers and descending order in either display mode. Today is included regardless of event end times. Switching back restores the original values and order; a failed load keeps the previous statistics. History is shared with My Live Journal and cached only for the current page.
+
 ### Seven metallic tiers
 
 Event performer badges and profile count capsules share these thresholds. Tier names below describe the palette; they are not displayed on the badges.
@@ -74,7 +76,7 @@ This itinerary uses **only your own plans currently listed on the profile**. Sea
 
 - Settings and the followed-performer cache use browser `localStorage`. Complete journal records stay only in the current page's memory and must be loaded again after a refresh. Pagination requests go to Eventernote itself.
 - Recaps and countdowns separate past dates from future dates using **Japan time**. Events today are not checked for completion. Registration does not establish actual attendance.
-- Profile counters use the site's totals; countdowns recalculate from deduplicated historical events. Their totals may differ. Predictions assume all future plans are attended and do not represent milestones already achieved.
+- Profile counters default to the site's totals; through-today counts and countdowns use deduplicated historical events, so totals may differ. Predictions assume all future plans are attended and do not represent milestones already achieved.
 - Gaps **exclude travel time**. Unknown times, overnight events, and end times not updated by the site need manual confirmation.
 - Site markup changes may affect functionality. There is no dedicated mobile layout.
 

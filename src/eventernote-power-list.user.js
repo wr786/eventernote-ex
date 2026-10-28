@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.11.8
+// @version      0.12.0
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -28,6 +28,8 @@
   };
 
   const settings = loadSettings();
+  let personalRecordRequest = null;
+  const profileOriginalOrders = new Map();
 
   injectStyles();
   updateFollowingActorCache();
@@ -360,9 +362,74 @@
     new MutationObserver(() => { if (active) refresh(); }).observe(list, { childList: true });
   }
 
+  function getOwnProfilePath() {
+    const link = Array.from(document.querySelectorAll("a[href]")).find((node) => textOf(node) === "自分のページを確認");
+    return link ? getPathname(link.href).replace(/\/$/, "") : "";
+  }
+
+  function loadPersonalRecords(ownPath, onProgress, refresh = false) {
+    if (personalRecordRequest?.ownPath === ownPath && (!refresh || personalRecordRequest.pending)) {
+      if (personalRecordRequest.pending) personalRecordRequest.listeners.add(onProgress);
+      return personalRecordRequest.promise;
+    }
+    const listeners = new Set([onProgress]);
+    const request = { ownPath, listeners, pending: true };
+    personalRecordRequest = request;
+    request.promise = (async () => {
+      const events = new Map();
+      const visited = new Set();
+      let expectedCount = null;
+      let rowsRead = 0;
+      let url = new URL(`${ownPath}/events`, location.origin);
+      try {
+        while (url) {
+          if (visited.has(url.href) || visited.size >= 100) throw new Error("分页重复或超过 100 页，未完成读取");
+          visited.add(url.href);
+          listeners.forEach((notify) => notify(`正在读取第 ${visited.size} 页 · 已读取 ${events.size} 场`));
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 20000);
+          let response;
+          let html;
+          try {
+            response = await fetch(url.href, { credentials: "same-origin", signal: controller.signal });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            html = await response.text();
+          } finally { clearTimeout(timeout); }
+          if (new URL(response.url).origin !== location.origin || new URL(response.url).pathname.replace(/\/$/, "") !== `${ownPath}/events`) throw new Error("参加记录页面已跳转，请确认登录状态");
+          const root = new DOMParser().parseFromString(html, "text/html");
+          const title = Array.from(root.querySelectorAll(".gb_subtitle")).find((node) => /参加イベント一覧/.test(textOf(node)));
+          if (!title) throw new Error("未找到参加记录，可能需要重新登录");
+          const total = textOf(title).match(/\(([\d,]+)件\)/);
+          if (expectedCount === null && total) expectedCount = Number(total[1].replace(/,/g, ""));
+          const rawItems = getEventItems(root);
+          const items = rawItems.map(readPersonalEvent).filter(Boolean);
+          if (items.length !== rawItems.length) throw new Error("部分活动日期无法读取，未生成不完整统计");
+          rowsRead += rawItems.length;
+          if (!items.length && !/\(0件\)/.test(textOf(title))) throw new Error("参加记录格式已变化");
+          items.forEach((event) => events.set(getPathname(event.href), event));
+          const next = root.querySelector(".pagination li.next:not(.disabled) a[href]");
+          url = next ? new URL(next.getAttribute("href"), response.url) : null;
+          if (url && (url.origin !== location.origin || url.pathname.replace(/\/$/, "") !== `${ownPath}/events`)) throw new Error("分页链接不属于本人的参加记录");
+        }
+        if (expectedCount !== null && rowsRead !== expectedCount) throw new Error(`读取 ${rowsRead} 条，与页面总数 ${expectedCount} 不符，请重试`);
+        return {
+          records: Array.from(events.values()).sort((a, b) => a.date.localeCompare(b.date) || (a.start ?? 1440) - (b.start ?? 1440)),
+          rowsRead, pages: visited.size,
+          today: new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" })
+        };
+      } catch (error) {
+        if (personalRecordRequest === request) personalRecordRequest = null;
+        throw error;
+      } finally {
+        request.pending = false;
+        listeners.clear();
+      }
+    })();
+    return request.promise;
+  }
+
   function applyPersonalDashboard() {
-    const ownLink = Array.from(document.querySelectorAll("a[href]")).find((link) => textOf(link) === "自分のページを確認");
-    const ownPath = ownLink ? getPathname(ownLink.href).replace(/\/$/, "") : "";
+    const ownPath = getOwnProfilePath();
     const pathname = location.pathname.replace(/\/$/, "");
     if (!ownPath || (pathname !== "/users" && pathname !== ownPath) || document.querySelector(".enpl-personal")) return;
     const heading = Array.from(document.querySelectorAll(".gb_subtitle")).find((node) => /参加予定イベント/.test(textOf(node)));
@@ -423,45 +490,11 @@
       if (busy) return;
       busy = true;
       load.disabled = true;
-      const events = new Map();
-      const visited = new Set();
-      let expectedCount = null;
-      let rowsRead = 0;
-      let url = new URL(`${ownPath}/events`, location.origin);
       try {
-        while (url) {
-          if (visited.has(url.href) || visited.size >= 100) throw new Error("分页重复或超过 100 页，未完成读取");
-          visited.add(url.href);
-          status.textContent = `正在读取第 ${visited.size} 页 · 已读取 ${events.size} 场`;
-          const controller = new AbortController();
-          const timeout = setTimeout(() => controller.abort(), 20000);
-          let response;
-          let html;
-          try {
-            response = await fetch(url.href, { credentials: "same-origin", signal: controller.signal });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            html = await response.text();
-          } finally { clearTimeout(timeout); }
-          if (new URL(response.url).origin !== location.origin || new URL(response.url).pathname.replace(/\/$/, "") !== `${ownPath}/events`) throw new Error("参加记录页面已跳转，请确认登录状态");
-          const root = new DOMParser().parseFromString(html, "text/html");
-          const title = Array.from(root.querySelectorAll(".gb_subtitle")).find((node) => /参加イベント一覧/.test(textOf(node)));
-          if (!title) throw new Error("未找到参加记录，可能需要重新登录");
-          const total = textOf(title).match(/\(([\d,]+)件\)/);
-          if (expectedCount === null && total) expectedCount = Number(total[1].replace(/,/g, ""));
-          const rawItems = getEventItems(root);
-          const items = rawItems.map(readPersonalEvent).filter(Boolean);
-          if (items.length !== rawItems.length) throw new Error("部分活动日期无法读取，未生成不完整统计");
-          rowsRead += rawItems.length;
-          if (!items.length && !/\(0件\)/.test(textOf(title))) throw new Error("参加记录格式已变化");
-          items.forEach((event) => events.set(getPathname(event.href), event));
-          const next = root.querySelector(".pagination li.next:not(.disabled) a[href]");
-          url = next ? new URL(next.getAttribute("href"), response.url) : null;
-          if (url && (url.origin !== location.origin || url.pathname.replace(/\/$/, "") !== `${ownPath}/events`)) throw new Error("分页链接不属于本人的参加记录");
-        }
-        if (expectedCount !== null && rowsRead !== expectedCount) throw new Error(`读取 ${rowsRead} 条，与页面总数 ${expectedCount} 不符，请重试`);
-        records = Array.from(events.values()).sort((a, b) => a.date.localeCompare(b.date) || (a.start ?? 1440) - (b.start ?? 1440));
+        const result = await loadPersonalRecords(ownPath, (message) => { status.textContent = message; }, complete);
+        records = result.records;
         complete = true;
-        status.textContent = `完整读取 ${rowsRead} 条 · 去重后 ${records.length} 场 · ${visited.size} 页。回顾按日本日期截至 ${today}，未来登记单列为予定；登记不代表实际到场。`;
+        status.textContent = `完整读取 ${result.rowsRead} 条 · 去重后 ${records.length} 场 · ${result.pages} 页。回顾按日本日期截至 ${today}，未来登记单列为予定；登记不代表实际到场。`;
         load.textContent = "刷新参加记录";
         render();
       } catch (error) {
@@ -678,7 +711,7 @@
     });
     document.querySelectorAll(".enpl-profile-actor-source").forEach((list) => {
       if (list.previousElementSibling?.classList.contains("enpl-profile-mode")) return;
-      const controls = document.createElement("label");
+      const controls = document.createElement("div");
       controls.className = "enpl-profile-mode";
       controls.append("显示模式 ");
       const picker = document.createElement("select");
@@ -703,6 +736,61 @@
         }
       });
       controls.append(picker, status);
+      const ownPath = getOwnProfilePath();
+      const pathname = location.pathname.replace(/\/$/, "");
+      if (ownPath && (pathname === "/users" || pathname === ownPath)) {
+        profileOriginalOrders.set(list, Array.from(list.children));
+        const scope = document.createElement("select");
+        scope.setAttribute("aria-label", "艺人参加回数统计范围");
+        [["all", "全部登记（含未来予定）"], ["today", "截至今天"]].forEach(([value, label]) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = label;
+          scope.append(option);
+        });
+        const progress = document.createElement("span");
+        progress.setAttribute("role", "status");
+        let generation = 0;
+        scope.addEventListener("change", async () => {
+          const current = ++generation;
+          if (scope.value === "all") {
+            delete list.dataset.enplCutoff;
+            list.querySelectorAll("li").forEach((item) => { delete item.dataset.enplHistoricalCount; });
+            list.append(...profileOriginalOrders.get(list));
+            progress.textContent = "";
+            applyProfileActorDisplayMode();
+            return;
+          }
+          progress.textContent = "正在读取完整记录，暂时保留原回数…";
+          try {
+            const result = await loadPersonalRecords(ownPath, (message) => {
+              if (current === generation) progress.textContent = `${message} · 暂时保留原回数`;
+            });
+            if (current !== generation) return;
+            const counts = new Map();
+            result.records.filter((event) => event.date <= result.today).forEach((event) => {
+              event.actors.forEach((actor) => {
+                const key = getPathname(actor.href);
+                counts.set(key, (counts.get(key) || 0) + 1);
+              });
+            });
+            list.dataset.enplCutoff = result.today;
+            list.querySelectorAll("li").forEach((item) => {
+              const actor = item.querySelector("a[href*='/actors/']");
+              if (actor) item.dataset.enplHistoricalCount = counts.get(getPathname(actor.href)) || 0;
+            });
+            list.append(...profileOriginalOrders.get(list).slice().sort((a, b) =>
+              Number(b.dataset.enplHistoricalCount || 0) - Number(a.dataset.enplHistoricalCount || 0)));
+            progress.textContent = `日本日期截至 ${result.today} · 已去重，包含今日登记`;
+            applyProfileActorDisplayMode();
+          } catch (error) {
+            if (current !== generation) return;
+            scope.value = list.dataset.enplCutoff ? "today" : "all";
+            progress.textContent = `读取失败：${error.message}。保留原统计，可重新选择重试。`;
+          }
+        });
+        controls.append("统计范围 ", scope, progress);
+      }
       list.insertAdjacentElement("beforebegin", controls);
       let previousWidth;
       new ResizeObserver(() => {
@@ -722,11 +810,13 @@
       list.classList.toggle("enpl-profile-original", original);
       list.querySelectorAll("li").forEach((item) => {
         const badge = item.querySelector(".enpl-participation-count");
-        const count = getParticipationCount(item.className);
+        const count = item.dataset.enplHistoricalCount !== undefined
+          ? Number(item.dataset.enplHistoricalCount) : getParticipationCount(item.className);
         if (badge && count !== null) {
+          item.dataset.enplTier = getParticipationTier(count);
           badge.classList.toggle("enpl-metal-chip", !original);
           badge.textContent = original ? `[${count}回]` : `${count}回`;
-          badge.title = `参加回数：${count}回`;
+          badge.title = `参加回数：${count}回${list.dataset.enplCutoff ? `（日本日期截至 ${list.dataset.enplCutoff}，已去重）` : "（站内全部登记）"}`;
           badge.setAttribute("aria-label", badge.title);
         }
       });
