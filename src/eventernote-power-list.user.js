@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.12.6
+// @version      0.12.7
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1162,7 +1162,7 @@
         white-space: nowrap;
       }
 
-      .enpl-profile-mode { display: grid; gap: 8px; margin: 10px 2px; color: #6e6e73; font-size: 12px; font-family: system-ui, sans-serif; }
+      .enpl-profile-mode { display: grid; gap: 8px; box-sizing: border-box; padding: 4px 14px; margin: 10px 0; color: #6e6e73; font-size: 12px; font-family: system-ui, sans-serif; }
       .enpl-profile-field { display: grid; grid-template-columns: 4em minmax(0, 1fr); align-items: center; gap: 8px; margin: 0; font: inherit; white-space: nowrap; }
       .enpl-profile-mode > [role="status"]:empty { display: none; }
       .enpl-profile-mode > [role="status"] { min-width: 0; line-height: 1.5; overflow-wrap: anywhere; }
