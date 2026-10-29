@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.12.2
+// @version      0.12.3
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -718,13 +718,13 @@
       displayField.append("显示模式");
       const picker = document.createElement("select");
       picker.setAttribute("aria-label", "艺人参加回数显示模式");
-      [["badges", "徽章模式"], ["original", "原版模式"]].forEach(([value, name]) => {
+      [["badges", "徽章模式"], ["compact", "紧凑徽章"], ["original", "原版模式"]].forEach(([value, name]) => {
         const option = document.createElement("option");
         option.value = value;
         option.textContent = name;
         picker.append(option);
       });
-      picker.value = settings.profileActorDisplayMode === "original" ? "original" : "badges";
+      picker.value = settings.profileActorDisplayMode;
       const status = document.createElement("span");
       status.setAttribute("role", "status");
       picker.addEventListener("change", () => {
@@ -810,9 +810,12 @@
   }
 
   function applyProfileActorDisplayMode() {
-    const original = settings.profileActorDisplayMode === "original";
+    const mode = ["badges", "compact", "original"].includes(settings.profileActorDisplayMode) ? settings.profileActorDisplayMode : "badges";
+    const original = mode === "original";
+    const compact = mode === "compact";
     document.querySelectorAll(".enpl-profile-actor-source").forEach((list) => {
-      list.classList.toggle("enpl-profile-actors", !original);
+      list.classList.toggle("enpl-profile-actors", mode === "badges");
+      list.classList.toggle("enpl-profile-compact", compact);
       list.classList.toggle("enpl-profile-original", original);
       list.querySelectorAll("li").forEach((item) => {
         const badge = item.querySelector(".enpl-participation-count");
@@ -820,7 +823,8 @@
           ? Number(item.dataset.enplHistoricalCount) : getParticipationCount(item.className);
         if (badge && count !== null) {
           item.dataset.enplTier = getParticipationTier(count);
-          badge.classList.toggle("enpl-metal-chip", !original);
+          item.querySelector("a[href*='/actors/']")?.classList.toggle("enpl-metal-chip", compact);
+          badge.classList.toggle("enpl-metal-chip", !original && !compact);
           badge.textContent = original ? `[${count}回]` : `${count}回`;
           badge.title = `参加回数：${count}回${list.dataset.enplCutoff ? `（日本日期截至 ${list.dataset.enplCutoff}，已去重）` : "（站内全部登记）"}`;
           badge.setAttribute("aria-label", badge.title);
@@ -828,7 +832,7 @@
       });
       fitOriginalProfileActors(list);
       const picker = list.previousElementSibling?.querySelector("select");
-      if (picker) picker.value = original ? "original" : "badges";
+      if (picker) picker.value = mode;
     });
   }
 
@@ -1232,6 +1236,26 @@
       .gb_actors_list.enpl-profile-actors > li > a:hover { color: var(--enpl-metal-accent); background: #fafafa; }
       .gb_actors_list.enpl-profile-actors > li > a:active { background: #f2f2f4; }
       .gb_actors_list.enpl-profile-actors > li > a:focus-visible { outline: 2px solid var(--enpl-metal-accent); outline-offset: 1px; border-radius: 5px; }
+      .gb_actors_list.enpl-profile-compact {
+        display: flex; flex-wrap: wrap; align-items: flex-start; gap: 7px;
+        padding: 4px 0; margin: 0; list-style: none;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-optical-sizing: auto;
+      }
+      .gb_actors_list.enpl-profile-compact > li {
+        flex: 0 1 auto; float: none; width: auto; min-width: 0; max-width: 100%;
+        margin: 0; padding: 0; font-size: 12px !important; line-height: 1.5;
+      }
+      .gb_actors_list.enpl-profile-compact > li > a {
+        display: flex; align-items: center; gap: 7px; box-sizing: border-box;
+        max-width: 100%; min-height: 30px; padding: 5px 9px;
+        font-size: 12px !important; line-height: 1.5; text-decoration: none;
+      }
+      .enpl-profile-compact .enpl-profile-name { overflow: hidden; text-overflow: ellipsis; }
+      .enpl-profile-compact .enpl-participation-count {
+        flex: none; margin: 0; padding: 0 0 0 7px;
+        border-left: 1px solid var(--enpl-metal-edge); font-size: inherit;
+      }
       .enpl-profile-original > li > a { display: flex; align-items: baseline; gap: .25em; white-space: nowrap; max-width: 100%; padding: 2px 0; }
       .enpl-profile-original .enpl-profile-name, .enpl-profile-original .enpl-participation-count { flex: none; font-size: inherit; line-height: inherit; }
       .enpl-profile-original .enpl-participation-count { margin: 0; }
