@@ -21,7 +21,7 @@ You can then use “按关注推荐” in event search, switch participation dis
 | Feature | Behavior and scope |
 | --- | --- |
 | Recommendations across pages | In event search and monthly listings, “按关注推荐” ranks events by the sum of your participation counts for followed performers appearing in them. The first batch combines up to 10 pages; “加载更多推荐” reads up to 10 more each time. Includes deduplication, progress, retry, and restoring the original order. |
-| Followed-performer badges | Performer badges share the profile counters' seven metallic tiers. Event badges show names only, without counts or tier labels. |
+| Followed-performer badges | Performer badges share the profile counters' eight metallic tiers. Event badges show names only, without counts or tier labels. |
 | Event popularity | Highlights the site's attendee counts at 10 / 50 / 100 people, separately from your personal participation counts. |
 | Venue maps | The `map` link beside a venue opens a Google Maps search. |
 | Same-day search | The `all` link beside a date finds other events that day. |
@@ -41,15 +41,16 @@ Performer ranking pages also show `[n回]` beside names.
 
 On your own profile, **Count scope** switches between all site registrations (including future plans) and through today. The latter reads the complete history, excludes future events using the Japan date, deduplicates events, and updates counts, metal tiers and descending order in either display mode. Today is included regardless of event end times. Switching back restores the original values and order; a failed load keeps the previous statistics. History is shared with My Live Journal and cached only for the current page.
 
-### Seven metallic tiers
+### Eight metallic tiers
 
 Event performer badges and profile count capsules share these thresholds. Tier names below describe the palette; they are not displayed on the badges.
 
 | Site participation count | Tier |
 | ---: | --- |
 | 0–9 | Iron |
-| 10–29 | Bronze |
-| 30–49 | Silver |
+| 10–19 | Bronze |
+| 20–29 | Silver |
+| 30–49 | Rose gold |
 | 50–99 | Gold |
 | 100–149 | Black gold |
 | 150–199 | Black diamond |

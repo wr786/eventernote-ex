@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.12.5
+// @version      0.12.6
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -848,7 +848,7 @@
   }
 
   function getParticipationTier(count) {
-    return [[200, "ruby"], [150, "diamond"], [100, "black-gold"], [50, "gold"], [30, "silver"], [10, "bronze"], [0, "iron"]]
+    return [[200, "ruby"], [150, "diamond"], [100, "black-gold"], [50, "gold"], [30, "rose-gold"], [20, "silver"], [10, "bronze"], [0, "iron"]]
       .find(([minimum]) => count >= minimum)[1];
   }
 
@@ -1192,6 +1192,9 @@
       }
       [data-enpl-tier="silver"] {
         --enpl-metal-ink: #3c4859; --enpl-metal-start: #f5f7fb; --enpl-metal-end: #c1cbd9; --enpl-metal-edge: #a1adbd; --enpl-metal-accent: #7d8a9e;
+      }
+      [data-enpl-tier="rose-gold"] {
+        --enpl-metal-ink: #63382f; --enpl-metal-start: #f3d1c4; --enpl-metal-end: #d99a86; --enpl-metal-edge: #bc7c68; --enpl-metal-accent: #a45f4d;
       }
       [data-enpl-tier="gold"] {
         --enpl-metal-ink: #654610; --enpl-metal-start: #fff0b6; --enpl-metal-end: #e6bc57; --enpl-metal-edge: #c89a36; --enpl-metal-accent: #b78924;
