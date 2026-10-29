@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.13.0
+// @version      0.13.1
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -142,7 +142,7 @@
       badge.className = "enpl-event-countdown";
       dateNode.insertAdjacentElement("afterend", badge);
     }
-    badge.dataset.state = days === 0 ? "today" : days < 0 ? "past" : "future";
+    badge.dataset.state = days < 0 ? "past" : days === 0 ? "today" : days === 1 ? "tomorrow" : days === 2 ? "soon" : days <= 7 ? "week" : days <= 30 ? "month" : "later";
     badge.title = `按日本日期 ${today} 计算，与活动日期相差 ${Math.abs(days)} 天；不判断活动是否已结束`;
     badge.replaceChildren();
     if (days === 0) badge.textContent = "今天";
@@ -1420,6 +1420,11 @@
         font-variant-numeric: tabular-nums; white-space: nowrap;
       }
       .enpl-event-countdown strong { font-size: 13px; font-weight: 650; }
+      .enpl-event-countdown[data-state="later"] { color: #64758a; background: #f1f4f8; border-color: #dfe5ed; }
+      .enpl-event-countdown[data-state="month"] { color: #365f91; background: #eff5fc; border-color: #dce7f4; }
+      .enpl-event-countdown[data-state="week"] { color: #71529b; background: #f4eefb; border-color: #e3d6f2; }
+      .enpl-event-countdown[data-state="soon"] { color: #9a541c; background: #fff0df; border-color: #f0d2ae; }
+      .enpl-event-countdown[data-state="tomorrow"] { color: #a24043; background: #fff0ed; border-color: #f0c8c1; }
       .enpl-event-countdown[data-state="today"] { color: #89500e; background: #fff3db; border-color: #efd6a5; }
       .enpl-event-countdown[data-state="past"] { color: #73737b; background: #f4f4f6; border-color: #e5e5e9; }
       .enpl-date-search-link {
