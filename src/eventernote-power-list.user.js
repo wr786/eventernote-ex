@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.12.4
+// @version      0.12.5
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1238,7 +1238,8 @@
       .gb_actors_list.enpl-profile-actors > li > a:focus-visible { outline: 2px solid var(--enpl-metal-accent); outline-offset: 1px; border-radius: 5px; }
       .gb_actors_list.enpl-profile-compact {
         display: flex; flex-wrap: wrap; align-items: flex-start; gap: 7px;
-        padding: 4px 0; margin: 0; list-style: none;
+        box-sizing: border-box; width: 100%;
+        padding: 12px 14px 16px; margin: 8px 0 0; list-style: none;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         font-optical-sizing: auto;
       }
