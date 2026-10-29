@@ -44,6 +44,8 @@ On your own profile, **Count scope** switches between all site registrations (in
 
 The profile sidebar aligns profile details, statistics, headings, filters and lists to shared side margins. Metallic chips brighten subtly on hover with a soft edge highlight, darken immediately when pressed, and respect reduced-motion preferences.
 
+Plans on your own profile are grouped by date with weekday, countdown and the number of events shown on this page, ordered by start time within each day. A dedicated time row emphasizes the start time and de-emphasizes unknown times. Search results keep individual dates.
+
 ### Eight metallic tiers
 
 Event performer badges and profile count capsules share these thresholds. Tier names below describe the palette; they are not displayed on the badges.

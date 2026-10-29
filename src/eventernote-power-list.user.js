@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.13.1
+// @version      0.14.0
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -42,6 +42,7 @@
       if (today !== countdownDate) {
         countdownDate = today;
         getEventItems().forEach(applyEventCountdown);
+        document.querySelectorAll(".enpl-plan-day").forEach(applyEventCountdown);
       }
     }, 60000);
   }
@@ -67,9 +68,11 @@
       applyVenueLinks(item);
       applyDateSearchLinks(item);
       applyEventCountdown(item);
+      applyEventTimeBar(item);
     });
     applyFollowedActorEventSort(eventItems);
     applySameDaySchedule();
+    applyPlannedDateGroups();
     applyFavoriteActorParticipationCounts();
     applyPersonalDashboard();
     applyFollowedActorHighlights();
@@ -131,7 +134,7 @@
 
   function applyEventCountdown(item) {
     const dateNode = item.querySelector(".date > p:first-child");
-    const date = parseEventDate(textOf(dateNode));
+    const date = parseEventDate(item.dataset.enplDate || textOf(dateNode));
     if (!date) return;
     const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
     const days = getEventDayDifference(date, today);
@@ -140,7 +143,8 @@
     if (!badge) {
       badge = document.createElement("span");
       badge.className = "enpl-event-countdown";
-      dateNode.insertAdjacentElement("afterend", badge);
+      if (dateNode) dateNode.insertAdjacentElement("afterend", badge);
+      else item.append(badge);
     }
     badge.dataset.state = days < 0 ? "past" : days === 0 ? "today" : days === 1 ? "tomorrow" : days === 2 ? "soon" : days <= 7 ? "week" : days <= 30 ? "month" : "later";
     badge.title = `按日本日期 ${today} 计算，与活动日期相差 ${Math.abs(days)} 天；不判断活动是否已结束`;
@@ -269,6 +273,7 @@
             applyVenueLinks(imported);
             applyDateSearchLinks(imported);
             applyEventCountdown(imported);
+            applyEventTimeBar(imported);
           });
           visited.add(nextUrl);
           pagesLoaded++;
@@ -294,6 +299,68 @@
       else status.textContent = sorted ? `已推荐 ${originalOrder.length} 场 · ${pagesLoaded} 页` : "";
     });
     more.addEventListener("click", loadMore);
+  }
+
+  function applyEventTimeBar(item) {
+    const source = item.querySelector(".event .place .s");
+    if (!source || item.querySelector(".enpl-event-times")) return;
+    const text = textOf(source);
+    if (!/開場|開演|終演/.test(text)) return;
+    const times = ["開場", "開演", "終演"].map((label) => parseScheduleTime(text, label));
+    if (times.every((time) => time === null) || /(?:^|\s)(?:2[4-9]|[3-9]\d):\d{2}/.test(text)) return;
+    const bar = document.createElement("span");
+    bar.className = "enpl-event-times";
+    bar.title = text;
+    ["开场", "开演", "终演"].forEach((label, index) => {
+      const part = document.createElement("span");
+      part.className = `enpl-event-time${index === 1 ? " enpl-event-time-start" : ""}${times[index] === null ? " enpl-event-time-unknown" : ""}`;
+      const value = document.createElement("strong");
+      value.textContent = formatScheduleTime(times[index]);
+      part.append(label, value);
+      bar.append(part);
+    });
+    source.classList.add("enpl-event-times-source");
+    source.insertAdjacentElement("afterend", bar);
+  }
+
+  function applyPlannedDateGroups() {
+    const ownPath = getOwnProfilePath();
+    const path = location.pathname.replace(/\/$/, "");
+    if (!ownPath || (path !== "/users" && path !== ownPath)) return;
+    const heading = Array.from(document.querySelectorAll(".gb_subtitle")).find((node) => /参加予定イベント/.test(textOf(node)));
+    const items = getEventItems(heading?.nextElementSibling || document.createElement("div"));
+    if (!items.length) return;
+    const list = items[0].parentElement;
+    if (list.classList.contains("enpl-grouped-plans") || items.some((item) => item.parentElement !== list)) return;
+    const entries = items.map((item) => ({ item, event: readScheduleEvent(item) }));
+    if (entries.some(({ event }) => !event?.date)) return;
+    entries.sort((a, b) => a.event.date.localeCompare(b.event.date) || (a.event.start ?? 1440) - (b.event.start ?? 1440));
+    const groups = new Map();
+    entries.forEach((entry) => {
+      if (!groups.has(entry.event.date)) groups.set(entry.event.date, []);
+      groups.get(entry.event.date).push(entry.item);
+    });
+    list.classList.add("enpl-grouped-plans");
+    groups.forEach((events, date) => {
+      const row = document.createElement("li");
+      row.className = "enpl-plan-day";
+      row.dataset.enplDate = date;
+      const title = document.createElement("h3");
+      const link = document.createElement("a");
+      const parsed = parseEventDate(date);
+      const weekday = new Intl.DateTimeFormat("zh-CN", { weekday: "short", timeZone: "Asia/Tokyo" }).format(new Date(`${date}T12:00:00+09:00`));
+      link.textContent = `${parsed.month} 月 ${parsed.day} 日 · ${weekday}`;
+      link.href = `/events/search?year=${parsed.year}&month=${parsed.month}&day=${parsed.day}`;
+      link.title = `${date} · 查看当天其他活动`;
+      title.append(link);
+      row.append(title);
+      applyEventCountdown(row);
+      const count = document.createElement("span");
+      count.className = "enpl-plan-day-count";
+      count.textContent = `${events.length} 场`;
+      row.append(count);
+      list.append(row, ...events);
+    });
   }
 
   function applySameDaySchedule() {
@@ -1411,6 +1478,26 @@
         text-decoration: none;
       }
 
+      .enpl-event-times-source { display: none !important; }
+      .enpl-event-times { display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 16px; margin: 7px 0 9px; }
+      .enpl-event-time { display: inline-flex; align-items: baseline; gap: 6px; color: #76767e; font: 11px/1.5 system-ui, sans-serif; }
+      .enpl-event-time strong { color: #585860; font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums; }
+      .enpl-event-time-start { color: #555660; }
+      .enpl-event-time-start strong { color: #292a34; font-size: 16px; font-weight: 650; }
+      .enpl-event-time-unknown, .enpl-event-time-unknown strong { color: #8a8a92; font-size: 11px; font-weight: 400; }
+      .enpl-grouped-plans > li.enpl-plan-day {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+        min-height: 0; margin: 18px 0 0; padding: 12px 14px;
+        border: 1px solid #e4e5eb; border-radius: 12px; background: #f7f8fb;
+      }
+      .enpl-grouped-plans > li.enpl-plan-day:first-child { margin-top: 8px; }
+      .enpl-plan-day h3 { flex: 1; margin: 0; font: 600 14px/1.5 system-ui, sans-serif; }
+      .enpl-plan-day h3 a { color: #454753; text-decoration: none; }
+      .enpl-plan-day h3 a:hover { text-decoration: underline; }
+      .enpl-plan-day .enpl-event-countdown { margin: 0; }
+      .enpl-plan-day-count { color: #747680; font: 12px/1.5 system-ui, sans-serif; white-space: nowrap; }
+      .enpl-grouped-plans > li:not(.enpl-plan-day) > .date { display: none; }
+      .enpl-grouped-plans > li:not(.enpl-plan-day) > .event { margin-left: 0 !important; }
       .enpl-event-countdown {
         display: inline-flex; align-items: baseline; gap: .25em;
         box-sizing: border-box; max-width: 100%; margin: 2px 0 7px; padding: 3px 8px;
