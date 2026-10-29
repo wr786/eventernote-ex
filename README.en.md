@@ -33,8 +33,8 @@ You can then use “按关注推荐” in event search, switch participation dis
 
 Choose a mode beside the performer list. Your preference is saved locally:
 
-- **精致名册 — refined list:** uniform typography, subtle separators, and right-aligned metallic count capsules displaying only `126回`. Long names are truncated to one line; hover for the full name.
-- **原版（单行自适应）— original, fitted to one line:** preserves the site's size hierarchy and colors, with counts formatted as `[126回]`. Long names and counts shrink to fit on one line.
+- **徽章模式 — badge mode:** uniform typography, subtle separators, and right-aligned metallic count capsules displaying only `126回`. Long names are truncated to one line; hover for the full name.
+- **原版模式— original mode:** preserves the site's size hierarchy and colors, with counts formatted as `[126回]`. Long names and counts shrink to fit on one line.
 
 Performer ranking pages also show `[n回]` beside names.
 

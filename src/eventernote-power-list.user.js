@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.12.1
+// @version      0.12.2
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -718,7 +718,7 @@
       displayField.append("显示模式");
       const picker = document.createElement("select");
       picker.setAttribute("aria-label", "艺人参加回数显示模式");
-      [["badges", "精致名册"], ["original", "原版（单行自适应）"]].forEach(([value, name]) => {
+      [["badges", "徽章模式"], ["original", "原版模式"]].forEach(([value, name]) => {
         const option = document.createElement("option");
         option.value = value;
         option.textContent = name;
