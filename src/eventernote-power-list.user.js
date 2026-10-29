@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.12.7
+// @version      0.12.8
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -798,6 +798,8 @@
         controls.append(scopeField, progress);
       }
       list.insertAdjacentElement("beforebegin", controls);
+      const sidebar = list.closest(".span4.page");
+      if (sidebar?.querySelector(".gb_users_side_profile")) sidebar.classList.add("enpl-profile-sidebar");
       let previousWidth;
       new ResizeObserver(() => {
         const width = list.clientWidth;
@@ -1031,8 +1033,15 @@
         line-height: 1.4;
       }
       .enpl-followed-actor > a { display: inline-flex; align-items: center; max-width: 100%; padding: 4px 9px; font-size: 12px; overflow-wrap: anywhere; text-decoration: none; }
+      a.enpl-metal-chip { transition: filter 120ms ease-out, box-shadow 120ms ease-out; }
       a.enpl-metal-chip:hover { color: var(--enpl-metal-ink); text-decoration: none; }
-      a.enpl-metal-chip:active { filter: brightness(.94); }
+      @media (hover: hover) {
+        a.enpl-metal-chip:hover {
+          filter: brightness(1.035);
+          box-shadow: inset 0 0 0 1px var(--enpl-metal-edge), inset 0 1px 0 rgba(255, 255, 255, .5), 0 2px 5px rgba(30, 25, 25, .12);
+        }
+      }
+      a.enpl-metal-chip:active { filter: brightness(.94); transition: none; }
       a.enpl-metal-chip:focus-visible { outline: 2px solid var(--enpl-metal-accent); outline-offset: 2px; }
 
       .enpl-interest-sort-controls {
@@ -1162,6 +1171,13 @@
         white-space: nowrap;
       }
 
+      .enpl-profile-sidebar > .gb_users_side_profile { margin: 0 14px; }
+      .enpl-profile-sidebar > .gb_score_table { margin: 10px 14px; }
+      .enpl-profile-sidebar > .gb_subtitle { margin: 16px 14px 8px; }
+      .enpl-profile-sidebar > p.t { margin: 0 14px 10px; padding: 5px 0; }
+      .enpl-profile-sidebar .gb_actors_list.enpl-profile-actors,
+      .enpl-profile-sidebar .gb_actors_list.enpl-profile-original { width: auto; margin-left: 14px; margin-right: 14px; }
+      @media (prefers-reduced-motion: reduce) { a.enpl-metal-chip { transition: none; } }
       .enpl-profile-mode { display: grid; gap: 8px; box-sizing: border-box; padding: 4px 14px; margin: 10px 0; color: #6e6e73; font-size: 12px; font-family: system-ui, sans-serif; }
       .enpl-profile-field { display: grid; grid-template-columns: 4em minmax(0, 1fr); align-items: center; gap: 8px; margin: 0; font: inherit; white-space: nowrap; }
       .enpl-profile-mode > [role="status"]:empty { display: none; }

@@ -41,6 +41,8 @@ Performer ranking pages also show `[n回]` beside names.
 
 On your own profile, **Count scope** switches between all site registrations (including future plans) and through today. The latter reads the complete history, excludes future events using the Japan date, deduplicates events, and updates counts, metal tiers and descending order in either display mode. Today is included regardless of event end times. Switching back restores the original values and order; a failed load keeps the previous statistics. History is shared with My Live Journal and cached only for the current page.
 
+The profile sidebar aligns profile details, statistics, headings, filters and lists to shared side margins. Metallic chips brighten subtly on hover with a soft edge highlight, darken immediately when pressed, and respect reduced-motion preferences.
+
 ### Eight metallic tiers
 
 Event performer badges and profile count capsules share these thresholds. Tier names below describe the palette; they are not displayed on the badges.
