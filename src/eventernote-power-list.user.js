@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.14.1
+// @version      0.14.2
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -862,12 +862,16 @@
       list.classList.toggle("enpl-profile-actors", mode === "badges");
       list.classList.toggle("enpl-profile-compact", compact);
       list.classList.toggle("enpl-profile-original", original);
-      list.querySelectorAll("li").forEach((item) => {
+      const counts = Array.from(list.querySelectorAll("li"), (item) => ({
+        item, count: item.dataset.enplHistoricalCount !== undefined
+          ? Number(item.dataset.enplHistoricalCount) : getParticipationCount(item.className)
+      }));
+      const maximum = Math.max(0, ...counts.map(({ count }) => count ?? 0));
+      counts.forEach(({ item, count }) => {
         const badge = item.querySelector(".enpl-participation-count");
-        const count = item.dataset.enplHistoricalCount !== undefined
-          ? Number(item.dataset.enplHistoricalCount) : getParticipationCount(item.className);
         if (badge && count !== null) {
           item.dataset.enplTier = getParticipationTier(count);
+          item.style.setProperty("--enpl-count-share", `${maximum ? count / maximum * 100 : 0}%`);
           item.querySelector("a[href*='/actors/']")?.classList.toggle("enpl-metal-chip", compact);
           badge.classList.toggle("enpl-metal-chip", !original && !compact);
           badge.textContent = original ? `[${count}回]` : `${count}回`;
@@ -876,7 +880,16 @@
         }
       });
       fitOriginalProfileActors(list);
-      const picker = list.previousElementSibling?.querySelector("select");
+      const controls = list.previousElementSibling;
+      let note = controls?.querySelector(".enpl-profile-scale-note");
+      if (controls && !note) {
+        note = document.createElement("span");
+        note.className = "enpl-profile-scale-note";
+        note.textContent = "细条长度以本列表最高回数为基准";
+        controls.append(note);
+      }
+      if (note) note.hidden = mode !== "badges";
+      const picker = controls?.querySelector("select");
       if (picker) picker.value = mode;
     });
   }
@@ -1283,6 +1296,14 @@
         line-height: 1.5;
         text-decoration: none;
       }
+      .gb_actors_list.enpl-profile-actors > li > a { position: relative; padding-bottom: 5px; }
+      .gb_actors_list.enpl-profile-actors > li > a::after {
+        content: ""; position: absolute; left: 2px; right: 2px; bottom: 3px;
+        height: 3px; border-radius: 2px;
+        background: linear-gradient(to right, var(--enpl-metal-accent) 0 var(--enpl-count-share, 0%), #eeeeF1 var(--enpl-count-share, 0%) 100%);
+      }
+      .enpl-profile-scale-note { color: #77777f; font-size: 11px; line-height: 1.5; }
+      .enpl-profile-scale-note[hidden] { display: none; }
       .gb_actors_list.enpl-profile-actors > li + li > a { border-top: 1px solid rgba(60, 60, 67, .09); }
       .enpl-profile-name { min-width: 0; white-space: nowrap; }
       .enpl-profile-actors .enpl-profile-name { overflow: hidden; text-overflow: ellipsis; }

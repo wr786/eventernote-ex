@@ -34,7 +34,7 @@ You can then use “按关注推荐” in event search, switch participation dis
 
 Choose a mode beside the performer list. Your preference is saved locally:
 
-- **徽章模式 — badge mode:** uniform typography, subtle separators, and right-aligned metallic count capsules displaying only `126回`. Long names are truncated to one line; hover for the full name.
+- **徽章模式 — badge mode:** uniform typography, subtle separators, and right-aligned metallic count capsules displaying only `126回`. Long names are truncated to one line; hover for the full name. A thin bar compares each count with the highest count in this list and recalculates with the selected scope; it is not a percentage of all events.
 - **紧凑徽章 — compact badges:** names and counts share one metallic gradient chip. Chips flow horizontally and wrap as whole units, with uniform small text and ellipsis for long names (hover for the full name). Count scope and sorting work as in badge mode.
 - **原版模式— original mode:** preserves the site's size hierarchy and colors, with counts formatted as `[126回]`. Long names and counts shrink to fit on one line.
 
