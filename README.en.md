@@ -24,6 +24,7 @@ You can then use “按关注推荐” in event search, switch participation dis
 | Followed-performer badges | Performer badges share the profile counters' eight metallic tiers. Event badges show names only, without counts or tier labels. |
 | Event popularity | Highlights the site's attendee counts at 10 / 50 / 100 people, separately from your personal participation counts. |
 | Venue maps | The `map` link beside a venue opens a Google Maps search. |
+| Event countdown | A compact label below each date shows days remaining, tomorrow, today, or days elapsed, using calendar dates in Japan. Today is highlighted warmly. Also works on results loaded through recommendations and updates after midnight. |
 | Same-day search | The `all` link beside a date finds other events that day. |
 | Compact browsing | Reduces spacing and hides thumbnails on applicable event lists. |
 

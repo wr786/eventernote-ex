@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.12.9
+// @version      0.13.0
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -35,6 +35,16 @@
   updateFollowingActorCache();
   applyEnhancements();
   console.info("[Eventernote EX] active");
+  if (document.querySelector(".enpl-event-countdown")) {
+    let countdownDate = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+    setInterval(() => {
+      const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+      if (today !== countdownDate) {
+        countdownDate = today;
+        getEventItems().forEach(applyEventCountdown);
+      }
+    }, 60000);
+  }
 
   function loadSettings() {
     try {
@@ -56,6 +66,7 @@
       applyPopularity(item);
       applyVenueLinks(item);
       applyDateSearchLinks(item);
+      applyEventCountdown(item);
     });
     applyFollowedActorEventSort(eventItems);
     applySameDaySchedule();
@@ -110,6 +121,37 @@
     searchLink.title = `查看 ${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")} 的其他活动`;
     searchLink.textContent = "all";
     dateNode.append(" ", searchLink);
+  }
+
+  function getEventDayDifference(date, today) {
+    const target = new Date(Date.UTC(date.year, date.month - 1, date.day));
+    if (target.getUTCFullYear() !== date.year || target.getUTCMonth() !== date.month - 1 || target.getUTCDate() !== date.day) return null;
+    return Math.round((target.getTime() - Date.parse(`${today}T00:00:00Z`)) / 86400000);
+  }
+
+  function applyEventCountdown(item) {
+    const dateNode = item.querySelector(".date > p:first-child");
+    const date = parseEventDate(textOf(dateNode));
+    if (!date) return;
+    const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+    const days = getEventDayDifference(date, today);
+    if (days === null || !Number.isFinite(days)) return;
+    let badge = item.querySelector(".enpl-event-countdown");
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.className = "enpl-event-countdown";
+      dateNode.insertAdjacentElement("afterend", badge);
+    }
+    badge.dataset.state = days === 0 ? "today" : days < 0 ? "past" : "future";
+    badge.title = `按日本日期 ${today} 计算，与活动日期相差 ${Math.abs(days)} 天；不判断活动是否已结束`;
+    badge.replaceChildren();
+    if (days === 0) badge.textContent = "今天";
+    else if (days === 1) badge.textContent = "明天";
+    else {
+      const count = document.createElement("strong");
+      count.textContent = Math.abs(days);
+      badge.append(days > 0 ? "还有 " : "已过 ", count, " 天");
+    }
   }
 
   function applyFollowedActorEventSort(eventItems) {
@@ -226,6 +268,7 @@
             applyPopularity(imported);
             applyVenueLinks(imported);
             applyDateSearchLinks(imported);
+            applyEventCountdown(imported);
           });
           visited.add(nextUrl);
           pagesLoaded++;
@@ -1368,6 +1411,17 @@
         text-decoration: none;
       }
 
+      .enpl-event-countdown {
+        display: inline-flex; align-items: baseline; gap: .25em;
+        box-sizing: border-box; max-width: 100%; margin: 2px 0 7px; padding: 3px 8px;
+        border: 1px solid #dce7f4; border-radius: 8px;
+        color: #365f91; background: #eff5fc;
+        font: 500 11px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-variant-numeric: tabular-nums; white-space: nowrap;
+      }
+      .enpl-event-countdown strong { font-size: 13px; font-weight: 650; }
+      .enpl-event-countdown[data-state="today"] { color: #89500e; background: #fff3db; border-color: #efd6a5; }
+      .enpl-event-countdown[data-state="past"] { color: #73737b; background: #f4f4f6; border-color: #e5e5e9; }
       .enpl-date-search-link {
         display: inline-block;
         padding: 0 4px;
