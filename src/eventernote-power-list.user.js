@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.14.7
+// @version      0.14.8
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -366,6 +366,8 @@
           date = event.date;
           previous = null;
           group = make("div", "enpl-schedule-day", "");
+          const distance = date ? getEventDayDifference(parseEventDate(date), new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" })) : null;
+          group.dataset.tone = distance === null || distance < 0 ? "neutral" : distance === 0 ? "today" : distance <= 2 ? "soon" : distance <= 7 ? "week" : "later";
           const header = make("div", "enpl-schedule-day-header", "");
           const label = date ? new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "short", timeZone: "Asia/Tokyo" }).format(new Date(`${date}T12:00:00+09:00`)) : "日期未定";
           const heading = make("h3", "enpl-schedule-date", "");
@@ -1165,20 +1167,28 @@
       .enpl-schedule-source-hidden, .enpl-schedule-date-select[hidden], .enpl-schedule[hidden] { display: none !important; }
       .enpl-schedule { margin: 12px 0; color: #30323a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-optical-sizing: auto; }
       .enpl-schedule-note { margin: 0 4px 18px; color: #767982; font-size: 11px; line-height: 1.7; }
-      .enpl-schedule-day { margin-bottom: 24px; padding: 18px; border: 1px solid #e9e9ed; border-radius: 20px; background: #f6f6f8; }
+       .enpl-schedule-day {
+        --enpl-trip-accent: #626878; --enpl-trip-wash: #f1f2f6; --enpl-trip-edge: #e1e3ea;
+        margin-bottom: 24px; padding: 18px; border: 1px solid var(--enpl-trip-edge); border-radius: 20px;
+        background: linear-gradient(135deg, var(--enpl-trip-wash), #fafafd 85%);
+      }
+      .enpl-schedule-day[data-tone="soon"] { --enpl-trip-accent: #a24a60; --enpl-trip-wash: #fff0ed; --enpl-trip-edge: #f0d2d7; }
+      .enpl-schedule-day[data-tone="week"] { --enpl-trip-accent: #7350a6; --enpl-trip-wash: #f2eafd; --enpl-trip-edge: #e0d2f2; }
+      .enpl-schedule-day[data-tone="later"] { --enpl-trip-accent: #466ba1; --enpl-trip-wash: #eaf2ff; --enpl-trip-edge: #ceddf2; }
+      .enpl-schedule-day[data-tone="today"] { --enpl-trip-accent: #98631f; --enpl-trip-wash: #fff2d9; --enpl-trip-edge: #eed6a6; }
       .enpl-schedule-day-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 0 2px 18px; }
       .enpl-schedule-date { display: flex; align-items: center; gap: 14px; margin: 0; font-size: 16px; line-height: 1.4; font-weight: 600; }
-      .enpl-schedule-calendar { display: flex; flex: none; flex-direction: column; align-items: center; justify-content: center; width: 54px; min-height: 60px; border: 1px solid #e9ddd9; border-radius: 12px; background: #fff; box-shadow: 0 2px 4px rgba(53, 37, 30, .025); }
-      .enpl-schedule-calendar small { color: #ac6252; font-size: 10px; line-height: 1.6; font-weight: 600; }
-      .enpl-schedule-calendar strong { color: #934e40; font-size: 29px; line-height: 1.05; font-weight: 650; letter-spacing: -.04em; }
+      .enpl-schedule-calendar { display: flex; flex: none; flex-direction: column; align-items: center; justify-content: center; width: 54px; min-height: 60px; border: 1px solid var(--enpl-trip-edge); border-radius: 12px; background: #fff; box-shadow: 0 2px 4px rgba(53, 37, 30, .025); }
+      .enpl-schedule-calendar small { color: var(--enpl-trip-accent); font-size: 10px; line-height: 1.6; font-weight: 600; }
+      .enpl-schedule-calendar strong { color: var(--enpl-trip-accent); font-size: 29px; line-height: 1.05; font-weight: 650; letter-spacing: -.04em; }
       .enpl-schedule-date-caption { display: grid; gap: 5px; }
       .enpl-schedule-date-caption > span { color: #343741; font-size: 16px; font-weight: 600; }
       .enpl-schedule-date-caption > small { color: #858791; font-size: 11px; font-weight: 400; font-variant-numeric: tabular-nums; }
-      .enpl-schedule-day-count { padding: 5px 9px; border-radius: 8px; color: #737681; background: #ececf0; font-size: 11px; white-space: nowrap; }
-      .enpl-schedule-row { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; align-items: start; gap: 16px; padding: 18px 16px; border: 1px solid #e7e7ec; border-radius: 14px; background: #fff; box-shadow: 0 2px 5px rgba(30, 30, 45, .025); }
-      .enpl-schedule-clock { display: grid; gap: 5px; padding: 1px 14px 2px 0; border-right: 1px solid #ededf1; }
-      .enpl-schedule-time { color: #303846; font-size: 24px; font-weight: 650; line-height: 1.2; letter-spacing: -.04em; font-variant-numeric: tabular-nums; white-space: nowrap; }
-      .enpl-schedule-time-label { color: #989aa3; font-size: 10px; line-height: 1.5; }
+      .enpl-schedule-day-count { padding: 5px 9px; border-radius: 8px; color: #fff; background: var(--enpl-trip-accent); font-size: 11px; white-space: nowrap; }
+      .enpl-schedule-row { display: grid; grid-template-columns: 86px minmax(0, 1fr) auto; align-items: start; gap: 16px; padding: 18px 16px; border: 1px solid var(--enpl-trip-edge); border-radius: 14px; background: #fff; box-shadow: 0 2px 5px rgba(30, 30, 45, .025); }
+      .enpl-schedule-clock { display: grid; gap: 5px; box-sizing: border-box; padding: 9px 8px; border-radius: 10px; background: var(--enpl-trip-wash); }
+      .enpl-schedule-time { color: var(--enpl-trip-accent); font-size: 24px; font-weight: 650; line-height: 1.2; letter-spacing: -.04em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .enpl-schedule-time-label { color: var(--enpl-trip-accent); font-size: 10px; line-height: 1.5; }
       .enpl-schedule-details { min-width: 0; }
       .enpl-schedule-title, .enpl-schedule-venue { display: block; overflow-wrap: anywhere; }
       .enpl-schedule-title { color: #353b47; font-size: 14px; font-weight: 600; line-height: 1.55; text-decoration: none; }
@@ -1198,10 +1208,10 @@
       }
       @media (max-width: 600px) {
         .enpl-schedule-day { padding: 12px; border-radius: 16px; }
-        .enpl-schedule-row { grid-template-columns: 64px minmax(0, 1fr); gap: 12px; padding: 14px 12px; }
+        .enpl-schedule-row { grid-template-columns: 72px minmax(0, 1fr); gap: 12px; padding: 14px 12px; }
         .enpl-schedule-poster { display: none; }
         .enpl-schedule-time { font-size: 21px; }
-        .enpl-schedule-clock { padding-right: 10px; }
+        .enpl-schedule-clock { padding: 8px 6px; }
         .enpl-schedule-gap { font-size: 10px; gap: 8px; padding: 9px 4px; }
       }
 
