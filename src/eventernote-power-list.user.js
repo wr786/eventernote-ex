@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.14.5
+// @version      0.14.6
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -309,7 +309,6 @@
     if (!eventItems.length) return;
     const list = eventItems[0].parentElement;
     if (!list || eventItems.some((item) => item.parentElement !== list)) return;
-    list.classList.add("enpl-planned-list");
 
     let controls = list.previousElementSibling;
     if (!controls || !controls.classList.contains("enpl-interest-sort-controls")) {
@@ -317,6 +316,7 @@
       controls.className = "enpl-interest-sort-controls";
       list.insertAdjacentElement("beforebegin", controls);
     }
+    controls.classList.add("enpl-schedule-controls");
     const button = document.createElement("button");
     button.type = "button";
     button.className = "enpl-interest-sort-button";
@@ -360,12 +360,18 @@
       let date;
       let previous;
       let group;
-      events.filter((event) => !datePicker.value || (event.date || "unknown") === datePicker.value).forEach((event) => {
+      const visibleEvents = events.filter((event) => !datePicker.value || (event.date || "unknown") === datePicker.value);
+      visibleEvents.forEach((event) => {
         if (event.date !== date || !group) {
           date = event.date;
           previous = null;
           group = make("div", "enpl-schedule-day", "");
-          group.append(make("h3", "enpl-schedule-date", date || "日期未定"));
+          const header = make("div", "enpl-schedule-day-header", "");
+          const label = date ? new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "short", timeZone: "Asia/Tokyo" }).format(new Date(`${date}T12:00:00+09:00`)) : "日期未定";
+          const heading = make("h3", "enpl-schedule-date", label);
+          heading.title = date || "日期未定";
+          header.append(heading, make("span", "enpl-schedule-day-count", `${visibleEvents.filter((entry) => entry.date === date).length} 场予定`));
+          group.append(header);
           fragment.append(group);
         }
         if (previous && event.start !== null) {
@@ -377,7 +383,9 @@
           group.append(make("p", gap !== null && gap < 0 ? "enpl-schedule-gap enpl-schedule-overlap" : "enpl-schedule-gap", label));
         }
         const row = make("article", "enpl-schedule-row", "");
-        row.append(make("span", "enpl-schedule-time", formatScheduleTime(event.start)));
+        const clock = make("div", "enpl-schedule-clock", "");
+        clock.append(make("span", "enpl-schedule-time", formatScheduleTime(event.start)), make("span", "enpl-schedule-time-label", "开演"));
+        row.append(clock);
         const details = make("div", "enpl-schedule-details", "");
         const title = make("a", "enpl-schedule-title", event.title);
         title.href = event.href;
@@ -1057,40 +1065,6 @@
         margin-bottom: 0;
       }
 
-      .enpl-planned-list { margin: 12px 0 0; padding: 0; list-style: none; }
-      .enpl-planned-list > li.clearfix {
-        display: grid; grid-template-columns: 112px minmax(0, 1fr) 44px; gap: 14px;
-        box-sizing: border-box; min-height: 0; margin: 0 0 12px; padding: 16px !important;
-        border: 1px solid #e4e6ec; border-radius: 14px; background: #fff;
-        box-shadow: 0 2px 7px rgba(30, 35, 50, .025);
-      }
-      .enpl-planned-list > li.clearfix::before, .enpl-planned-list > li.clearfix::after { display: none; }
-      .enpl-planned-list > li.clearfix > .date { grid-column: 1; grid-row: 1; float: none; width: auto !important; margin: 0; }
-      .enpl-planned-list > li.clearfix > .date > p { margin: 0 0 8px; font-size: 12px; line-height: 1.6; }
-      .enpl-planned-list > li.clearfix > .date img {
-        display: block !important; box-sizing: border-box; width: 96px; height: 96px;
-        object-fit: contain; border: 1px solid #ededf1; border-radius: 8px; background: #f8f8fa;
-      }
-      .enpl-planned-list > li.clearfix > .event { grid-column: 2; grid-row: 1; float: none; min-width: 0; width: auto; margin: 0 !important; }
-      .enpl-planned-list > li.clearfix h4 { margin: 0 0 9px; line-height: 1.55; }
-      .enpl-planned-list > li.clearfix h4 a { color: #315e8d; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
-      .enpl-planned-list > li.clearfix .place { margin: 4px 0; color: #777b86; font-size: 12px; line-height: 1.6; }
-      .enpl-planned-list > li.clearfix .place > a:not(.enpl-venue-link) { color: #5a7290; }
-      .enpl-planned-list > li.clearfix .place .s { font-size: 11px; font-variant-numeric: tabular-nums; }
-      .enpl-planned-list > li.clearfix .actor { margin-top: 12px; font-size: 12px; line-height: 1.7; }
-      .enpl-planned-list > li.clearfix .actor ul { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0; padding: 0; }
-      .enpl-planned-list > li.clearfix .actor li { float: none; margin: 0; }
-      .enpl-planned-list > li.clearfix > .note_count { grid-column: 3; grid-row: 1; position: static; float: none; width: 44px; margin: 0; }
-      .enpl-planned-list > li.clearfix > .note_count p { box-sizing: border-box; width: 44px; margin: 0; padding: 6px 2px; border-radius: 8px; background: #f4f5f8; font-size: 18px; line-height: 1.5; text-align: center; }
-      @media (hover: hover) { .enpl-planned-list > li.clearfix:hover { border-color: #cdd6e4; background: #fdfdff; } }
-      .enpl-planned-list > li.clearfix:focus-within { border-color: #a9bbd4; }
-      @media (max-width: 600px) {
-        .enpl-planned-list > li.clearfix { grid-template-columns: 82px minmax(0, 1fr); gap: 10px; padding: 12px !important; }
-        .enpl-planned-list > li.clearfix > .date { grid-row: 1 / span 2; }
-        .enpl-planned-list > li.clearfix > .date img { width: 76px; height: 76px; }
-        .enpl-planned-list > li.clearfix > .note_count { grid-column: 2; grid-row: 2; justify-self: end; }
-      }
-
       .enpl-note-count-highlight {
         font-weight: 700;
       }
@@ -1161,99 +1135,46 @@
         opacity: .65;
       }
 
+      .enpl-schedule-controls { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 14px; }
+      .enpl-schedule-controls .enpl-interest-sort-button,
       .enpl-schedule-date-select {
-        padding: 5px 10px;
-        border: 1px solid #d6c7ee;
-        border-radius: 999px;
-        color: #5c3a7a;
-        background: #faf7ff;
-        font: inherit;
+        box-sizing: border-box; margin: 0; padding: 7px 12px;
+        border: 1px solid #dce1e9; border-radius: 10px;
+        color: #51627a; background: #f7f8fb; font: 12px/1.5 system-ui, sans-serif;
       }
-
-      .enpl-schedule-source-hidden,
-      .enpl-schedule-date-select[hidden],
-      .enpl-schedule[hidden] {
-        display: none !important;
-      }
-
-      .enpl-schedule {
-        margin: 12px 0;
-        color: #334155;
-      }
-
-      .enpl-schedule-note,
-      .enpl-schedule-meta {
-        color: #64748b;
-        font-size: 12px;
-        line-height: 1.6;
-      }
-
-      .enpl-schedule-day {
-        margin-bottom: 20px;
-        padding: 14px;
-        border: 1px solid #e3daef;
-        border-radius: 16px;
-        background: linear-gradient(135deg, #faf7ff, #fff);
-      }
-
-      .enpl-schedule-date {
-        margin: 0 0 12px;
-        color: #5c3a7a;
-        font-size: 16px;
-      }
-
-      .enpl-schedule-row {
-        display: grid;
-        grid-template-columns: 72px minmax(0, 1fr);
-        gap: 12px;
-        padding: 12px 0;
-      }
-
-      .enpl-schedule-time {
-        color: #5c3a7a;
-        font-size: 18px;
-        font-weight: 700;
-        font-variant-numeric: tabular-nums;
-      }
-
-      .enpl-schedule-details {
-        border-left: 2px solid #d6c7ee;
-        padding-left: 14px;
-      }
-
-      .enpl-schedule-title,
-      .enpl-schedule-venue {
-        display: block;
-        overflow-wrap: anywhere;
-      }
-
-      .enpl-schedule-title {
-        font-weight: 600;
-        line-height: 1.5;
-      }
-
-      .enpl-schedule-venue {
-        margin-top: 5px;
-        color: #64748b;
-        font-size: 12px;
-      }
-
-      .enpl-schedule-meta {
-        margin: 5px 0 0;
-      }
-
-      .enpl-schedule-gap {
-        margin: 0 0 0 84px;
-        padding: 5px 14px;
-        color: #64748b;
-        border-left: 2px dashed #d6c7ee;
-        font-size: 12px;
-      }
-
-      .enpl-schedule-overlap {
-        color: #be123c;
-        border-color: #fda4af;
-        background: #fff1f2;
+      .enpl-schedule-controls .enpl-interest-sort-button:hover:not(:disabled) { color: #344a69; background: #edf1f7; }
+      .enpl-schedule-controls .enpl-interest-sort-button[aria-pressed="true"] { color: #fff; background: #445c7c; border-color: #445c7c; }
+      .enpl-schedule-controls :focus-visible { outline: 2px solid #7892b4; outline-offset: 2px; }
+      .enpl-schedule-source-hidden, .enpl-schedule-date-select[hidden], .enpl-schedule[hidden] { display: none !important; }
+      .enpl-schedule { margin: 12px 0; color: #38465b; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .enpl-schedule-note { margin: 0 4px 14px; color: #7c8491; font-size: 11px; line-height: 1.7; }
+      .enpl-schedule-day { margin-bottom: 18px; padding: 0 18px 8px; border: 1px solid #e2e6ed; border-radius: 16px; background: #fff; box-shadow: 0 3px 12px rgba(35, 45, 65, .035); }
+      .enpl-schedule-day-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: 0 -18px 8px; padding: 14px 18px; border-bottom: 1px solid #e9ecf2; border-radius: 16px 16px 0 0; background: #f7f8fb; }
+      .enpl-schedule-date { margin: 0; color: #42536b; font-size: 14px; font-weight: 650; line-height: 1.6; }
+      .enpl-schedule-day-count { color: #7c8796; font-size: 11px; white-space: nowrap; }
+      .enpl-schedule-row { position: relative; display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 28px; padding: 16px 0; }
+      .enpl-schedule-row::before { content: ""; position: absolute; left: 77px; top: 27px; bottom: 0; width: 1px; background: #dfe5ee; }
+      .enpl-schedule-row:last-child::before { display: none; }
+      .enpl-schedule-row::after { content: ""; position: absolute; left: 74px; top: 24px; width: 7px; height: 7px; border-radius: 50%; background: #8399b6; box-shadow: 0 0 0 4px #f0f3f8; }
+      .enpl-schedule-clock { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+      .enpl-schedule-time { color: #3d5474; font-size: 21px; font-weight: 650; line-height: 1.3; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+      .enpl-schedule-time-label { color: #929aaa; font-size: 10px; line-height: 1.5; }
+      .enpl-schedule-details { min-width: 0; padding: 0; }
+      .enpl-schedule-title, .enpl-schedule-venue { display: block; overflow-wrap: anywhere; }
+      .enpl-schedule-title { color: #354c6c; font-size: 13px; font-weight: 600; line-height: 1.65; }
+      .enpl-schedule-title:hover { color: #2d639f; }
+      .enpl-schedule-venue { margin-top: 7px; color: #6e7f96; font-size: 12px; line-height: 1.6; }
+      .enpl-schedule-meta { margin: 5px 0 0; color: #8b929e; font-size: 11px; line-height: 1.6; font-variant-numeric: tabular-nums; }
+      .enpl-schedule-gap { margin: 0 0 0 77px; padding: 7px 14px; color: #8791a0; border-left: 1px dashed #d5deea; font-size: 11px; line-height: 1.6; }
+      .enpl-schedule-overlap { color: #a24d53; border-color: #e8b6ba; border-radius: 0 8px 8px 0; background: #fff3f3; }
+      @media (max-width: 600px) {
+        .enpl-schedule-day { padding-left: 12px; padding-right: 12px; }
+        .enpl-schedule-day-header { margin-left: -12px; margin-right: -12px; padding-left: 12px; padding-right: 12px; }
+        .enpl-schedule-row { grid-template-columns: 54px minmax(0, 1fr); gap: 24px; }
+        .enpl-schedule-row::before, .enpl-schedule-gap { left: 65px; }
+        .enpl-schedule-row::after { left: 62px; }
+        .enpl-schedule-gap { margin-left: 65px; }
+        .enpl-schedule-time { font-size: 18px; }
       }
 
       .enpl-participation-count {
