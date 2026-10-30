@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.14.4
+// @version      0.14.5
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -309,6 +309,7 @@
     if (!eventItems.length) return;
     const list = eventItems[0].parentElement;
     if (!list || eventItems.some((item) => item.parentElement !== list)) return;
+    list.classList.add("enpl-planned-list");
 
     let controls = list.previousElementSibling;
     if (!controls || !controls.classList.contains("enpl-interest-sort-controls")) {
@@ -1054,6 +1055,40 @@
 
       .enpl-compact-enabled .gb_event_list .actor ul {
         margin-bottom: 0;
+      }
+
+      .enpl-planned-list { margin: 12px 0 0; padding: 0; list-style: none; }
+      .enpl-planned-list > li.clearfix {
+        display: grid; grid-template-columns: 112px minmax(0, 1fr) 44px; gap: 14px;
+        box-sizing: border-box; min-height: 0; margin: 0 0 12px; padding: 16px !important;
+        border: 1px solid #e4e6ec; border-radius: 14px; background: #fff;
+        box-shadow: 0 2px 7px rgba(30, 35, 50, .025);
+      }
+      .enpl-planned-list > li.clearfix::before, .enpl-planned-list > li.clearfix::after { display: none; }
+      .enpl-planned-list > li.clearfix > .date { grid-column: 1; grid-row: 1; float: none; width: auto !important; margin: 0; }
+      .enpl-planned-list > li.clearfix > .date > p { margin: 0 0 8px; font-size: 12px; line-height: 1.6; }
+      .enpl-planned-list > li.clearfix > .date img {
+        display: block !important; box-sizing: border-box; width: 96px; height: 96px;
+        object-fit: contain; border: 1px solid #ededf1; border-radius: 8px; background: #f8f8fa;
+      }
+      .enpl-planned-list > li.clearfix > .event { grid-column: 2; grid-row: 1; float: none; min-width: 0; width: auto; margin: 0 !important; }
+      .enpl-planned-list > li.clearfix h4 { margin: 0 0 9px; line-height: 1.55; }
+      .enpl-planned-list > li.clearfix h4 a { color: #315e8d; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+      .enpl-planned-list > li.clearfix .place { margin: 4px 0; color: #777b86; font-size: 12px; line-height: 1.6; }
+      .enpl-planned-list > li.clearfix .place > a:not(.enpl-venue-link) { color: #5a7290; }
+      .enpl-planned-list > li.clearfix .place .s { font-size: 11px; font-variant-numeric: tabular-nums; }
+      .enpl-planned-list > li.clearfix .actor { margin-top: 12px; font-size: 12px; line-height: 1.7; }
+      .enpl-planned-list > li.clearfix .actor ul { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0; padding: 0; }
+      .enpl-planned-list > li.clearfix .actor li { float: none; margin: 0; }
+      .enpl-planned-list > li.clearfix > .note_count { grid-column: 3; grid-row: 1; position: static; float: none; width: 44px; margin: 0; }
+      .enpl-planned-list > li.clearfix > .note_count p { box-sizing: border-box; width: 44px; margin: 0; padding: 6px 2px; border-radius: 8px; background: #f4f5f8; font-size: 18px; line-height: 1.5; text-align: center; }
+      @media (hover: hover) { .enpl-planned-list > li.clearfix:hover { border-color: #cdd6e4; background: #fdfdff; } }
+      .enpl-planned-list > li.clearfix:focus-within { border-color: #a9bbd4; }
+      @media (max-width: 600px) {
+        .enpl-planned-list > li.clearfix { grid-template-columns: 82px minmax(0, 1fr); gap: 10px; padding: 12px !important; }
+        .enpl-planned-list > li.clearfix > .date { grid-row: 1 / span 2; }
+        .enpl-planned-list > li.clearfix > .date img { width: 76px; height: 76px; }
+        .enpl-planned-list > li.clearfix > .note_count { grid-column: 2; grid-row: 2; justify-self: end; }
       }
 
       .enpl-note-count-highlight {
