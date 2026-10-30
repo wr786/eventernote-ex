@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.14.3
+// @version      0.14.4
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1331,15 +1331,15 @@
         margin: 0; padding: 0; font-size: 12px !important; line-height: 1.5;
       }
       .gb_actors_list.enpl-profile-compact > li > a {
-        display: flex; align-items: stretch; gap: 0; box-sizing: border-box;
-        max-width: 100%; min-height: 30px; padding: 0;
+        display: flex; align-items: center; gap: 7px; box-sizing: border-box;
+        max-width: 100%; min-height: 30px; padding: 5px 9px;
         color: var(--enpl-metal-ink) !important;
         font-size: 12px !important; line-height: 1.5; text-decoration: none;
       }
-      .enpl-profile-compact .enpl-profile-name { overflow: hidden; text-overflow: ellipsis; padding: 5px 9px; background: rgba(255, 255, 255, .12); border-radius: 9px 0 0 9px; }
+      .enpl-profile-compact .enpl-profile-name { overflow: hidden; text-overflow: ellipsis; }
       .enpl-profile-compact .enpl-participation-count {
-        display: inline-flex; align-items: center; flex: none; margin: 0; padding: 5px 9px;
-        background: rgba(0, 0, 0, .06); border-radius: 0 9px 9px 0; font-size: inherit;
+        flex: none; margin: 0; padding: 0 0 0 7px;
+        border-left: 1px solid var(--enpl-metal-edge); font-size: inherit;
       }
       .enpl-profile-original > li > a { display: flex; align-items: baseline; gap: .25em; white-space: nowrap; max-width: 100%; padding: 2px 0; }
       .enpl-profile-original .enpl-profile-name, .enpl-profile-original .enpl-participation-count { flex: none; font-size: inherit; line-height: inherit; }
@@ -1411,6 +1411,27 @@
         .enpl-calendar-day { min-height: 44px; }
       }
 
+      .enpl-venue-link {
+        display: inline-block;
+        margin-left: 5px;
+        padding: 0 4px;
+        border: 1px solid #ddd5cc;
+        border-radius: 3px;
+        color: #9a6a32;
+        background: #fffaf2;
+        font-size: 11px;
+        line-height: 1.35;
+        text-decoration: none;
+        vertical-align: 1px;
+      }
+
+      .enpl-venue-link:hover {
+        border-color: #e5a64a;
+        color: #8a4f10;
+        background: #fff3d8;
+        text-decoration: none;
+      }
+
       .enpl-event-countdown {
         display: inline-flex; align-items: baseline; gap: .25em;
         box-sizing: border-box; max-width: 100%; margin: 2px 0 7px; padding: 3px 8px;
@@ -1427,22 +1448,26 @@
       .enpl-event-countdown[data-state="tomorrow"] { color: #a24043; background: #fff0ed; border-color: #f0c8c1; }
       .enpl-event-countdown[data-state="today"] { color: #89500e; background: #fff3db; border-color: #efd6a5; }
       .enpl-event-countdown[data-state="past"] { color: #73737b; background: #f4f4f6; border-color: #e5e5e9; }
-      .enpl-venue-link, .enpl-date-search-link, .enpl-event-countdown {
-        display: inline-flex; align-items: baseline; gap: .25em;
-        box-sizing: border-box; padding: 3px 7px; border-radius: 7px;
-        font: 500 11px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        font-variant-numeric: tabular-nums; white-space: nowrap; text-decoration: none;
+      .enpl-date-search-link {
+        display: inline-block;
+        padding: 0 4px;
+        border: 1px solid #ddd5cc;
+        border-radius: 3px;
+        color: #9a6a32;
+        background: #fffaf2;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1.35;
+        text-decoration: none;
+        vertical-align: 1px;
       }
-      .enpl-venue-link, .enpl-date-search-link {
-        color: #686b76; background: #f5f6f8; border: 1px solid #e2e4e9;
-        vertical-align: baseline;
+
+      .enpl-date-search-link:hover {
+        border-color: #e5a64a;
+        color: #8a4f10;
+        background: #fff3d8;
+        text-decoration: none;
       }
-      .enpl-venue-link { margin-left: 6px; }
-      .enpl-venue-link:hover, .enpl-date-search-link:hover {
-        color: #3b4d68; background: #eaf0f8; border-color: #cbd8e8; text-decoration: none;
-      }
-      .enpl-venue-link:active, .enpl-date-search-link:active { background: #dfe8f4; }
-      .enpl-venue-link:focus-visible, .enpl-date-search-link:focus-visible { outline: 2px solid #647c9e; outline-offset: 2px; }
 
     `);
   }
