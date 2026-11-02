@@ -49,11 +49,11 @@ Event performer badges and profile count capsules share these thresholds. Tier n
 
 | Site participation count | Tier |
 | ---: | --- |
-| 0–9 | Iron |
-| 10–19 | Bronze |
-| 20–29 | Silver |
-| 30–49 | Rose gold |
-| 50–99 | Gold |
+| 0–9 | Bronze |
+| 10–19 | Silver |
+| 20–29 | Rose gold |
+| 30–49 | Gold |
+| 50–99 | Platinum |
 | 100–149 | Black gold |
 | 150–199 | Black diamond |
 | 200+ | Ruby |

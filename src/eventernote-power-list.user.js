@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.14.13
+// @version      0.14.14
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -889,7 +889,7 @@
   }
 
   function getParticipationTier(count) {
-    return [[200, "ruby"], [150, "diamond"], [100, "black-gold"], [50, "gold"], [30, "rose-gold"], [20, "silver"], [10, "bronze"], [0, "iron"]]
+    return [[200, "ruby"], [150, "diamond"], [100, "black-gold"], [50, "platinum"], [30, "gold"], [20, "rose-gold"], [10, "silver"], [0, "bronze"]]
       .find(([minimum]) => count >= minimum)[1];
   }
 
@@ -1201,10 +1201,6 @@
         font-size: 14px !important;
         line-height: 1.5;
       }
-      [data-enpl-tier="iron"] {
-        --enpl-metal-ink: #626a76; --enpl-metal-start: #e5e7eb; --enpl-metal-end: #d6dae0; --enpl-metal-edge: #c7ccd3; --enpl-metal-accent: #89919d;
-        --enpl-metal-sheen: rgba(255, 255, 255, .08); --enpl-metal-hover-sheen: rgba(255, 255, 255, .16);
-      }
       [data-enpl-tier="bronze"] {
         --enpl-metal-ink: #61351e; --enpl-metal-start: #f3d5b6; --enpl-metal-end: #cd9564; --enpl-metal-edge: #b77c4f; --enpl-metal-accent: #a3683e;
       }
@@ -1216,6 +1212,10 @@
       }
       [data-enpl-tier="gold"] {
         --enpl-metal-ink: #654610; --enpl-metal-start: #fff0b6; --enpl-metal-end: #e6bc57; --enpl-metal-edge: #c89a36; --enpl-metal-accent: #b78924;
+      }
+      [data-enpl-tier="platinum"] {
+        --enpl-metal-ink: #6a5630; --enpl-metal-start: #fffdf5; --enpl-metal-end: #e8dfc5; --enpl-metal-edge: #b59a61; --enpl-metal-accent: #a0854d;
+        --enpl-metal-sheen: rgba(255, 255, 255, .65); --enpl-metal-hover-sheen: rgba(255, 255, 255, .85);
       }
       [data-enpl-tier="black-gold"] {
         --enpl-metal-ink: #ffe9b0; --enpl-metal-start: #594422; --enpl-metal-end: #221c14; --enpl-metal-edge: #e5b85a; --enpl-metal-accent: #a77b22;
