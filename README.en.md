@@ -49,12 +49,12 @@ Event performer badges and profile count capsules share these thresholds. Tier n
 
 | Site participation count | Tier |
 | ---: | --- |
-| 0–9 | Bronze |
-| 10–19 | Silver |
-| 20–29 | Gold |
-| 30–49 | Black gold |
-| 50–99 | Black diamond |
-| 100+ | Ruby |
+| 0–19 | Bronze |
+| 20–49 | Silver |
+| 50–99 | Gold |
+| 100–149 | Black gold |
+| 150–199 | Black diamond |
+| 200+ | Ruby |
 
 ### My Live Journal — 我的现场
 

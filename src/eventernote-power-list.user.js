@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.14.15
+// @version      0.14.16
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -889,7 +889,7 @@
   }
 
   function getParticipationTier(count) {
-    return [[100, "ruby"], [50, "diamond"], [30, "black-gold"], [20, "gold"], [10, "silver"], [0, "bronze"]]
+    return [[200, "ruby"], [150, "diamond"], [100, "black-gold"], [50, "gold"], [20, "silver"], [0, "bronze"]]
       .find(([minimum]) => count >= minimum)[1];
   }
 
