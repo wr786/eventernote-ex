@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.14.8
+// @version      0.14.9
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -35,16 +35,6 @@
   updateFollowingActorCache();
   applyEnhancements();
   console.info("[Eventernote EX] active");
-  if (document.querySelector(".enpl-event-countdown")) {
-    let countdownDate = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
-    setInterval(() => {
-      const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
-      if (today !== countdownDate) {
-        countdownDate = today;
-        getEventItems().forEach(applyEventCountdown);
-      }
-    }, 60000);
-  }
 
   function loadSettings() {
     try {
@@ -66,7 +56,6 @@
       applyPopularity(item);
       applyVenueLinks(item);
       applyDateSearchLinks(item);
-      applyEventCountdown(item);
     });
     applyFollowedActorEventSort(eventItems);
     applySameDaySchedule();
@@ -121,37 +110,6 @@
     searchLink.title = `查看 ${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")} 的其他活动`;
     searchLink.textContent = "all";
     dateNode.append(" ", searchLink);
-  }
-
-  function getEventDayDifference(date, today) {
-    const target = new Date(Date.UTC(date.year, date.month - 1, date.day));
-    if (target.getUTCFullYear() !== date.year || target.getUTCMonth() !== date.month - 1 || target.getUTCDate() !== date.day) return null;
-    return Math.round((target.getTime() - Date.parse(`${today}T00:00:00Z`)) / 86400000);
-  }
-
-  function applyEventCountdown(item) {
-    const dateNode = item.querySelector(".date > p:first-child");
-    const date = parseEventDate(textOf(dateNode));
-    if (!date) return;
-    const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
-    const days = getEventDayDifference(date, today);
-    if (days === null || !Number.isFinite(days)) return;
-    let badge = item.querySelector(".enpl-event-countdown");
-    if (!badge) {
-      badge = document.createElement("span");
-      badge.className = "enpl-event-countdown";
-      dateNode.insertAdjacentElement("afterend", badge);
-    }
-    badge.dataset.state = days < 0 ? "past" : days === 0 ? "today" : days === 1 ? "tomorrow" : days === 2 ? "soon" : days <= 7 ? "week" : days <= 30 ? "month" : "later";
-    badge.title = `按日本日期 ${today} 计算，与活动日期相差 ${Math.abs(days)} 天；不判断活动是否已结束`;
-    badge.replaceChildren();
-    if (days === 0) badge.textContent = "今天";
-    else if (days === 1) badge.textContent = "明天";
-    else {
-      const count = document.createElement("strong");
-      count.textContent = Math.abs(days);
-      badge.append(days > 0 ? "还有 " : "已过 ", count, " 天");
-    }
   }
 
   function applyFollowedActorEventSort(eventItems) {
@@ -268,7 +226,6 @@
             applyPopularity(imported);
             applyVenueLinks(imported);
             applyDateSearchLinks(imported);
-            applyEventCountdown(imported);
           });
           visited.add(nextUrl);
           pagesLoaded++;
@@ -366,8 +323,6 @@
           date = event.date;
           previous = null;
           group = make("div", "enpl-schedule-day", "");
-          const distance = date ? getEventDayDifference(parseEventDate(date), new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" })) : null;
-          group.dataset.tone = distance === null || distance < 0 ? "neutral" : distance === 0 ? "today" : distance <= 2 ? "soon" : distance <= 7 ? "week" : "later";
           const header = make("div", "enpl-schedule-day-header", "");
           const label = date ? new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "short", timeZone: "Asia/Tokyo" }).format(new Date(`${date}T12:00:00+09:00`)) : "日期未定";
           const heading = make("h3", "enpl-schedule-date", "");
@@ -1168,14 +1123,10 @@
       .enpl-schedule { margin: 12px 0; color: #30323a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-optical-sizing: auto; }
       .enpl-schedule-note { margin: 0 4px 18px; color: #767982; font-size: 11px; line-height: 1.7; }
        .enpl-schedule-day {
-        --enpl-trip-accent: #626878; --enpl-trip-wash: #f1f2f6; --enpl-trip-edge: #e1e3ea;
+        --enpl-trip-accent: #a24a60; --enpl-trip-wash: #fff0ed; --enpl-trip-edge: #f0d2d7;
         margin-bottom: 24px; padding: 18px; border: 1px solid var(--enpl-trip-edge); border-radius: 20px;
         background: linear-gradient(135deg, var(--enpl-trip-wash), #fafafd 85%);
       }
-      .enpl-schedule-day[data-tone="soon"] { --enpl-trip-accent: #a24a60; --enpl-trip-wash: #fff0ed; --enpl-trip-edge: #f0d2d7; }
-      .enpl-schedule-day[data-tone="week"] { --enpl-trip-accent: #7350a6; --enpl-trip-wash: #f2eafd; --enpl-trip-edge: #e0d2f2; }
-      .enpl-schedule-day[data-tone="later"] { --enpl-trip-accent: #466ba1; --enpl-trip-wash: #eaf2ff; --enpl-trip-edge: #ceddf2; }
-      .enpl-schedule-day[data-tone="today"] { --enpl-trip-accent: #98631f; --enpl-trip-wash: #fff2d9; --enpl-trip-edge: #eed6a6; }
       .enpl-schedule-day-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin: 0 2px 18px; }
       .enpl-schedule-date { display: flex; align-items: center; gap: 14px; margin: 0; font-size: 16px; line-height: 1.4; font-weight: 600; }
       .enpl-schedule-calendar { display: flex; flex: none; flex-direction: column; align-items: center; justify-content: center; width: 54px; min-height: 60px; border: 1px solid var(--enpl-trip-edge); border-radius: 12px; background: #fff; box-shadow: 0 2px 4px rgba(53, 37, 30, .025); }
@@ -1426,22 +1377,6 @@
         text-decoration: none;
       }
 
-      .enpl-event-countdown {
-        display: inline-flex; align-items: baseline; gap: .25em;
-        box-sizing: border-box; max-width: 100%; margin: 2px 0 7px; padding: 3px 8px;
-        border: 1px solid #dce7f4; border-radius: 8px;
-        color: #365f91; background: #eff5fc;
-        font: 500 11px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        font-variant-numeric: tabular-nums; white-space: nowrap;
-      }
-      .enpl-event-countdown strong { font-size: 13px; font-weight: 650; }
-      .enpl-event-countdown[data-state="later"] { color: #64758a; background: #f1f4f8; border-color: #dfe5ed; }
-      .enpl-event-countdown[data-state="month"] { color: #365f91; background: #eff5fc; border-color: #dce7f4; }
-      .enpl-event-countdown[data-state="week"] { color: #71529b; background: #f4eefb; border-color: #e3d6f2; }
-      .enpl-event-countdown[data-state="soon"] { color: #9a541c; background: #fff0df; border-color: #f0d2ae; }
-      .enpl-event-countdown[data-state="tomorrow"] { color: #a24043; background: #fff0ed; border-color: #f0c8c1; }
-      .enpl-event-countdown[data-state="today"] { color: #89500e; background: #fff3db; border-color: #efd6a5; }
-      .enpl-event-countdown[data-state="past"] { color: #73737b; background: #f4f4f6; border-color: #e5e5e9; }
       .enpl-date-search-link {
         display: inline-block;
         padding: 0 4px;
