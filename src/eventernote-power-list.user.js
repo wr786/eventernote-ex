@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.14.12
+// @version      0.14.13
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1202,7 +1202,7 @@
         line-height: 1.5;
       }
       [data-enpl-tier="iron"] {
-        --enpl-metal-ink: #f0f1f4; --enpl-metal-start: #555b65; --enpl-metal-end: #353a43; --enpl-metal-edge: #69717d; --enpl-metal-accent: #626c7a;
+        --enpl-metal-ink: #626a76; --enpl-metal-start: #e5e7eb; --enpl-metal-end: #d6dae0; --enpl-metal-edge: #c7ccd3; --enpl-metal-accent: #89919d;
         --enpl-metal-sheen: rgba(255, 255, 255, .08); --enpl-metal-hover-sheen: rgba(255, 255, 255, .16);
       }
       [data-enpl-tier="bronze"] {
