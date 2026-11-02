@@ -21,7 +21,7 @@ You can then use “按关注推荐” in event search, switch participation dis
 | Feature | Behavior and scope |
 | --- | --- |
 | Recommendations across pages | In event search and monthly listings, “按关注推荐” ranks events by the sum of your participation counts for followed performers appearing in them. The first batch combines up to 10 pages; “加载更多推荐” reads up to 10 more each time. Includes deduplication, progress, retry, and restoring the original order. |
-| Followed-performer badges | Performer badges share the profile counters' eight metallic tiers. Event badges show names only, without counts or tier labels. |
+| Followed-performer badges | Performer badges share the profile counters' six metallic tiers. Event badges show names only, without counts or tier labels. |
 | Event popularity | Highlights the site's attendee counts at 10 / 50 / 100 people, separately from your personal participation counts. |
 | Venue maps | The `map` link beside a venue opens a Google Maps search. |
 | Same-day search | The `all` link beside a date finds other events that day. |
@@ -43,7 +43,7 @@ On your own profile, **Count scope** switches between all site registrations (in
 
 The profile sidebar aligns profile details, statistics, headings, filters and lists to shared side margins. Metallic chips brighten subtly on hover with a soft edge highlight, darken immediately when pressed, and respect reduced-motion preferences.
 
-### Eight metallic tiers
+### Six metallic tiers
 
 Event performer badges and profile count capsules share these thresholds. Tier names below describe the palette; they are not displayed on the badges.
 
@@ -51,12 +51,10 @@ Event performer badges and profile count capsules share these thresholds. Tier n
 | ---: | --- |
 | 0–9 | Bronze |
 | 10–19 | Silver |
-| 20–29 | Rose gold |
-| 30–49 | Gold |
-| 50–99 | Platinum |
-| 100–149 | Black gold |
-| 150–199 | Black diamond |
-| 200+ | Ruby |
+| 20–29 | Gold |
+| 30–49 | Black gold |
+| 50–99 | Black diamond |
+| 100+ | Ruby |
 
 ### My Live Journal — 我的现场
 

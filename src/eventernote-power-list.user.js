@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.14.14
+// @version      0.14.15
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -889,7 +889,7 @@
   }
 
   function getParticipationTier(count) {
-    return [[200, "ruby"], [150, "diamond"], [100, "black-gold"], [50, "platinum"], [30, "gold"], [20, "rose-gold"], [10, "silver"], [0, "bronze"]]
+    return [[100, "ruby"], [50, "diamond"], [30, "black-gold"], [20, "gold"], [10, "silver"], [0, "bronze"]]
       .find(([minimum]) => count >= minimum)[1];
   }
 
@@ -1207,15 +1207,8 @@
       [data-enpl-tier="silver"] {
         --enpl-metal-ink: #3c4859; --enpl-metal-start: #f5f7fb; --enpl-metal-end: #c1cbd9; --enpl-metal-edge: #a1adbd; --enpl-metal-accent: #7d8a9e;
       }
-      [data-enpl-tier="rose-gold"] {
-        --enpl-metal-ink: #63382f; --enpl-metal-start: #f3d1c4; --enpl-metal-end: #d99a86; --enpl-metal-edge: #bc7c68; --enpl-metal-accent: #a45f4d;
-      }
       [data-enpl-tier="gold"] {
         --enpl-metal-ink: #654610; --enpl-metal-start: #fff0b6; --enpl-metal-end: #e6bc57; --enpl-metal-edge: #c89a36; --enpl-metal-accent: #b78924;
-      }
-      [data-enpl-tier="platinum"] {
-        --enpl-metal-ink: #6a5630; --enpl-metal-start: #fffdf5; --enpl-metal-end: #e8dfc5; --enpl-metal-edge: #b59a61; --enpl-metal-accent: #a0854d;
-        --enpl-metal-sheen: rgba(255, 255, 255, .65); --enpl-metal-hover-sheen: rgba(255, 255, 255, .85);
       }
       [data-enpl-tier="black-gold"] {
         --enpl-metal-ink: #ffe9b0; --enpl-metal-start: #594422; --enpl-metal-end: #221c14; --enpl-metal-edge: #e5b85a; --enpl-metal-accent: #a77b22;
