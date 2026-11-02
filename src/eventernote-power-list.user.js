@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.14.9
+// @version      0.14.10
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1066,7 +1066,7 @@
         border-radius: 9px;
         color: var(--enpl-metal-ink);
         background: linear-gradient(120deg, var(--enpl-metal-start), var(--enpl-metal-end));
-        box-shadow: inset 0 0 0 1px var(--enpl-metal-edge), inset 0 1px 0 rgba(255, 255, 255, .25);
+        box-shadow: inset 0 0 0 1px var(--enpl-metal-edge), inset 0 1px 0 var(--enpl-metal-sheen, rgba(255, 255, 255, .25));
         font-weight: 600;
         letter-spacing: .01em;
         line-height: 1.4;
@@ -1077,7 +1077,7 @@
       @media (hover: hover) {
         a.enpl-metal-chip:hover {
           filter: brightness(1.035);
-          box-shadow: inset 0 0 0 1px var(--enpl-metal-edge), inset 0 1px 0 rgba(255, 255, 255, .5), 0 2px 5px rgba(30, 25, 25, .12);
+          box-shadow: inset 0 0 0 1px var(--enpl-metal-edge), inset 0 1px 0 var(--enpl-metal-hover-sheen, rgba(255, 255, 255, .5)), 0 2px 5px rgba(30, 25, 25, .12);
         }
       }
       a.enpl-metal-chip:active { filter: brightness(.94); transition: none; }
@@ -1202,7 +1202,8 @@
         line-height: 1.5;
       }
       [data-enpl-tier="iron"] {
-        --enpl-metal-ink: #202733; --enpl-metal-start: #c2c7ce; --enpl-metal-end: #929ba7; --enpl-metal-edge: #7e8896; --enpl-metal-accent: #647080;
+        --enpl-metal-ink: #f0f1f4; --enpl-metal-start: #555b65; --enpl-metal-end: #353a43; --enpl-metal-edge: #69717d; --enpl-metal-accent: #626c7a;
+        --enpl-metal-sheen: rgba(255, 255, 255, .08); --enpl-metal-hover-sheen: rgba(255, 255, 255, .16);
       }
       [data-enpl-tier="bronze"] {
         --enpl-metal-ink: #61351e; --enpl-metal-start: #f3d5b6; --enpl-metal-end: #cd9564; --enpl-metal-edge: #b77c4f; --enpl-metal-accent: #a3683e;
