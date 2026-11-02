@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.14.11
+// @version      0.14.12
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1206,12 +1206,10 @@
         --enpl-metal-sheen: rgba(255, 255, 255, .08); --enpl-metal-hover-sheen: rgba(255, 255, 255, .16);
       }
       [data-enpl-tier="bronze"] {
-        --enpl-metal-ink: #fff3e4; --enpl-metal-start: #a85e38; --enpl-metal-end: #79402d; --enpl-metal-edge: #dfa87a; --enpl-metal-accent: #a65e38;
-        --enpl-metal-sheen: rgba(255, 230, 196, .45); --enpl-metal-hover-sheen: rgba(255, 230, 196, .65);
+        --enpl-metal-ink: #61351e; --enpl-metal-start: #f3d5b6; --enpl-metal-end: #cd9564; --enpl-metal-edge: #b77c4f; --enpl-metal-accent: #a3683e;
       }
       [data-enpl-tier="silver"] {
-        --enpl-metal-ink: #233e60; --enpl-metal-start: #eaf4ff; --enpl-metal-end: #8da8ca; --enpl-metal-edge: #6686b2; --enpl-metal-accent: #597fae;
-        --enpl-metal-sheen: rgba(255, 255, 255, .65); --enpl-metal-hover-sheen: rgba(255, 255, 255, .85);
+        --enpl-metal-ink: #3c4859; --enpl-metal-start: #f5f7fb; --enpl-metal-end: #c1cbd9; --enpl-metal-edge: #a1adbd; --enpl-metal-accent: #7d8a9e;
       }
       [data-enpl-tier="rose-gold"] {
         --enpl-metal-ink: #63382f; --enpl-metal-start: #f3d1c4; --enpl-metal-end: #d99a86; --enpl-metal-edge: #bc7c68; --enpl-metal-accent: #a45f4d;
