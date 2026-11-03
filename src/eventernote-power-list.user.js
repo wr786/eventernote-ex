@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.11
+// @version      0.15.12
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1009,8 +1009,10 @@
 
   function injectStyles() {
     GM_addStyle(`
-      @import url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-light.css");
-      @import url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css");
+      @font-face {
+        font-family: "LXGW WenKai"; font-style: normal; font-weight: 300 400; font-display: swap;
+        src: local("LXGW WenKai Light"), local("LXGWWenKai-Light"), url("https://raw.githubusercontent.com/lxgw/LxgwWenKai/6c3f9091483ce824ebc6f36e22e263f7b1e9978f/fonts/TTF/LXGWWenKai-Light.ttf") format("truetype");
+      }
       .enpl-compact-enabled .gb_event_list > li.clearfix {
         min-height: 0;
         padding-top: 8px;
