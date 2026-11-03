@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.18
+// @version      0.15.19
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1454,7 +1454,7 @@
       .enpl-ticket-page .gb_event_list .event .actor { margin-top: 10px; font-size: 14px; line-height: 1.75; }
       .enpl-ticket-page .gb_event_list .actor > ul { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; padding: 0; list-style: none; }
       .enpl-ticket-page .gb_event_list .actor > ul > li { float: none; flex: 0 1 auto; max-width: 100%; margin: 0; padding: 0; line-height: 1.75; }
-      .enpl-ticket-page .gb_event_list .actor > ul:has(> li:first-child:not(:has(a))) { position: relative; padding-left: 4em; }
+      .enpl-ticket-page .gb_event_list .actor > ul:not(:has(> li:first-child > a)) { position: relative; padding-left: 4em; }
       .enpl-ticket-page .gb_event_list .actor > ul > li:first-child:not(:has(a)) { position: absolute; left: 0; top: 3px; color: #817565; }
       .enpl-ticket-page .gb_event_list .actor > ul > li > a { display: block; padding: 3px 0; line-height: 1.75; overflow-wrap: anywhere; text-decoration: none; }
       .enpl-ticket-page .gb_event_list .actor > ul > li:not(.enpl-followed-actor) > a { color: #5d5043; }
