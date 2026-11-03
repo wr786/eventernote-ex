@@ -6,6 +6,8 @@ Make event discovery, personal plans, and attendance recaps easier on [Eventerno
 
 [Install](https://greasyfork.org/en/scripts/583130-eventernote-ex) · [Source](src/eventernote-power-list.user.js) · [Report an issue](https://github.com/wr786/eventernote-ex/issues)
 
+Ad hiding: known site ad containers, including Google and Rakuten placements, are hidden with their reserved space. Matching containers inserted later are also hidden. This hides page elements; it does not block network requests.
+
 ## Quick start
 
 1. Install a userscript manager such as Tampermonkey or Violentmonkey in your browser.

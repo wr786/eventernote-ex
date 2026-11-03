@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.3
+// @version      0.15.4
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -63,6 +63,35 @@
     applyFavoriteActorParticipationCounts();
     applyPersonalDashboard();
     applyFollowedActorHighlights();
+    applyTicketMasthead();
+  }
+
+  function applyTicketMasthead() {
+    const ownPath = getOwnProfilePath();
+    const path = location.pathname.replace(/\/$/, "");
+    if (!ownPath || (path !== "/users" && path !== ownPath) || document.querySelector(".enpl-edition-header")) return;
+    const row = document.querySelector(".span8.page")?.parentElement;
+    const profile = document.querySelector(".gb_users_side_profile h2");
+    if (!row || !profile) return;
+    const header = document.createElement("header");
+    header.className = "enpl-edition-header";
+    const title = document.createElement("div");
+    const eyebrow = document.createElement("p");
+    eyebrow.className = "enpl-edition-eyebrow";
+    eyebrow.textContent = "EVENTERNOTE EX / LIVE JOURNAL";
+    const heading = document.createElement("h1");
+    heading.textContent = "现场手册";
+    title.append(eyebrow, heading);
+    const identity = document.createElement("div");
+    identity.className = "enpl-edition-identity";
+    const name = document.createElement("strong");
+    name.textContent = textOf(profile);
+    const date = document.createElement("span");
+    date.textContent = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" }).replaceAll("-", ".");
+    date.title = "日本日期";
+    identity.append(name, date);
+    header.append(title, identity);
+    row.insertAdjacentElement("beforebegin", header);
   }
 
   function applyPopularity(item) {
@@ -1434,6 +1463,44 @@
       @media (prefers-contrast: more) {
         .enpl-ticket-page .gb_subtitle { border-color: #93816a; }
         .enpl-ticket-page .gb_event_list .place, .enpl-ticket-page .enpl-personal-note { color: #625747; }
+      }
+
+      [class^="gb_ad_"], [class*=" gb_ad_"], ins.adsbygoogle,
+      iframe[src*="//static.affiliate.rakuten.co.jp/"] { display: none !important; }
+      .enpl-ticket-page .enpl-edition-header {
+        display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px;
+        margin: 12px 0 22px; padding: 22px 14px 24px; border-top: 3px solid #a94736; border-bottom: 1px solid #b9ad99;
+      }
+      .enpl-edition-eyebrow { margin: 0 0 9px; color: #8c7763; font: 10px/1.6 ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: .12em; }
+      .enpl-edition-header h1 { margin: 0; color: #453d32; font: 600 36px/1.3 "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", serif; letter-spacing: .12em; }
+      .enpl-edition-identity { display: grid; gap: 7px; padding: 5px 0 5px 18px; border-left: 1px solid #d5c7b3; text-align: right; }
+      .enpl-edition-identity strong { color: #a34a36; font: 600 15px/1.5 system-ui, sans-serif; }
+      .enpl-edition-identity span { color: #8c8170; font: 11px/1.5 ui-monospace, "SFMono-Regular", Consolas, monospace; }
+      .enpl-ticket-page .navbar-inner { border-bottom-width: 3px; }
+      .enpl-ticket-page .navbar .nav > li > a { padding-left: 18px; padding-right: 18px; font-size: 13px; letter-spacing: .025em; }
+      .enpl-ticket-page .page { border-radius: 0; box-shadow: none; }
+      .enpl-ticket-page .span8.page { background: #fffefb; }
+      .enpl-ticket-page .span4.page { background: #f7f2e8; box-shadow: inset 1px 0 0 #dfd3c0; }
+      .enpl-ticket-page .gb_subtitle { padding-top: 12px; padding-bottom: 12px; border-bottom: 2px solid #645747; font-size: 21px; letter-spacing: .035em; }
+      .enpl-ticket-page .span4 .gb_subtitle { font-size: 18px; border-bottom: 1px solid #cebfaa; }
+      .enpl-ticket-page .gb_event_list > ul > li { padding-top: 14px !important; padding-bottom: 14px !important; border-bottom: 1px dashed #d9cdbb; }
+      .enpl-ticket-page .gb_event_list .event h4 { margin-bottom: 7px; line-height: 1.7; }
+      .enpl-ticket-page .gb_event_list .event h4 a { font-size: 15px; }
+      .enpl-ticket-page .gb_event_list .event .place { margin: 4px 0; font-size: 12px; }
+      .enpl-ticket-page .gb_event_list .event .actor { margin-top: 9px; line-height: 1.8; }
+      .enpl-ticket-page .gb_event_list .date > p:first-child { font-size: 12px; line-height: 1.7; }
+      .enpl-ticket-page .gb_event_list .date img { border: 1px solid #e0d5c3; }
+      .enpl-ticket-page .gb_event_list .note_count p { background: #fffaf1; box-shadow: inset 0 0 0 1px #d8c9b2; }
+      .enpl-ticket-page .gb_users_side_profile { border: 0; background: transparent; box-shadow: none; }
+      .enpl-ticket-page .gb_score_table { border-top: 1px solid #cebfaa; border-bottom: 1px solid #cebfaa; border-radius: 0; background: #fbf7ef; box-shadow: none; }
+      .enpl-ticket-page .gb_score_table a { color: #a34a36; }
+      .enpl-ticket-page .enpl-profile-mode select { background: #fffdf8; border-color: #cfc0a9; }
+      .enpl-ticket-page .enpl-personal { border-radius: 0; border-color: #cdbda3; border-left: 3px solid #a94736; background: #f9f4e9; }
+      .enpl-ticket-page .enpl-personal-summary { color: #8c4533; font-family: "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", serif; font-size: 15px; letter-spacing: .02em; }
+      @media (max-width: 600px) {
+        .enpl-ticket-page .enpl-edition-header { padding: 16px 10px; gap: 12px; }
+        .enpl-edition-header h1 { font-size: 28px; }
+        .enpl-edition-eyebrow { font-size: 9px; letter-spacing: .06em; }
       }
 
     `);

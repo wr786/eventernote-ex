@@ -6,6 +6,8 @@
 
 [安装脚本](https://greasyfork.org/zh-CN/scripts/583130-eventernote-ex) · [源码](src/eventernote-power-list.user.js) · [反馈问题](https://github.com/wr786/eventernote-ex/issues)
 
+广告隐藏：自动隐藏站内已知广告容器（包括 Google、乐天广告）并收起占位空白，动态加载的同类容器也适用。此功能隐藏页面广告位，不拦截网络请求。
+
 ## 快速开始
 
 1. 在浏览器中安装 Tampermonkey、Violentmonkey 等用户脚本管理器。

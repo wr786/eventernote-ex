@@ -6,6 +6,8 @@
 
 [インストール](https://greasyfork.org/ja/scripts/583130-eventernote-ex) · [ソース](src/eventernote-power-list.user.js) · [不具合報告](https://github.com/wr786/eventernote-ex/issues)
 
+広告非表示：Google・楽天など、サイト内の既知の広告枠と余白を非表示にします。後から追加される同じ広告枠にも適用されます。ページ内の広告枠を隠す機能であり、通信そのものは遮断しません。
+
 ## はじめに
 
 1. ブラウザーに Tampermonkey、Violentmonkey などのユーザースクリプトマネージャーをインストールします。
