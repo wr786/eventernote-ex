@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.7
+// @version      0.15.8
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1465,27 +1465,25 @@
       .enpl-ticket-page :is(.enpl-personal-button, .enpl-interest-sort-button, .enpl-schedule-date-select) { font-size: 14px; }
       .enpl-ticket-page .enpl-personal { border-radius: 0; border-color: #cdbda3; border-left: 3px solid #a94736; background: #f9f4e9; }
       .enpl-ticket-page .gb_event_list > ul > li:has(> .date):has(> .event) {
-        display: grid; grid-template-columns: 110px minmax(0, 1fr) 64px;
-        gap: 12px 18px; align-items: start; padding: 16px 14px !important;
+        display: grid; grid-template-columns: 168px minmax(0, 1fr) 64px;
+        gap: 16px; align-items: start; padding: 14px !important;
       }
-      .enpl-ticket-page .gb_event_list > ul > li > .date { display: contents; }
+      .enpl-ticket-page .gb_event_list > ul > li > .date { float: none; width: auto; min-width: 0; }
       .enpl-ticket-page .gb_event_list > ul > li > .date > p:first-child {
-        grid-column: 1 / 3; grid-row: 1; margin: 0; padding: 0 0 10px;
-        border-bottom: 1px solid #e5ddcf; font-size: 16px; font-weight: 600;
+        margin: 0 0 9px; font-size: 16px; font-weight: 600;
         line-height: 1.6; font-variant-numeric: tabular-nums; letter-spacing: 0;
       }
-      .enpl-ticket-page .gb_event_list > ul > li > .date > p + p { grid-column: 1; grid-row: 2; margin: 0; }
-      .enpl-ticket-page .gb_event_list > ul > li > .date img { display: block; max-width: 100%; height: auto; box-sizing: border-box; }
-      .enpl-ticket-page .gb_event_list > ul > li > .event { grid-column: 2; grid-row: 2; float: none; width: auto; min-width: 0; }
+      .enpl-ticket-page .gb_event_list > ul > li > .date > p + p { margin: 0; }
+      .enpl-ticket-page .gb_event_list > ul > li > .date img { display: block; max-width: 110px; height: auto; box-sizing: border-box; }
+      .enpl-ticket-page .gb_event_list > ul > li > .event { float: none; width: auto; min-width: 0; }
       .enpl-ticket-page .gb_event_list > ul > li > .event h4 { margin-top: 0; }
-      .enpl-ticket-page .gb_event_list > ul > li > .note_count { grid-column: 3; grid-row: 1 / 3; float: none; width: auto; margin: 0; }
+      .enpl-ticket-page .gb_event_list > ul > li > .note_count { float: none; width: auto; margin: 0; }
       .enpl-ticket-page .gb_event_list > ul > li > .note_count p { width: auto; margin: 0; }
       .enpl-ticket-page .gb_event_list > ul > li::before, .enpl-ticket-page .gb_event_list > ul > li::after { display: none; }
-      .enpl-ticket-page .enpl-date-search-link { margin-left: 8px; font-size: 13px; font-weight: 400; }
+      .enpl-ticket-page .enpl-date-search-link { margin-left: 4px; font-size: 13px; font-weight: 400; }
       @media (max-width: 600px) {
-        .enpl-ticket-page .gb_event_list > ul > li:has(> .date):has(> .event) { grid-template-columns: 72px minmax(0, 1fr); gap: 12px; }
-        .enpl-ticket-page .gb_event_list > ul > li > .date > p:first-child { grid-column: 1 / -1; padding-right: 58px; }
-        .enpl-ticket-page .gb_event_list > ul > li > .note_count { grid-column: 2; grid-row: 1; justify-self: end; }
+        .enpl-ticket-page .gb_event_list > ul > li:has(> .date):has(> .event) { grid-template-columns: 140px minmax(0, 1fr); gap: 12px; }
+        .enpl-ticket-page .gb_event_list > ul > li > .note_count { grid-column: 1; justify-self: start; }
       }
       .enpl-ticket-page .enpl-profile-actors .enpl-participation-count { font-size: 14px; font-weight: 600; }
       .enpl-ticket-page :is(.enpl-profile-scale-note, .enpl-schedule-note, .enpl-schedule-meta, .enpl-schedule-gap) { font-size: 13px; line-height: 1.75; color: #6c6255; }
