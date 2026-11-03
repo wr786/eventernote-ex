@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.22
+// @version      0.15.23
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1473,7 +1473,7 @@
       .enpl-ticket-page :is(.enpl-personal-button, .enpl-interest-sort-button, .enpl-schedule-date-select) { font-size: 14px; }
       .enpl-ticket-page .enpl-personal { border-radius: 0; border-color: #cdbda3; border-left: 3px solid #a94736; background: #f9f4e9; }
       .enpl-ticket-page .gb_event_list > ul > li:has(> .date):has(> .event) {
-        display: grid; grid-template-columns: minmax(0, 1fr) auto 56px;
+        display: grid; grid-template-columns: minmax(0, 1fr) auto 88px;
         gap: 4px 14px; align-items: start; padding: 16px 14px !important;
       }
       .enpl-ticket-page .gb_event_list > ul > li > :is(.date, .event) { display: contents; }
@@ -1481,8 +1481,8 @@
         grid-column: 1; grid-row: 2; margin: 0; padding: 0; font-size: 16px; font-weight: 400;
         line-height: 1.7; font-variant-numeric: tabular-nums; white-space: nowrap;
       }
-      .enpl-ticket-page .gb_event_list > ul > li > .date > p + p { grid-column: 3; grid-row: 2 / 5; margin: 2px 0 0; padding: 0; justify-self: end; }
-      .enpl-ticket-page .gb_event_list > ul > li > .date img { display: block; width: 56px; max-width: 100%; max-height: 76px; height: auto; object-fit: contain; box-sizing: border-box; }
+      .enpl-ticket-page .gb_event_list > ul > li > .date > p + p { grid-column: 3; grid-row: 2 / 5; width: 100%; margin: 2px 0 0; padding: 0; justify-self: end; }
+      .enpl-ticket-page .gb_event_list > ul > li > .date img { display: block; width: 88px; max-width: 100%; height: auto; object-fit: contain; box-sizing: border-box; }
       .enpl-ticket-page .gb_event_list > ul > li > .event h4 { grid-column: 1 / 3; grid-row: 1; margin: 0 0 4px; min-width: 0; }
       .enpl-ticket-page .gb_event_list > ul > li > .event h4 a { font-size: 18px; line-height: 1.65; }
       .enpl-ticket-page .gb_event_list > ul > li > .event > .place { grid-column: 1 / 3; grid-row: 3; margin: 0; min-width: 0; }
@@ -1495,7 +1495,7 @@
       .enpl-ticket-page .gb_event_list > ul > li::before, .enpl-ticket-page .gb_event_list > ul > li::after { display: none; }
       .enpl-ticket-page .enpl-date-search-link { margin-left: 4px; font-size: 13px; font-weight: 400; }
       @media (max-width: 767px) {
-        .enpl-ticket-page .gb_event_list > ul > li:has(> .date):has(> .event) { grid-template-columns: minmax(0, 1fr) 52px; gap: 4px 12px; }
+        .enpl-ticket-page .gb_event_list > ul > li:has(> .date):has(> .event) { grid-template-columns: minmax(0, 1fr) 72px; gap: 4px 12px; }
         .enpl-ticket-page .gb_event_list > ul > li > .date > p + p { grid-column: 2; grid-row: 2 / 6; }
         .enpl-ticket-page .gb_event_list > ul > li > .event h4 { grid-column: 1; }
         .enpl-ticket-page .gb_event_list > ul > li > .note_count { grid-column: 2; }
