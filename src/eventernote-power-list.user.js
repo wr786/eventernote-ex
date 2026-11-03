@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.8
+// @version      0.15.9
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1121,7 +1121,7 @@
       .enpl-schedule-controls .enpl-interest-sort-button:active { filter: brightness(.9); }
       .enpl-schedule-controls :focus-visible { outline: 2px solid #a94736; outline-offset: 3px; }
       .enpl-schedule-source-hidden, .enpl-schedule-date-select[hidden], .enpl-schedule[hidden] { display: none !important; }
-      .enpl-schedule { margin: 12px 0; color: #393630; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "PingFang SC", "Segoe UI", sans-serif; }
+      .enpl-schedule { margin: 12px 0; color: #393630; font-family: var(--enpl-reading-font); }
       .enpl-schedule-note { margin: 0 4px 16px; color: #7c756a; font-size: 11px; line-height: 1.8; }
       .enpl-schedule-day { margin-bottom: 24px; padding: 0; border: 1px solid #ded7ca; border-top: 3px solid #ae4937; border-radius: 2px; background: #fffefb; }
       .enpl-schedule-day-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #ded7ca; background: #faf7f0; }
@@ -1190,7 +1190,7 @@
         border-radius: 18px;
         background: rgba(255, 255, 255, .92);
         box-shadow: 0 3px 16px rgba(35, 30, 30, .04), inset 0 1px 0 #fff;
-        font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "PingFang SC", "Segoe UI", sans-serif;
+        font-family: var(--enpl-reading-font);
         font-optical-sizing: auto;
       }
       .gb_actors_list.enpl-profile-actors > li {
@@ -1260,7 +1260,7 @@
         display: flex; flex-wrap: wrap; align-items: flex-start; gap: 7px;
         box-sizing: border-box; width: 100%;
         padding: 12px 14px 16px; margin: 8px 0 0; list-style: none;
-        font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "PingFang SC", "Segoe UI", sans-serif;
+        font-family: var(--enpl-reading-font);
         font-optical-sizing: auto;
       }
       .gb_actors_list.enpl-profile-compact > li {
@@ -1391,18 +1391,21 @@
       }
 
 
-      body.enpl-ticket-page { background: #faf8f3; }
+      body.enpl-ticket-page {
+        --enpl-reading-font: "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", "Noto Serif CJK JP", serif;
+        background: #faf8f3; font-family: var(--enpl-reading-font);
+      }
       .enpl-ticket-page .navbar-inner { background: #302e2b; border-radius: 0; box-shadow: none; border-bottom: 2px solid #a94736; }
       .enpl-ticket-page .navbar .nav > li > a { color: #d4cec3; text-shadow: none; }
       .enpl-ticket-page .navbar .nav > li > a:hover { color: #fff9ef; }
       .enpl-ticket-page .navbar .nav > .active > a { border-bottom: 2px solid #d4816e; background: transparent; box-shadow: none; }
       .enpl-ticket-page .page {
         border-radius: 4px; background: #fffefb; box-shadow: inset 0 0 0 1px #e9e2d6;
-        font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "PingFang SC", "Segoe UI", sans-serif;
+        font-family: var(--enpl-reading-font);
       }
       .enpl-ticket-page .gb_subtitle {
         padding-bottom: 10px; border-bottom: 1px solid #ded6c8; color: #4b4135;
-        font-family: "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", serif;
+        font-family: var(--enpl-reading-font);
         font-size: 17px; font-weight: 600; line-height: 1.6; letter-spacing: .025em;
       }
       .enpl-ticket-page .gb_event_list .event h4 { line-height: 1.65; }
@@ -1420,7 +1423,7 @@
       .enpl-ticket-page .enpl-profile-actors > li + li > a { border-color: #eee5d8; }
       .enpl-ticket-page .enpl-personal { border-color: #ded2bf; border-radius: 5px; background: #fcf9f1; }
       .enpl-ticket-page .enpl-personal-summary { color: #8f4936; font-size: 14px; }
-      .enpl-ticket-page .enpl-personal h2, .enpl-ticket-page .enpl-personal h3 { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", serif; color: #594536; }
+      .enpl-ticket-page .enpl-personal h2, .enpl-ticket-page .enpl-personal h3 { font-family: var(--enpl-reading-font); color: #594536; }
       .enpl-ticket-page .enpl-personal-eyebrow { color: #947762; }
       .enpl-ticket-page .enpl-personal-note { color: #8a7c69; }
       .enpl-ticket-page .enpl-personal-tabs { border-color: #e4d9c8; }
@@ -1495,7 +1498,12 @@
       .enpl-ticket-page .enpl-calendar-day small { font-size: 12px; }
       .enpl-ticket-page .enpl-personal-eyebrow { font-size: 12px; letter-spacing: .08em; }
       .enpl-ticket-page .enpl-venue-link { font-size: 12px; }
-      .enpl-ticket-page .enpl-personal-summary { color: #8c4533; font-family: "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", serif; font-size: 16px; letter-spacing: .02em; }
+      .enpl-ticket-page :is(.enpl-profile-mode, .enpl-schedule-controls .enpl-interest-sort-button, .enpl-schedule-date-select, .enpl-schedule-title, .enpl-schedule-time, .enpl-schedule-date-caption > small, input, select, button) { font-family: var(--enpl-reading-font); }
+      .enpl-ticket-page .gb_event_list .event h4 a { line-height: 1.75; font-weight: 600; }
+      .enpl-ticket-page :is(.enpl-profile-compact > li > a, .enpl-followed-actor > a) { font-weight: 600; }
+      .enpl-ticket-page .gb_event_list .date > p:first-child { letter-spacing: .01em; }
+
+      .enpl-ticket-page .enpl-personal-summary { color: #8c4533; font-family: var(--enpl-reading-font); font-size: 16px; letter-spacing: .02em; }
 
 
     `);
