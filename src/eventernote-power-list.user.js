@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.20
+// @version      0.15.21
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1478,13 +1478,14 @@
       }
       .enpl-ticket-page .gb_event_list > ul > li > :is(.date, .event) { display: contents; }
       .enpl-ticket-page .gb_event_list > ul > li > .date > p:first-child {
-        grid-column: 2; grid-row: 2; margin: 0; font-size: 16px; font-weight: 400;
+        grid-column: 2; grid-row: 2; margin: 0; padding: 0; font-size: 16px; font-weight: 400;
         line-height: 1.7; font-variant-numeric: tabular-nums; white-space: nowrap;
       }
-      .enpl-ticket-page .gb_event_list > ul > li > .date > p + p { grid-column: 1; grid-row: 1 / 5; margin: 0; }
+      .enpl-ticket-page .gb_event_list > ul > li > .date > p + p { grid-column: 1; grid-row: 1 / 5; margin: 0; padding: 0; }
       .enpl-ticket-page .gb_event_list > ul > li > .date img { display: block; width: 96px; max-width: 100%; height: auto; box-sizing: border-box; }
       .enpl-ticket-page .gb_event_list > ul > li > .event h4 { grid-column: 2 / 4; grid-row: 1; margin: 0 0 3px; }
       .enpl-ticket-page .gb_event_list > ul > li > .event > .place { grid-column: 2 / 4; grid-row: 3; margin: 0; }
+      .enpl-ticket-page .gb_event_list .place .s > p:empty { display: none; }
       .enpl-ticket-page .gb_event_list > ul > li > .event > .place:has(.s) { grid-column: 3; grid-row: 2; justify-self: end; align-self: center; }
       .enpl-ticket-page .gb_event_list > ul > li > .event > .actor { grid-column: 2 / -1; grid-row: 4; margin-top: 4px; }
       .enpl-ticket-page .gb_event_list > ul > li > .note_count { grid-column: 4; grid-row: 1; float: none; width: auto; margin: 0; justify-self: end; }
