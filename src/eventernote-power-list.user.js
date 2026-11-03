@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.17
+// @version      0.15.18
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1454,7 +1454,8 @@
       .enpl-ticket-page .gb_event_list .event .actor { margin-top: 10px; font-size: 14px; line-height: 1.75; }
       .enpl-ticket-page .gb_event_list .actor > ul { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; padding: 0; list-style: none; }
       .enpl-ticket-page .gb_event_list .actor > ul > li { float: none; flex: 0 1 auto; max-width: 100%; margin: 0; padding: 0; line-height: 1.75; }
-      .enpl-ticket-page .gb_event_list .actor > ul > li:first-child:not(:has(a)) { color: #817565; }
+      .enpl-ticket-page .gb_event_list .actor > ul:has(> li:first-child:not(:has(a))) { position: relative; padding-left: 4em; }
+      .enpl-ticket-page .gb_event_list .actor > ul > li:first-child:not(:has(a)) { position: absolute; left: 0; top: 3px; color: #817565; }
       .enpl-ticket-page .gb_event_list .actor > ul > li > a { display: block; padding: 3px 0; line-height: 1.75; overflow-wrap: anywhere; text-decoration: none; }
       .enpl-ticket-page .gb_event_list .actor > ul > li:not(.enpl-followed-actor) > a { color: #5d5043; }
       .enpl-ticket-page .gb_event_list .actor > ul > li:not(.enpl-followed-actor) > a:hover { color: #a94736; text-decoration: underline; text-underline-offset: 3px; }
@@ -1473,20 +1474,21 @@
       .enpl-ticket-page :is(.enpl-personal-button, .enpl-interest-sort-button, .enpl-schedule-date-select) { font-size: 14px; }
       .enpl-ticket-page .enpl-personal { border-radius: 0; border-color: #cdbda3; border-left: 3px solid #a94736; background: #f9f4e9; }
       .enpl-ticket-page .gb_event_list > ul > li:has(> .date):has(> .event) {
-        display: grid; grid-template-columns: 168px minmax(0, 1fr) 64px;
-        gap: 16px; align-items: start; padding: 14px !important;
+        display: grid; grid-template-columns: 164px minmax(0, 1fr);
+        gap: 8px 16px; align-items: start; padding: 14px !important;
       }
-      .enpl-ticket-page .gb_event_list > ul > li > .date { float: none; width: auto; min-width: 0; }
+      .enpl-ticket-page .gb_event_list > ul > li > .date { grid-column: 1; grid-row: 1; float: none; width: auto; min-width: 0; }
       .enpl-ticket-page .gb_event_list > ul > li > .date > p:first-child {
         margin: 0 0 9px; font-size: 16px; font-weight: 400;
         line-height: 1.6; font-variant-numeric: tabular-nums; letter-spacing: 0;
       }
       .enpl-ticket-page .gb_event_list > ul > li > .date > p + p { margin: 0; }
       .enpl-ticket-page .gb_event_list > ul > li > .date img { display: block; max-width: 110px; height: auto; box-sizing: border-box; }
-      .enpl-ticket-page .gb_event_list > ul > li > .event { float: none; width: auto; min-width: 0; }
+      .enpl-ticket-page .gb_event_list > ul > li > .event { grid-column: 2; grid-row: 1 / 3; float: none; width: auto; min-width: 0; }
       .enpl-ticket-page .gb_event_list > ul > li > .event h4 { margin-top: 0; }
-      .enpl-ticket-page .gb_event_list > ul > li > .note_count { float: none; width: auto; margin: 0; }
-      .enpl-ticket-page .gb_event_list > ul > li > .note_count p { width: auto; margin: 0; }
+      .enpl-ticket-page .gb_event_list > ul > li > .note_count { grid-column: 1; grid-row: 2; float: none; width: auto; margin: 0; align-self: start; justify-self: start; }
+      .enpl-ticket-page .gb_event_list > ul > li > .note_count p { width: auto; margin: 0; padding: 0; background: transparent; box-shadow: none; font-size: 18px; line-height: 1.6; }
+      .enpl-ticket-page .gb_event_list > ul > li > .note_count p::after { content: "人参加"; margin-left: 6px; color: #817565; font-size: 12px; }
       .enpl-ticket-page .gb_event_list > ul > li::before, .enpl-ticket-page .gb_event_list > ul > li::after { display: none; }
       .enpl-ticket-page .enpl-date-search-link { margin-left: 4px; font-size: 13px; font-weight: 400; }
       @media (max-width: 600px) {
