@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.2
+// @version      0.15.3
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -49,6 +49,7 @@
   }
 
   function applyEnhancements() {
+    document.body.classList.add("enpl-ticket-page");
     document.body.classList.toggle("enpl-compact-enabled", settings.compactEnabled);
 
     const eventItems = getEventItems();
@@ -1389,6 +1390,51 @@
         text-decoration: none;
       }
 
+
+      body.enpl-ticket-page { background: #faf8f3; }
+      .enpl-ticket-page .navbar-inner { background: #302e2b; border-radius: 0; box-shadow: none; border-bottom: 2px solid #a94736; }
+      .enpl-ticket-page .navbar .nav > li > a { color: #d4cec3; text-shadow: none; }
+      .enpl-ticket-page .navbar .nav > li > a:hover { color: #fff9ef; }
+      .enpl-ticket-page .navbar .nav > .active > a { border-bottom: 2px solid #d4816e; background: transparent; box-shadow: none; }
+      .enpl-ticket-page .page {
+        border-radius: 4px; background: #fffefb; box-shadow: inset 0 0 0 1px #e9e2d6;
+        font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "PingFang SC", "Segoe UI", sans-serif;
+      }
+      .enpl-ticket-page .gb_subtitle {
+        padding-bottom: 10px; border-bottom: 1px solid #ded6c8; color: #4b4135;
+        font-family: "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", serif;
+        font-size: 17px; font-weight: 600; line-height: 1.6; letter-spacing: .025em;
+      }
+      .enpl-ticket-page .gb_event_list .event h4 { line-height: 1.65; }
+      .enpl-ticket-page .gb_event_list .event h4 a { color: #49443c; font-size: 14px; font-weight: 600; }
+      .enpl-ticket-page .gb_event_list .event h4 a:hover { color: #a94736; text-underline-offset: 3px; }
+      .enpl-ticket-page .gb_event_list > ul > li { border-bottom: 1px solid #e5ddcf; }
+      .enpl-ticket-page .gb_event_list .place { color: #80776a; line-height: 1.65; }
+      .enpl-ticket-page .gb_event_list .note_count p { border-radius: 3px; background: #f1ede5; box-shadow: inset 0 0 0 1px #e1d9cb; }
+      .enpl-ticket-page .gb_users_side_profile { border-color: #e1d8ca; border-radius: 4px; }
+      .enpl-ticket-page .gb_score_table { border-radius: 4px; background: #f8f4ec; background-image: none; box-shadow: inset 0 0 0 1px #e1d8ca; }
+      .enpl-ticket-page .gb_score_table a { color: #8c5946; }
+      .enpl-ticket-page .enpl-profile-mode { color: #807565; }
+      .enpl-ticket-page .enpl-profile-mode select { border-color: #dcd2c2; border-radius: 3px; color: #5c5144; background: #fffdf7; }
+      .enpl-ticket-page .enpl-profile-actors { border-color: #e2d8c9; border-radius: 5px; background: #fffefb; box-shadow: none; }
+      .enpl-ticket-page .enpl-profile-actors > li + li > a { border-color: #eee5d8; }
+      .enpl-ticket-page .enpl-personal { border-color: #ded2bf; border-radius: 5px; background: #fcf9f1; }
+      .enpl-ticket-page .enpl-personal-summary { color: #8f4936; font-size: 14px; }
+      .enpl-ticket-page .enpl-personal h2, .enpl-ticket-page .enpl-personal h3 { font-family: "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", serif; color: #594536; }
+      .enpl-ticket-page .enpl-personal-eyebrow { color: #947762; }
+      .enpl-ticket-page .enpl-personal-note { color: #8a7c69; }
+      .enpl-ticket-page .enpl-personal-tabs { border-color: #e4d9c8; }
+      .enpl-ticket-page .enpl-personal-button { border-color: #d9cbb7; border-radius: 3px; color: #775540; background: #fffdf6; }
+      .enpl-ticket-page .enpl-personal-button:hover { background: #f3e9da; }
+      .enpl-ticket-page .enpl-personal-tabs [aria-pressed="true"] { color: #fffaf1; background: #a34a36; border-color: #a34a36; }
+      .enpl-ticket-page .enpl-personal-stats > div { border-color: #e4d7c3; border-radius: 4px; background: #fffdf7; }
+      .enpl-ticket-page .enpl-personal-stats strong { color: #a34a36; }
+      .enpl-ticket-page .enpl-milestone-card { border-radius: 5px; background: #fffdf7; }
+      .enpl-ticket-page .enpl-personal :is(input[type="month"], select) { border-color: #d9cbb7; border-radius: 3px; color: #775540; background: #fffdf6; }
+      @media (prefers-contrast: more) {
+        .enpl-ticket-page .gb_subtitle { border-color: #93816a; }
+        .enpl-ticket-page .gb_event_list .place, .enpl-ticket-page .enpl-personal-note { color: #625747; }
+      }
 
     `);
   }
