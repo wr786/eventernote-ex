@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.12
+// @version      0.15.13
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1009,10 +1009,6 @@
 
   function injectStyles() {
     GM_addStyle(`
-      @font-face {
-        font-family: "LXGW WenKai"; font-style: normal; font-weight: 300 400; font-display: swap;
-        src: local("LXGW WenKai Light"), local("LXGWWenKai-Light"), url("https://raw.githubusercontent.com/lxgw/LxgwWenKai/6c3f9091483ce824ebc6f36e22e263f7b1e9978f/fonts/TTF/LXGWWenKai-Light.ttf") format("truetype");
-      }
       .enpl-compact-enabled .gb_event_list > li.clearfix {
         min-height: 0;
         padding-top: 8px;
@@ -1118,14 +1114,14 @@
       .enpl-schedule-controls .enpl-interest-sort-button, .enpl-schedule-date-select {
         box-sizing: border-box; width: auto; max-width: 100%; margin: 0; padding: 7px 12px;
         border: 1px solid #d9d3c8; border-radius: 2px; color: #5d554c; background: #fffefb;
-        font: 500 12px/1.6 system-ui, sans-serif;
+        font-size: 12px; line-height: 1.6; font-weight: 500;
       }
       .enpl-schedule-controls .enpl-interest-sort-button:hover:not(:disabled) { color: #9f4233; background: #faf5ee; border-color: #b9a99b; }
       .enpl-schedule-controls .enpl-interest-sort-button[aria-pressed="true"] { color: #fffefb; background: #4b463f; border-color: #4b463f; }
       .enpl-schedule-controls .enpl-interest-sort-button:active { filter: brightness(.9); }
       .enpl-schedule-controls :focus-visible { outline: 2px solid #a94736; outline-offset: 3px; }
       .enpl-schedule-source-hidden, .enpl-schedule-date-select[hidden], .enpl-schedule[hidden] { display: none !important; }
-      .enpl-schedule { margin: 12px 0; color: #393630; font-family: var(--enpl-reading-font); }
+      .enpl-schedule { margin: 12px 0; color: #393630; }
       .enpl-schedule-note { margin: 0 4px 16px; color: #7c756a; font-size: 11px; line-height: 1.8; }
       .enpl-schedule-day { margin-bottom: 24px; padding: 0; border: 1px solid #ded7ca; border-top: 3px solid #ae4937; border-radius: 2px; background: #fffefb; }
       .enpl-schedule-day-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #ded7ca; background: #faf7f0; }
@@ -1135,15 +1131,15 @@
       .enpl-schedule-calendar strong { color: #a94736; font-size: 32px; line-height: 1.1; font-weight: 600; letter-spacing: -.04em; }
       .enpl-schedule-date-caption { display: grid; gap: 5px; }
       .enpl-schedule-date-caption > span { color: #4f473d; font-size: 14px; font-weight: 600; letter-spacing: .08em; }
-      .enpl-schedule-date-caption > small { color: #8b8175; font: 10px/1.5 ui-monospace, "SFMono-Regular", Consolas, monospace; }
+      .enpl-schedule-date-caption > small { color: #8b8175; font-size: 10px; line-height: 1.5; }
       .enpl-schedule-day-count { padding: 4px 8px; border: 1px solid #cda598; border-radius: 1px; color: #a34a39; background: transparent; font-size: 11px; letter-spacing: .06em; white-space: nowrap; }
       .enpl-schedule-row { display: grid; grid-template-columns: 82px minmax(0, 1fr) auto; align-items: start; gap: 18px; padding: 20px; background: #fffefb; }
       .enpl-schedule-clock { align-self: stretch; display: flex; flex-direction: column; align-items: flex-start; gap: 7px; box-sizing: border-box; padding: 1px 14px 0 0; border-right: 1px dashed #d9cfc0; }
-      .enpl-schedule-time { color: #a94736; font: 600 21px/1.3 ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: -.05em; white-space: nowrap; }
+      .enpl-schedule-time { color: #a94736; font-size: 21px; line-height: 1.3; font-weight: 600; letter-spacing: -.05em; white-space: nowrap; }
       .enpl-schedule-time-label { color: #8b8175; font-size: 10px; line-height: 1.5; letter-spacing: .12em; }
       .enpl-schedule-details { min-width: 0; }
       .enpl-schedule-title, .enpl-schedule-venue { display: block; overflow-wrap: anywhere; }
-      .enpl-schedule-title { color: #393630; font: 600 15px/1.65 "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", serif; text-decoration: none; }
+      .enpl-schedule-title { color: #393630; font-size: 15px; line-height: 1.65; font-weight: 600; text-decoration: none; }
       .enpl-schedule-title:hover { color: #a94736; text-decoration: underline; text-underline-offset: 3px; }
       .enpl-schedule-title:focus-visible, .enpl-schedule-venue:focus-visible { outline: 2px solid #a94736; outline-offset: 3px; }
       .enpl-schedule-venue { margin-top: 9px; color: #776953; font-size: 12px; line-height: 1.7; }
@@ -1181,7 +1177,7 @@
       .enpl-profile-sidebar .gb_actors_list.enpl-profile-actors,
       .enpl-profile-sidebar .gb_actors_list.enpl-profile-original { width: auto; margin-left: 14px; margin-right: 14px; }
       @media (prefers-reduced-motion: reduce) { a.enpl-metal-chip { transition: none; } }
-      .enpl-profile-mode { display: grid; gap: 8px; box-sizing: border-box; padding: 4px 14px; margin: 10px 0; color: #6e6e73; font-size: 12px; font-family: system-ui, sans-serif; }
+      .enpl-profile-mode { display: grid; gap: 8px; box-sizing: border-box; padding: 4px 14px; margin: 10px 0; color: #6e6e73; font-size: 12px; font-family: inherit; }
       .enpl-profile-field { display: grid; grid-template-columns: 4em minmax(0, 1fr); align-items: center; gap: 8px; margin: 0; font: inherit; white-space: nowrap; }
       .enpl-profile-mode > [role="status"]:empty { display: none; }
       .enpl-profile-mode > [role="status"] { min-width: 0; line-height: 1.5; overflow-wrap: anywhere; }
@@ -1194,7 +1190,6 @@
         border-radius: 18px;
         background: rgba(255, 255, 255, .92);
         box-shadow: 0 3px 16px rgba(35, 30, 30, .04), inset 0 1px 0 #fff;
-        font-family: var(--enpl-reading-font);
         font-optical-sizing: auto;
       }
       .gb_actors_list.enpl-profile-actors > li {
@@ -1264,7 +1259,6 @@
         display: flex; flex-wrap: wrap; align-items: flex-start; gap: 7px;
         box-sizing: border-box; width: 100%;
         padding: 12px 14px 16px; margin: 8px 0 0; list-style: none;
-        font-family: var(--enpl-reading-font);
         font-optical-sizing: auto;
       }
       .gb_actors_list.enpl-profile-compact > li {
@@ -1396,8 +1390,7 @@
 
 
       body.enpl-ticket-page {
-        --enpl-reading-font: "LXGW WenKai", "霞鹜文楷", "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", "Noto Serif CJK JP", serif;
-        background: #faf8f3; font-family: var(--enpl-reading-font); font-weight: 300; font-synthesis: none;
+        background: #faf8f3;
       }
       .enpl-ticket-page .navbar-inner { background: #302e2b; border-radius: 0; box-shadow: none; border-bottom: 2px solid #a94736; }
       .enpl-ticket-page .navbar .nav > li > a { color: #d4cec3; text-shadow: none; }
@@ -1405,11 +1398,9 @@
       .enpl-ticket-page .navbar .nav > .active > a { border-bottom: 2px solid #d4816e; background: transparent; box-shadow: none; }
       .enpl-ticket-page .page {
         border-radius: 4px; background: #fffefb; box-shadow: inset 0 0 0 1px #e9e2d6;
-        font-family: var(--enpl-reading-font);
       }
       .enpl-ticket-page .gb_subtitle {
         padding-bottom: 10px; border-bottom: 1px solid #ded6c8; color: #4b4135;
-        font-family: var(--enpl-reading-font);
         font-size: 17px; font-weight: 400; line-height: 1.6; letter-spacing: .025em;
       }
       .enpl-ticket-page .gb_event_list .event h4 { line-height: 1.65; }
@@ -1427,7 +1418,7 @@
       .enpl-ticket-page .enpl-profile-actors > li + li > a { border-color: #eee5d8; }
       .enpl-ticket-page .enpl-personal { border-color: #ded2bf; border-radius: 5px; background: #fcf9f1; }
       .enpl-ticket-page .enpl-personal-summary { color: #8f4936; font-size: 14px; }
-      .enpl-ticket-page .enpl-personal h2, .enpl-ticket-page .enpl-personal h3 { font-family: var(--enpl-reading-font); color: #594536; }
+      .enpl-ticket-page .enpl-personal h2, .enpl-ticket-page .enpl-personal h3 { color: #594536; }
       .enpl-ticket-page .enpl-personal-eyebrow { color: #947762; }
       .enpl-ticket-page .enpl-personal-note { color: #8a7c69; }
       .enpl-ticket-page .enpl-personal-tabs { border-color: #e4d9c8; }
@@ -1502,15 +1493,12 @@
       .enpl-ticket-page .enpl-calendar-day small { font-size: 12px; }
       .enpl-ticket-page .enpl-personal-eyebrow { font-size: 12px; letter-spacing: .08em; }
       .enpl-ticket-page .enpl-venue-link { font-size: 12px; }
-      .enpl-ticket-page :is(.enpl-profile-mode, .enpl-schedule-controls .enpl-interest-sort-button, .enpl-schedule-date-select, .enpl-schedule-title, .enpl-schedule-time, .enpl-schedule-date-caption > small, input, select, button) { font-family: var(--enpl-reading-font); }
       .enpl-ticket-page .gb_event_list .event h4 a { line-height: 1.75; font-weight: 400; }
       .enpl-ticket-page :is(.enpl-profile-compact > li > a, .enpl-followed-actor > a) { font-weight: 400; }
       .enpl-ticket-page .gb_event_list .date > p:first-child { letter-spacing: .01em; }
-      .enpl-ticket-page :is(.gb_event_list .date p, .gb_event_list .note_count p, .gb_score_table p) { font-family: var(--enpl-reading-font); }
 
-      .enpl-ticket-page :is(.page, .enpl-schedule, .enpl-profile-mode, .enpl-profile-compact > li > a, .enpl-profile-actors > li > a, input, select, button) { font-weight: 300; }
       .enpl-ticket-page :is(h1, h2, h3, h4, strong, b, .enpl-personal-summary, .enpl-schedule-title, .enpl-schedule-time, .enpl-schedule-date-caption > span, .gb_event_list .note_count p, .enpl-participation-count) { font-weight: 400; }
-      .enpl-ticket-page .enpl-personal-summary { color: #8c4533; font-family: var(--enpl-reading-font); font-size: 16px; letter-spacing: .02em; }
+      .enpl-ticket-page .enpl-personal-summary { color: #8c4533; font-size: 16px; letter-spacing: .02em; }
 
 
     `);
