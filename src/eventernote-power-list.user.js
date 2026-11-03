@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.16
+// @version      0.15.17
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1009,7 +1009,7 @@
 
   function injectStyles() {
     GM_addStyle(`
-      @import url("https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500&family=Noto+Serif+JP:wght@400&display=swap");
       .enpl-compact-enabled .gb_event_list > li.clearfix {
         min-height: 0;
         padding-top: 8px;
@@ -1391,6 +1391,8 @@
 
 
       body.enpl-ticket-page {
+        --enpl-font-body: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "PingFang SC", sans-serif;
+        --enpl-font-heading: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", serif;
         background: #faf8f3;
       }
       .enpl-ticket-page .navbar-inner { background: #302e2b; border-radius: 0; box-shadow: none; border-bottom: 2px solid #a94736; }
@@ -1507,8 +1509,12 @@
 
       .enpl-ticket-page :is(h1, h2, h3, h4, strong, b, .enpl-personal-summary, .enpl-schedule-title, .enpl-schedule-time, .enpl-schedule-date-caption > span, .gb_event_list .note_count p, .enpl-participation-count) { font-weight: 400; }
       .enpl-ticket-page .enpl-personal-summary { color: #8c4533; font-size: 16px; letter-spacing: .02em; }
-      .enpl-ticket-page :is(.gb_subtitle, .gb_event_list .event h4, .gb_event_list .event h4 a, .enpl-schedule-title, .enpl-personal h2, .enpl-personal h3, .enpl-personal-summary) {
-        font-family: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", serif;
+      .enpl-ticket-page, .enpl-ticket-page :is(.page, .navbar, footer, p, a, li, small, strong, b, label, td, th, dt, dd, input, select, textarea, button, h1, h2, h3, h4, h5, h6, summary) {
+        font-family: var(--enpl-font-body); font-synthesis: none;
+      }
+      .enpl-ticket-page :is(h1, h2, h3, h4, h5, h6, .gb_subtitle, .gb_event_list .event h4 a, .enpl-schedule-title, .enpl-personal-summary),
+      .enpl-ticket-page :is(h1, h2, h3, h4, h5, h6, .gb_subtitle) :is(a, span) {
+        font-family: var(--enpl-font-heading);
         font-weight: 400; font-synthesis: none;
       }
 
