@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.14.16
+// @version      0.15.0
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -49,6 +49,7 @@
   }
 
   function applyEnhancements() {
+    document.body.classList.add("enpl-angular");
     document.body.classList.toggle("enpl-compact-enabled", settings.compactEnabled);
 
     const eventItems = getEventItems();
@@ -1391,6 +1392,43 @@
         background: #fff3d8;
         text-decoration: none;
       }
+
+      body.enpl-angular { background: #f3f2ee; }
+      .enpl-angular .navbar-inner { border-radius: 0; box-shadow: none; background-image: none; background-color: #252a31; }
+      .enpl-angular .page { box-sizing: border-box; border: 1px solid #dcdcd6; border-radius: 0; background: #fdfdfb; box-shadow: none; }
+      .enpl-angular .gb_subtitle { border-bottom: 1px solid #dfdfd9; padding-bottom: 8px; color: #42474e; }
+      .enpl-angular :is(button, input:not([type="checkbox"]):not([type="radio"]), select, textarea, .btn) { border-radius: 2px; box-shadow: none; }
+      .enpl-angular :is(.gb_users_side_profile, .gb_score_table) { border: 1px solid #dcdcd6; border-radius: 0; box-shadow: none; }
+      .enpl-angular .gb_score_table { background: #f4f4f0; background-image: none; }
+      .enpl-angular .gb_event_list > ul > li { border-bottom: 1px solid #e1e1da; }
+      .enpl-angular .gb_event_list .event h4 a { color: #365879; }
+      .enpl-angular .gb_event_list .note_count p { border: 1px solid #deded8; border-radius: 0; background: #f0f0eb; }
+      .enpl-angular :is(.enpl-personal, .enpl-schedule-day, .enpl-schedule-row, .enpl-profile-actors,
+        .enpl-personal-stats > div, .enpl-milestone-card) { border-radius: 0; box-shadow: none; }
+      .enpl-angular :is(.enpl-personal, .enpl-schedule-day) { border-color: #d8dad4; background: #f4f4ef; }
+      .enpl-angular .enpl-personal { padding: 16px; }
+      .enpl-angular .enpl-personal:not([open]) { padding: 11px 14px; }
+      .enpl-angular .enpl-personal-summary { color: #424f60; font-size: 13px; letter-spacing: .015em; }
+      .enpl-angular .enpl-personal-eyebrow { color: #767e86; }
+      .enpl-angular .enpl-personal h2 { color: #36475d; }
+      .enpl-angular .enpl-personal-tabs { border-color: #dcded7; }
+      .enpl-angular .enpl-personal-tabs [aria-pressed="true"] { background: #384b65; border-color: #384b65; }
+      .enpl-angular :is(.enpl-personal-stats > div, .enpl-milestone-card) { border-color: #dcded7; background: #fffefa; }
+      .enpl-angular :is(.enpl-personal-button, .enpl-interest-sort-button, .enpl-schedule-date-select,
+        .enpl-profile-mode select, .enpl-personal input[type="month"], .enpl-personal select) {
+        border-color: #d3d7d2; border-radius: 2px; color: #48566a; background: #f7f7f2; box-shadow: none;
+      }
+      .enpl-angular :is(.enpl-personal-button, .enpl-interest-sort-button):hover:not(:disabled) { color: #2f4667; background: #e9edf0; border-color: #b4c0ca; }
+      .enpl-angular .enpl-schedule-controls .enpl-interest-sort-button[aria-pressed="true"] { color: #fff; background: #384b65; border-color: #384b65; }
+      .enpl-angular .enpl-profile-actors { border-color: #dcded7; background: #fffefa; }
+      .enpl-angular :is(.enpl-metal-chip, .enpl-venue-link, .enpl-date-search-link, .enpl-calendar-day,
+        .enpl-schedule-calendar, .enpl-schedule-clock, .enpl-schedule-poster, .enpl-schedule-day-count) { border-radius: 2px; }
+      .enpl-angular .enpl-schedule-calendar { box-shadow: none; }
+      .enpl-angular .enpl-schedule-row { border-color: #dcded7; }
+      .enpl-angular :is(.enpl-participation-count, .enpl-schedule-time, .enpl-schedule-day-count, .enpl-personal-stats strong) {
+        font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; font-variant-numeric: tabular-nums;
+      }
+      .enpl-angular .enpl-schedule-overlap { color: #a24a51; }
 
     `);
   }
