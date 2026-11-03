@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.10
+// @version      0.15.11
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1009,6 +1009,8 @@
 
   function injectStyles() {
     GM_addStyle(`
+      @import url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-light.css");
+      @import url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/lxgwwenkai-regular.css");
       .enpl-compact-enabled .gb_event_list > li.clearfix {
         min-height: 0;
         padding-top: 8px;
@@ -1392,8 +1394,8 @@
 
 
       body.enpl-ticket-page {
-        --enpl-reading-font: "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", "Noto Serif CJK JP", serif;
-        background: #faf8f3; font-family: var(--enpl-reading-font);
+        --enpl-reading-font: "LXGW WenKai", "霞鹜文楷", "Iowan Old Style", "Palatino Linotype", "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", "Noto Serif CJK JP", serif;
+        background: #faf8f3; font-family: var(--enpl-reading-font); font-weight: 300; font-synthesis: none;
       }
       .enpl-ticket-page .navbar-inner { background: #302e2b; border-radius: 0; box-shadow: none; border-bottom: 2px solid #a94736; }
       .enpl-ticket-page .navbar .nav > li > a { color: #d4cec3; text-shadow: none; }
@@ -1406,10 +1408,10 @@
       .enpl-ticket-page .gb_subtitle {
         padding-bottom: 10px; border-bottom: 1px solid #ded6c8; color: #4b4135;
         font-family: var(--enpl-reading-font);
-        font-size: 17px; font-weight: 600; line-height: 1.6; letter-spacing: .025em;
+        font-size: 17px; font-weight: 400; line-height: 1.6; letter-spacing: .025em;
       }
       .enpl-ticket-page .gb_event_list .event h4 { line-height: 1.65; }
-      .enpl-ticket-page .gb_event_list .event h4 a { color: #49443c; font-size: 14px; font-weight: 600; }
+      .enpl-ticket-page .gb_event_list .event h4 a { color: #49443c; font-size: 14px; font-weight: 400; }
       .enpl-ticket-page .gb_event_list .event h4 a:hover { color: #a94736; text-underline-offset: 3px; }
       .enpl-ticket-page .gb_event_list > ul > li { border-bottom: 1px solid #e5ddcf; }
       .enpl-ticket-page .gb_event_list .place { color: #80776a; line-height: 1.65; }
@@ -1454,7 +1456,7 @@
       .enpl-ticket-page .gb_event_list .event .place { margin: 5px 0; color: #655c50; font-size: 14px; }
       .enpl-ticket-page .gb_event_list .event .place .s { font-size: inherit; }
       .enpl-ticket-page .gb_event_list .event .actor { margin-top: 10px; font-size: 14px; line-height: 1.85; }
-      .enpl-ticket-page .enpl-followed-actor > a { font-size: 14px; font-weight: 500; }
+      .enpl-ticket-page .enpl-followed-actor > a { font-size: 14px; font-weight: 400; }
       .enpl-ticket-page .gb_event_list .date > p:first-child { font-size: 13px; line-height: 1.7; }
       .enpl-ticket-page .gb_event_list .date img { border: 1px solid #e0d5c3; }
       .enpl-ticket-page .gb_event_list .note_count p { background: #fffaf1; box-shadow: inset 0 0 0 1px #d8c9b2; }
@@ -1473,7 +1475,7 @@
       }
       .enpl-ticket-page .gb_event_list > ul > li > .date { float: none; width: auto; min-width: 0; }
       .enpl-ticket-page .gb_event_list > ul > li > .date > p:first-child {
-        margin: 0 0 9px; font-size: 16px; font-weight: 600;
+        margin: 0 0 9px; font-size: 16px; font-weight: 400;
         line-height: 1.6; font-variant-numeric: tabular-nums; letter-spacing: 0;
       }
       .enpl-ticket-page .gb_event_list > ul > li > .date > p + p { margin: 0; }
@@ -1488,7 +1490,7 @@
         .enpl-ticket-page .gb_event_list > ul > li:has(> .date):has(> .event) { grid-template-columns: 140px minmax(0, 1fr); gap: 12px; }
         .enpl-ticket-page .gb_event_list > ul > li > .note_count { grid-column: 1; justify-self: start; }
       }
-      .enpl-ticket-page .enpl-profile-actors .enpl-participation-count { font-size: 14px; font-weight: 600; }
+      .enpl-ticket-page .enpl-profile-actors .enpl-participation-count { font-size: 14px; font-weight: 400; }
       .enpl-ticket-page :is(.enpl-profile-scale-note, .enpl-schedule-note, .enpl-schedule-meta, .enpl-schedule-gap) { font-size: 13px; line-height: 1.75; color: #6c6255; }
       .enpl-ticket-page :is(.enpl-schedule-calendar small, .enpl-schedule-time-label, .enpl-schedule-date-caption > small, .enpl-schedule-day-count) { font-size: 12px; letter-spacing: .025em; }
       .enpl-ticket-page .enpl-schedule-title { font-size: 17px; line-height: 1.7; }
@@ -1499,11 +1501,13 @@
       .enpl-ticket-page .enpl-personal-eyebrow { font-size: 12px; letter-spacing: .08em; }
       .enpl-ticket-page .enpl-venue-link { font-size: 12px; }
       .enpl-ticket-page :is(.enpl-profile-mode, .enpl-schedule-controls .enpl-interest-sort-button, .enpl-schedule-date-select, .enpl-schedule-title, .enpl-schedule-time, .enpl-schedule-date-caption > small, input, select, button) { font-family: var(--enpl-reading-font); }
-      .enpl-ticket-page .gb_event_list .event h4 a { line-height: 1.75; font-weight: 600; }
-      .enpl-ticket-page :is(.enpl-profile-compact > li > a, .enpl-followed-actor > a) { font-weight: 600; }
+      .enpl-ticket-page .gb_event_list .event h4 a { line-height: 1.75; font-weight: 400; }
+      .enpl-ticket-page :is(.enpl-profile-compact > li > a, .enpl-followed-actor > a) { font-weight: 400; }
       .enpl-ticket-page .gb_event_list .date > p:first-child { letter-spacing: .01em; }
       .enpl-ticket-page :is(.gb_event_list .date p, .gb_event_list .note_count p, .gb_score_table p) { font-family: var(--enpl-reading-font); }
 
+      .enpl-ticket-page :is(.page, .enpl-schedule, .enpl-profile-mode, .enpl-profile-compact > li > a, .enpl-profile-actors > li > a, input, select, button) { font-weight: 300; }
+      .enpl-ticket-page :is(h1, h2, h3, h4, strong, b, .enpl-personal-summary, .enpl-schedule-title, .enpl-schedule-time, .enpl-schedule-date-caption > span, .gb_event_list .note_count p, .enpl-participation-count) { font-weight: 400; }
       .enpl-ticket-page .enpl-personal-summary { color: #8c4533; font-family: var(--enpl-reading-font); font-size: 16px; letter-spacing: .02em; }
 
 
