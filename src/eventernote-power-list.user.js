@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.9
+// @version      0.15.10
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1502,6 +1502,7 @@
       .enpl-ticket-page .gb_event_list .event h4 a { line-height: 1.75; font-weight: 600; }
       .enpl-ticket-page :is(.enpl-profile-compact > li > a, .enpl-followed-actor > a) { font-weight: 600; }
       .enpl-ticket-page .gb_event_list .date > p:first-child { letter-spacing: .01em; }
+      .enpl-ticket-page :is(.gb_event_list .date p, .gb_event_list .note_count p, .gb_score_table p) { font-family: var(--enpl-reading-font); }
 
       .enpl-ticket-page .enpl-personal-summary { color: #8c4533; font-family: var(--enpl-reading-font); font-size: 16px; letter-spacing: .02em; }
 
