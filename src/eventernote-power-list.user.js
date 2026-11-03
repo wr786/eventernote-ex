@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.15
+// @version      0.15.16
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1073,7 +1073,7 @@
         letter-spacing: .01em;
         line-height: 1.4;
       }
-      .enpl-followed-actor > a { display: inline-flex; align-items: center; max-width: 100%; padding: 4px 9px; font-size: 12px; overflow-wrap: anywhere; text-decoration: none; }
+      .enpl-followed-actor > a { display: inline-flex; align-items: center; max-width: 100%; padding: 4px 9px; font-size: inherit; overflow-wrap: anywhere; text-decoration: none; }
       a.enpl-metal-chip { transition: filter 120ms ease-out, box-shadow 120ms ease-out; }
       a.enpl-metal-chip:hover { color: var(--enpl-metal-ink); text-decoration: none; }
       @media (hover: hover) {
@@ -1458,7 +1458,6 @@
       .enpl-ticket-page .gb_event_list .actor > ul > li:not(.enpl-followed-actor) > a:hover { color: #a94736; text-decoration: underline; text-underline-offset: 3px; }
       .enpl-ticket-page .gb_event_list .actor > ul > .enpl-followed-actor > a { padding: 3px 8px; }
       .enpl-ticket-page .gb_event_list .actor a:focus-visible { outline: 2px solid #a94736; outline-offset: 2px; }
-      .enpl-ticket-page .enpl-followed-actor > a { font-size: 14px; font-weight: 400; }
       .enpl-ticket-page .gb_event_list .date > p:first-child { font-size: 13px; line-height: 1.7; }
       .enpl-ticket-page .gb_event_list .date img { border: 1px solid #e0d5c3; }
       .enpl-ticket-page .gb_event_list .note_count p { background: #fffaf1; box-shadow: inset 0 0 0 1px #d8c9b2; }
@@ -1508,7 +1507,7 @@
 
       .enpl-ticket-page :is(h1, h2, h3, h4, strong, b, .enpl-personal-summary, .enpl-schedule-title, .enpl-schedule-time, .enpl-schedule-date-caption > span, .gb_event_list .note_count p, .enpl-participation-count) { font-weight: 400; }
       .enpl-ticket-page .enpl-personal-summary { color: #8c4533; font-size: 16px; letter-spacing: .02em; }
-      .enpl-ticket-page :is(.gb_subtitle, .gb_event_list .event h4, .gb_event_list .event h4 a, .gb_event_list .actor, .gb_event_list .actor li, .gb_event_list .actor a, .enpl-schedule-title, .enpl-personal h2, .enpl-personal h3, .enpl-personal-summary) {
+      .enpl-ticket-page :is(.gb_subtitle, .gb_event_list .event h4, .gb_event_list .event h4 a, .enpl-schedule-title, .enpl-personal h2, .enpl-personal h3, .enpl-personal-summary) {
         font-family: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", "Songti SC", serif;
         font-weight: 400; font-synthesis: none;
       }
