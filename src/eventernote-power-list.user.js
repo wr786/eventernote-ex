@@ -1636,6 +1636,7 @@
       body.enpl-ticket-page { --enpl-font-heading: var(--enpl-font-body); background: #f3f5f7; color: #303943; }
       .enpl-ticket-page a { color: #0866d9; }
       .enpl-ticket-page a:hover { color: #004baf; }
+      .enpl-ticket-page .enpl-followed-actor > a { color: var(--enpl-metal-ink); }
       .enpl-ticket-page .navbar-inner { background: #fff; border-bottom: 3px solid #0866d9; }
       .enpl-ticket-page .navbar .nav > li > a { color: #4b5865; }
       .enpl-ticket-page .navbar .nav > li > a:hover { color: #0866d9; background: #eef5ff; }
