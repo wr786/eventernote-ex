@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.16.1
+// @version      0.16.2
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -305,7 +305,7 @@
     let fullEvents = null;
     let loading = false;
     let dayLimit = 7;
-    const openedDates = new Set();
+    const collapsedDates = new Set();
 
     function make(tag, className, text) {
       const node = document.createElement(tag);
@@ -363,8 +363,8 @@
           previous = null;
           const day = make("details", "enpl-schedule-day", "");
           const key = event.date || "unknown";
-          day.open = openedDates.has(key) || datePicker.value === key;
-          day.addEventListener("toggle", () => { if (day.open) openedDates.add(key); else openedDates.delete(key); });
+          day.open = !collapsedDates.has(key);
+          day.addEventListener("toggle", () => { if (day.open) collapsedDates.delete(key); else collapsedDates.add(key); });
           group = make("div", "enpl-schedule-day-body", "");
           const header = make("summary", "enpl-schedule-day-header", "");
           const label = date ? new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "short", timeZone: "Asia/Tokyo" }).format(new Date(`${date}T12:00:00+09:00`)) : "日期未定";
