@@ -1641,7 +1641,9 @@
       .enpl-ticket-page .navbar .nav > li > a { color: #4b5865; }
       .enpl-ticket-page .navbar .nav > li > a:hover { color: #0866d9; background: #eef5ff; }
       .enpl-ticket-page .navbar .nav > .active > a { color: #0866d9; background: #eef5ff; border-color: #0866d9; }
-      .enpl-ticket-page .navbar .brand { background-color: #0866d9; border-radius: 4px; }
+      .enpl-ticket-page .navbar .logo img { filter: brightness(.28) grayscale(1); }
+      .enpl-ticket-page a.btn { color: #303943; }
+      .enpl-ticket-page a:is(.btn-primary, .btn-info, .btn-success, .btn-danger, .btn-inverse) { color: #fff; }
       .enpl-ticket-page :is(.span8.page, .span4.page) { background: #fff; box-shadow: none; }
       .enpl-ticket-page .span4.page { border-left: 1px solid #e1e6ec; }
       .enpl-ticket-page .gb_subtitle { color: #303943; background: #f0f2f5; border: 0; border-left: 4px solid #008cba; padding: 12px 14px; text-indent: 0; font-size: 20px; font-weight: 500; letter-spacing: 0; }
