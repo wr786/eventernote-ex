@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.16.10
+// @version      0.16.11
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -347,7 +347,7 @@
     let dayLimit = 7;
     const collapsedDates = new Set();
     const venueColors = new Map();
-    const routeColors = ["#21a557", "#2474d2", "#dc8425", "#9460bd", "#159a9c", "#d45b83", "#647b32", "#a75b39", "#5662ad", "#b38b13", "#458293", "#a3549b"];
+    const routeColors = ["#3478cf", "#9264bd", "#d98832", "#cf638b", "#5370ad", "#bc714d", "#8b66a4", "#bc595e", "#5e8bba", "#a58038", "#7778ad", "#a95787"];
 
     function make(tag, className, text) {
       const node = document.createElement(tag);
@@ -1679,7 +1679,7 @@
 
 
       /* Shared transit-guide surfaces; participation tiers keep their own colors. */
-      body.enpl-ticket-page.enpl-transit-page { --enpl-font-heading: var(--enpl-font-body); background: #f1f4f3; color: #333333; }
+      body.enpl-ticket-page.enpl-transit-page { --enpl-font-heading: var(--enpl-font-body); background: #f3f4f6; color: #333333; }
       .enpl-ticket-page.enpl-transit-page a { color: #006aff; }
       .enpl-ticket-page.enpl-transit-page a:hover { color: #0052cc; }
       .enpl-ticket-page.enpl-transit-page .enpl-followed-actor > a { color: var(--enpl-metal-ink); }
@@ -1773,15 +1773,15 @@
       .enpl-ticket-page.enpl-transit-page .enpl-profile-mode select { font-size: 13px; }
 
       .enpl-ticket-page.enpl-transit-page .gb_subtitle { background: #f0f5f9; border-bottom-color: #dae4ec; }
-      .enpl-ticket-page.enpl-transit-page .span4 .gb_subtitle { background: #edf4f0; color: #3d6650; }
-      .enpl-ticket-page.enpl-transit-page .enpl-personal { background: #f1f7f3; border-bottom-color: #d8e7dc; }
-      .enpl-ticket-page.enpl-transit-page .enpl-personal-summary { color: #3d6650; }
+      .enpl-ticket-page.enpl-transit-page .span4 .gb_subtitle { background: #eef2f7; color: #4b5d75; }
+      .enpl-ticket-page.enpl-transit-page .enpl-personal { background: #f3f5f8; border-bottom-color: #dce2eb; }
+      .enpl-ticket-page.enpl-transit-page .enpl-personal-summary { color: #4b5d75; }
       .enpl-ticket-page.enpl-transit-page .gb_score_table { background: #edf3fa; border-color: #d9e3ef; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-day-header { background: #f0f5f9; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-row .enpl-schedule-venue { color: var(--enpl-route); }
-      .enpl-ticket-page.enpl-transit-page .enpl-calendar-busy { background: #e2f2e8; color: #26774b; }
+      .enpl-ticket-page.enpl-transit-page .enpl-calendar-busy { background: #e6edf9; color: #3868aa; }
       .enpl-ticket-page.enpl-transit-page .enpl-calendar-today { border-color: #e1a849; }
-      .enpl-ticket-page.enpl-transit-page .enpl-recap-bar { background: linear-gradient(#56ad9e, #4487cb); }
+      .enpl-ticket-page.enpl-transit-page .enpl-recap-bar { background: linear-gradient(#8b83c3, #4487cb); }
 
       .navbar .enpl-theme-picker { position: absolute; top: 5px; right: 130px; z-index: 10; color: #ddd8ce; font: 13px/1.5 "Noto Sans JP", sans-serif; }
       .navbar .enpl-theme-picker summary { box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 36px; padding: 7px 12px; border-radius: 5px; cursor: pointer; list-style: none; }
