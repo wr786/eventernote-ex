@@ -1613,7 +1613,7 @@
       .enpl-ticket-page .enpl-schedule-row::after { content: ""; position: absolute; box-sizing: border-box; left: calc(var(--enpl-axis) - 9px); top: 27px; width: 18px; height: 18px; border: 5px solid var(--enpl-route); border-radius: 50%; background: #fff; }
       .enpl-ticket-page .enpl-schedule-clock { border: 0; padding: 0; gap: 3px; }
       .enpl-ticket-page .enpl-schedule-time { color: #0866d9; font-size: 22px; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
-      .enpl-ticket-page .enpl-schedule-title { color: #0866d9; font: 500 17px/1.65 var(--enpl-font-body); }
+      .enpl-ticket-page .enpl-schedule .enpl-schedule-row .enpl-schedule-title { color: #0866d9; font: 500 17px/1.65 var(--enpl-font-body); }
       .enpl-ticket-page .enpl-schedule-title:hover { color: #004baf; }
       .enpl-ticket-page .enpl-schedule-venue { color: #3f4953; margin-top: 8px; }
       .enpl-ticket-page .enpl-schedule-poster { border-color: #e2e6ea; background: #f7f8fa; }
