@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.16.2
+// @version      0.16.3
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1593,6 +1593,43 @@
         font-weight: 400; font-synthesis: none;
       }
 
+
+      /* Itinerary nodes follow the visual rhythm of Japanese transit guides. */
+      .enpl-ticket-page .enpl-schedule { --enpl-route: #008cba; color: #333b43; }
+      .enpl-ticket-page .enpl-schedule-day { border: 1px solid #e1e5e9; border-radius: 4px; background: #fff; overflow: hidden; }
+      .enpl-ticket-page .enpl-schedule-day-header { background: #f1f3f5; border-color: #e1e5e9; }
+      .enpl-ticket-page .enpl-schedule-calendar { border-color: #d7dce2; }
+      .enpl-ticket-page .enpl-schedule-calendar strong { color: #0866d9; }
+      .enpl-ticket-page .enpl-schedule-date-caption > span { color: #303943; }
+      .enpl-ticket-page .enpl-schedule :is(.enpl-schedule-calendar small, .enpl-schedule-date-caption > small, .enpl-schedule-time-label, .enpl-schedule-meta) { color: #64717e; }
+      .enpl-ticket-page .enpl-schedule-day-count { color: #0866d9; border-color: #bed5ee; background: #fff; border-radius: 5px; letter-spacing: 0; }
+      .enpl-ticket-page .enpl-schedule-day-header::after { color: #0866d9; }
+      .enpl-ticket-page .enpl-schedule-day-body { --enpl-axis: 100px; position: relative; }
+      .enpl-ticket-page .enpl-schedule-row { position: relative; grid-template-columns: 68px minmax(0, 1fr) auto; gap: 32px; padding: 22px 20px; background: #fff; }
+      .enpl-ticket-page .enpl-schedule-row::before { content: ""; position: absolute; left: calc(var(--enpl-axis) - 3px); top: 0; bottom: 0; width: 6px; background: var(--enpl-route); }
+      .enpl-ticket-page .enpl-schedule-row:first-child::before { top: 34px; }
+      .enpl-ticket-page .enpl-schedule-row:last-child::before { bottom: auto; height: 34px; }
+      .enpl-ticket-page .enpl-schedule-row:only-child::before { display: none; }
+      .enpl-ticket-page .enpl-schedule-row::after { content: ""; position: absolute; box-sizing: border-box; left: calc(var(--enpl-axis) - 9px); top: 27px; width: 18px; height: 18px; border: 5px solid var(--enpl-route); border-radius: 50%; background: #fff; }
+      .enpl-ticket-page .enpl-schedule-clock { border: 0; padding: 0; gap: 3px; }
+      .enpl-ticket-page .enpl-schedule-time { color: #0866d9; font-size: 22px; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+      .enpl-ticket-page .enpl-schedule-title { color: #0866d9; font: 500 17px/1.65 var(--enpl-font-body); }
+      .enpl-ticket-page .enpl-schedule-title:hover { color: #004baf; }
+      .enpl-ticket-page .enpl-schedule-venue { color: #3f4953; margin-top: 8px; }
+      .enpl-ticket-page .enpl-schedule-poster { border-color: #e2e6ea; background: #f7f8fa; }
+      .enpl-ticket-page .enpl-schedule-gap { position: relative; display: block; padding: 12px 20px 12px 120px; text-align: left; color: #596774; background: #f4f5f7; }
+      .enpl-ticket-page .enpl-schedule-gap::before { position: absolute; left: calc(var(--enpl-axis) - 3px); top: 0; bottom: 0; width: 0; min-width: 0; border: 0; border-left: 6px dotted #a9b5bf; }
+      .enpl-ticket-page .enpl-schedule-gap::after { display: none; }
+      .enpl-ticket-page .enpl-schedule-overlap { color: #ad303c; background: #fff0f1; }
+      .enpl-ticket-page .enpl-schedule-overlap::before { border-color: #d55a67; }
+      .enpl-ticket-page .enpl-schedule-day-header:active { background: #e5ebf2; }
+      .enpl-ticket-page .enpl-schedule :focus-visible { outline-color: #0866d9; }
+      @media (max-width: 600px) {
+        .enpl-ticket-page .enpl-schedule-day-body { --enpl-axis: 80px; }
+        .enpl-ticket-page .enpl-schedule-row { grid-template-columns: 56px minmax(0, 1fr); gap: 26px; padding: 20px 12px; }
+        .enpl-ticket-page .enpl-schedule-gap { padding: 12px 12px 12px 94px; }
+        .enpl-ticket-page .enpl-schedule-time { font-size: 19px; }
+      }
 
     `);
   }
