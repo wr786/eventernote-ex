@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.16.0
+// @version      0.16.1
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -326,7 +326,11 @@
         option.value = month;
         return option;
       }));
-      if (!months.length) monthPicker.append(make("option", "", "暂无予定"));
+      if (!months.length) {
+        const empty = make("option", "", "暂无予定");
+        empty.value = "";
+        monthPicker.append(empty);
+      }
       monthPicker.value = months.includes(selectedMonth) ? selectedMonth : (months[0] || "");
       monthPicker.disabled = !months.length;
       const monthEvents = events.filter((event) => (event.date.slice(0, 7) || "unknown") === monthPicker.value);
@@ -1171,7 +1175,7 @@
 
       .enpl-schedule-controls { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; margin: 0 0 16px; }
       .enpl-schedule-controls .enpl-interest-sort-button, .enpl-schedule-date-select {
-        box-sizing: border-box; width: auto; max-width: 100%; margin: 0; padding: 7px 12px;
+        box-sizing: border-box; width: auto; max-width: 100%; height: auto; min-height: 40px; margin: 0; padding: 7px 12px;
         border: 1px solid #d9d3c8; border-radius: 2px; color: #5d554c; background: #fffefb;
         font-size: 12px; line-height: 1.6; font-weight: 500;
       }
