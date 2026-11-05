@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.16.9
+// @version      0.16.10
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -346,6 +346,8 @@
     let loading = false;
     let dayLimit = 7;
     const collapsedDates = new Set();
+    const venueColors = new Map();
+    const routeColors = ["#21a557", "#2474d2", "#dc8425", "#9460bd", "#159a9c", "#d45b83", "#647b32", "#a75b39", "#5662ad", "#b38b13", "#458293", "#a3549b"];
 
     function make(tag, className, text) {
       const node = document.createElement(tag);
@@ -431,6 +433,10 @@
           group.append(make("p", gap !== null && gap < 0 ? "enpl-schedule-gap enpl-schedule-overlap" : "enpl-schedule-gap", label));
         }
         const row = make("article", "enpl-schedule-row", "");
+        const venueKey = event.venueHref ? getPathname(event.venueHref) : event.venue;
+        // shortcut: reuse the palette after 12 venues; expand it if larger itineraries need more colors.
+        if (venueKey && !venueColors.has(venueKey)) venueColors.set(venueKey, routeColors[venueColors.size % routeColors.length]);
+        row.style.setProperty("--enpl-route", venueColors.get(venueKey) || "#999");
         const clock = make("div", "enpl-schedule-clock", "");
         clock.append(make("span", "enpl-schedule-time", formatScheduleTime(event.start)), make("span", "enpl-schedule-time-label", "开演"));
         row.append(clock);
@@ -1650,7 +1656,7 @@
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-row:first-child::before { top: 27px; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-row:last-child::before { bottom: auto; height: 27px; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-row:only-child::before { display: none; }
-      .enpl-ticket-page.enpl-transit-page .enpl-schedule-row::after { content: ""; position: absolute; box-sizing: border-box; left: calc(var(--enpl-axis) - 7px); top: 21px; width: 14px; height: 14px; border: 2px solid #999; border-radius: 50%; background: #fff; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-row::after { content: ""; position: absolute; box-sizing: border-box; left: calc(var(--enpl-axis) - 7px); top: 21px; width: 14px; height: 14px; border: 2px solid var(--enpl-route); border-radius: 50%; background: #fff; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-clock { border: 0; padding: 0; gap: 3px; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-time { color: #333; font-size: 18px; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule .enpl-schedule-row .enpl-schedule-title { color: #333; font: 500 16px/1.5 var(--enpl-font-body); }
@@ -1673,7 +1679,7 @@
 
 
       /* Shared transit-guide surfaces; participation tiers keep their own colors. */
-      body.enpl-ticket-page.enpl-transit-page { --enpl-font-heading: var(--enpl-font-body); background: #fff; color: #333333; }
+      body.enpl-ticket-page.enpl-transit-page { --enpl-font-heading: var(--enpl-font-body); background: #f1f4f3; color: #333333; }
       .enpl-ticket-page.enpl-transit-page a { color: #006aff; }
       .enpl-ticket-page.enpl-transit-page a:hover { color: #0052cc; }
       .enpl-ticket-page.enpl-transit-page .enpl-followed-actor > a { color: var(--enpl-metal-ink); }
@@ -1685,7 +1691,7 @@
       .enpl-ticket-page.enpl-transit-page a.btn { color: #333333; }
       .enpl-ticket-page.enpl-transit-page a:is(.btn-primary, .btn-info, .btn-success, .btn-danger, .btn-inverse) { color: #fff; }
       .enpl-ticket-page.enpl-transit-page :is(.span8.page, .span4.page) { background: #fff; box-shadow: none; }
-      .enpl-ticket-page.enpl-transit-page .span4.page { box-shadow: inset 1px 0 0 #e5e5e5; }
+      .enpl-ticket-page.enpl-transit-page .span4.page { background: #f7f9fb; box-shadow: inset 1px 0 0 #e1e7ec; }
       .enpl-ticket-page.enpl-transit-page .gb_subtitle { color: #333333; background: #fff; border: 0; border-bottom: 1px solid #ddd; padding: 10px 14px; text-indent: 0; font-size: 17px; font-weight: 500; letter-spacing: 0; }
       .enpl-ticket-page.enpl-transit-page .span4 .gb_subtitle { border: 0; border-left: 0; font-size: 17px; }
       .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li { border-bottom: 1px solid #e2e7ec; }
@@ -1765,6 +1771,17 @@
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-time-label { font-size: 11px; }
       .enpl-ticket-page.enpl-transit-page .enpl-profile-mode { font-size: 13px; }
       .enpl-ticket-page.enpl-transit-page .enpl-profile-mode select { font-size: 13px; }
+
+      .enpl-ticket-page.enpl-transit-page .gb_subtitle { background: #f0f5f9; border-bottom-color: #dae4ec; }
+      .enpl-ticket-page.enpl-transit-page .span4 .gb_subtitle { background: #edf4f0; color: #3d6650; }
+      .enpl-ticket-page.enpl-transit-page .enpl-personal { background: #f1f7f3; border-bottom-color: #d8e7dc; }
+      .enpl-ticket-page.enpl-transit-page .enpl-personal-summary { color: #3d6650; }
+      .enpl-ticket-page.enpl-transit-page .gb_score_table { background: #edf3fa; border-color: #d9e3ef; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-day-header { background: #f0f5f9; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-row .enpl-schedule-venue { color: var(--enpl-route); }
+      .enpl-ticket-page.enpl-transit-page .enpl-calendar-busy { background: #e2f2e8; color: #26774b; }
+      .enpl-ticket-page.enpl-transit-page .enpl-calendar-today { border-color: #e1a849; }
+      .enpl-ticket-page.enpl-transit-page .enpl-recap-bar { background: linear-gradient(#56ad9e, #4487cb); }
 
       .navbar .enpl-theme-picker { position: absolute; top: 5px; right: 130px; z-index: 10; color: #ddd8ce; font: 13px/1.5 "Noto Sans JP", sans-serif; }
       .navbar .enpl-theme-picker summary { box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 36px; padding: 7px 12px; border-radius: 5px; cursor: pointer; list-style: none; }
