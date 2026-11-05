@@ -1645,7 +1645,7 @@
       .enpl-ticket-page a.btn { color: #303943; }
       .enpl-ticket-page a:is(.btn-primary, .btn-info, .btn-success, .btn-danger, .btn-inverse) { color: #fff; }
       .enpl-ticket-page :is(.span8.page, .span4.page) { background: #fff; box-shadow: none; }
-      .enpl-ticket-page .span4.page { border-left: 1px solid #e1e6ec; }
+      .enpl-ticket-page .span4.page { box-shadow: inset 1px 0 0 #e1e6ec; }
       .enpl-ticket-page .gb_subtitle { color: #303943; background: #f0f2f5; border: 0; border-left: 4px solid #008cba; padding: 12px 14px; text-indent: 0; font-size: 20px; font-weight: 500; letter-spacing: 0; }
       .enpl-ticket-page .span4 .gb_subtitle { border: 0; border-left: 3px solid #008cba; font-size: 17px; }
       .enpl-ticket-page .gb_event_list > ul > li { border-bottom: 1px solid #e2e7ec; }
