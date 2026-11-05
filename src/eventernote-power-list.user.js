@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.16.5
+// @version      0.16.6
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -70,12 +70,12 @@
   function applyThemePicker() {
     document.body.classList.toggle("enpl-transit-page", settings.theme !== "ticket");
     if (document.querySelector(".enpl-theme-picker")) return;
-    const navbar = document.querySelector(".navbar");
+    const navbar = document.querySelector(".navbar .nav-collapse");
     if (!navbar) return;
     const controls = document.createElement("div");
     controls.className = "enpl-theme-picker";
     const label = document.createElement("label");
-    label.append("外观");
+    label.title = "切换外观";
     const picker = document.createElement("select");
     picker.setAttribute("aria-label", "Eventernote EX 外观");
     [["ticket", "票务手册"], ["transit", "交通导视"]].forEach(([value, name]) => {
@@ -99,7 +99,7 @@
     });
     label.append(picker);
     controls.append(label, status);
-    navbar.insertAdjacentElement("afterend", controls);
+    navbar.append(controls);
   }
 
   function applyPopularity(item) {
@@ -1732,12 +1732,14 @@
       }
 
 
-      .enpl-theme-picker { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 8px; box-sizing: border-box; max-width: 1170px; margin: 0 auto; padding: 8px 14px; font: 13px/1.5 "Noto Sans JP", sans-serif; }
-      .enpl-theme-picker label { display: flex; align-items: center; gap: 8px; margin: 0; color: #59616b; font: inherit; }
-      .enpl-theme-picker select { box-sizing: border-box; width: auto; height: auto; min-height: 36px; margin: 0; padding: 6px 28px 6px 10px; border: 1px solid #cbd2dc; border-radius: 5px; color: #344352; background: #fff; font: inherit; }
-      .enpl-theme-picker select:focus-visible { outline: 2px solid #0866d9; outline-offset: 2px; }
-      .enpl-theme-picker [role="status"] { color: #8b4b34; }
-      .enpl-theme-picker [role="status"]:empty { display: none; }
+      .navbar .enpl-theme-picker { position: absolute; top: 6px; right: 210px; display: flex; align-items: center; font: 12px/1.5 "Noto Sans JP", sans-serif; }
+      .navbar .enpl-theme-picker label { margin: 0; font: inherit; }
+      .navbar .enpl-theme-picker select { box-sizing: border-box; width: 112px; height: 32px; margin: 0; padding: 4px 6px; border: 1px solid #696763; border-radius: 5px; color: #eeeae2; background: #3b3935; font: inherit; }
+      .enpl-transit-page .navbar .enpl-theme-picker select { color: #465767; background: #f4f7fb; border-color: #d4dce6; }
+      .navbar .enpl-theme-picker select:focus-visible { outline: 2px solid #168ac5; outline-offset: 2px; }
+      .navbar .enpl-theme-picker [role="status"] { position: absolute; top: 36px; right: 0; width: max-content; padding: 4px 8px; color: #8b4b34; background: #fff; border: 1px solid #d4dce6; border-radius: 4px; }
+      .navbar .enpl-theme-picker [role="status"]:empty { display: none; }
+      @media (max-width: 1199px) { .navbar .enpl-theme-picker { position: static; float: right; margin: 6px 12px; } }
 
     `);
   }
