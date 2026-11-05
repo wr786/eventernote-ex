@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.16.8
+// @version      0.16.9
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -1636,29 +1636,29 @@
 
       /* Itinerary nodes follow the visual rhythm of Japanese transit guides. */
       .enpl-ticket-page.enpl-transit-page .enpl-schedule { --enpl-route: #008cba; color: #333b43; }
-      .enpl-ticket-page.enpl-transit-page .enpl-schedule-day { border: 1px solid #e1e5e9; border-radius: 4px; background: #fff; overflow: hidden; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-day { border: 0; border-bottom: 1px solid #ddd; border-radius: 0; background: #fff; overflow: hidden; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-day-header { background: #f1f3f5; border-color: #e1e5e9; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-calendar { border-color: #d7dce2; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-calendar strong { color: #006aff; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-date-caption > span { color: #333333; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule :is(.enpl-schedule-calendar small, .enpl-schedule-date-caption > small, .enpl-schedule-time-label, .enpl-schedule-meta) { color: #707070; }
-      .enpl-ticket-page.enpl-transit-page .enpl-schedule-day-count { color: #006aff; border-color: #bed5ee; background: #fff; border-radius: 9px; letter-spacing: 0; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-day-count { color: #006aff; border-color: #bed5ee; background: #fff; border-radius: 3px; letter-spacing: 0; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-day-header::after { color: #006aff; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-day-body { --enpl-axis: 100px; position: relative; }
-      .enpl-ticket-page.enpl-transit-page .enpl-schedule-row { position: relative; grid-template-columns: 68px minmax(0, 1fr) auto; gap: 32px; padding: 22px 20px; background: #fff; }
-      .enpl-ticket-page.enpl-transit-page .enpl-schedule-row::before { content: ""; position: absolute; left: calc(var(--enpl-axis) - 3px); top: 0; bottom: 0; width: 6px; background: var(--enpl-route); }
-      .enpl-ticket-page.enpl-transit-page .enpl-schedule-row:first-child::before { top: 34px; }
-      .enpl-ticket-page.enpl-transit-page .enpl-schedule-row:last-child::before { bottom: auto; height: 34px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-row { position: relative; grid-template-columns: 68px minmax(0, 1fr) auto; gap: 32px; padding: 16px 20px; background: #fff; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-row::before { content: ""; position: absolute; left: calc(var(--enpl-axis) - 1.5px); top: 0; bottom: 0; width: 3px; background: var(--enpl-route); }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-row:first-child::before { top: 27px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-row:last-child::before { bottom: auto; height: 27px; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-row:only-child::before { display: none; }
-      .enpl-ticket-page.enpl-transit-page .enpl-schedule-row::after { content: ""; position: absolute; box-sizing: border-box; left: calc(var(--enpl-axis) - 9px); top: 27px; width: 18px; height: 18px; border: 5px solid var(--enpl-route); border-radius: 50%; background: #fff; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-row::after { content: ""; position: absolute; box-sizing: border-box; left: calc(var(--enpl-axis) - 7px); top: 21px; width: 14px; height: 14px; border: 2px solid #999; border-radius: 50%; background: #fff; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-clock { border: 0; padding: 0; gap: 3px; }
-      .enpl-ticket-page.enpl-transit-page .enpl-schedule-time { color: #006aff; font-size: 22px; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
-      .enpl-ticket-page.enpl-transit-page .enpl-schedule .enpl-schedule-row .enpl-schedule-title { color: #006aff; font: 500 17px/1.65 var(--enpl-font-body); }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-time { color: #333; font-size: 18px; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule .enpl-schedule-row .enpl-schedule-title { color: #333; font: 500 16px/1.5 var(--enpl-font-body); }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-title:hover { color: #0052cc; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-venue { color: #3f4953; margin-top: 8px; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-poster { border-color: #e2e6ea; background: #f7f8fa; }
-      .enpl-ticket-page.enpl-transit-page .enpl-schedule-gap { position: relative; display: block; padding: 12px 20px 12px 120px; text-align: left; color: #596774; background: #f4f5f7; }
-      .enpl-ticket-page.enpl-transit-page .enpl-schedule-gap::before { position: absolute; left: calc(var(--enpl-axis) - 3px); top: 0; bottom: 0; width: 0; min-width: 0; border: 0; border-left: 6px dotted #a9b5bf; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-gap { position: relative; display: block; padding: 12px 20px 12px 120px; text-align: left; color: #596774; background: #fff; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-gap::before { position: absolute; left: calc(var(--enpl-axis) - 1.5px); top: 0; bottom: 0; width: 0; min-width: 0; border: 0; border-left: 3px dotted #999; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-gap::after { display: none; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-overlap { color: #ad303c; background: #fff0f1; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-overlap::before { border-color: #d55a67; }
@@ -1666,14 +1666,14 @@
       .enpl-ticket-page.enpl-transit-page .enpl-schedule :focus-visible { outline-color: #006aff; }
       @media (max-width: 600px) {
         .enpl-ticket-page.enpl-transit-page .enpl-schedule-day-body { --enpl-axis: 80px; }
-        .enpl-ticket-page.enpl-transit-page .enpl-schedule-row { grid-template-columns: 56px minmax(0, 1fr); gap: 26px; padding: 20px 12px; }
+        .enpl-ticket-page.enpl-transit-page .enpl-schedule-row { grid-template-columns: 56px minmax(0, 1fr); gap: 26px; padding: 16px 12px; }
         .enpl-ticket-page.enpl-transit-page .enpl-schedule-gap { padding: 12px 12px 12px 94px; }
         .enpl-ticket-page.enpl-transit-page .enpl-schedule-time { font-size: 19px; }
       }
 
 
       /* Shared transit-guide surfaces; participation tiers keep their own colors. */
-      body.enpl-ticket-page.enpl-transit-page { --enpl-font-heading: var(--enpl-font-body); background: #f5f5f5; color: #333333; }
+      body.enpl-ticket-page.enpl-transit-page { --enpl-font-heading: var(--enpl-font-body); background: #fff; color: #333333; }
       .enpl-ticket-page.enpl-transit-page a { color: #006aff; }
       .enpl-ticket-page.enpl-transit-page a:hover { color: #0052cc; }
       .enpl-ticket-page.enpl-transit-page .enpl-followed-actor > a { color: var(--enpl-metal-ink); }
@@ -1686,10 +1686,10 @@
       .enpl-ticket-page.enpl-transit-page a:is(.btn-primary, .btn-info, .btn-success, .btn-danger, .btn-inverse) { color: #fff; }
       .enpl-ticket-page.enpl-transit-page :is(.span8.page, .span4.page) { background: #fff; box-shadow: none; }
       .enpl-ticket-page.enpl-transit-page .span4.page { box-shadow: inset 1px 0 0 #e5e5e5; }
-      .enpl-ticket-page.enpl-transit-page .gb_subtitle { color: #333333; background: #f3f3f3; border: 0; border-left: 0; padding: 12px 14px; text-indent: 0; font-size: 20px; font-weight: 500; letter-spacing: 0; }
+      .enpl-ticket-page.enpl-transit-page .gb_subtitle { color: #333333; background: #fff; border: 0; border-bottom: 1px solid #ddd; padding: 10px 14px; text-indent: 0; font-size: 17px; font-weight: 500; letter-spacing: 0; }
       .enpl-ticket-page.enpl-transit-page .span4 .gb_subtitle { border: 0; border-left: 0; font-size: 17px; }
       .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li { border-bottom: 1px solid #e2e7ec; }
-      .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li > .event h4 a { color: #006aff; font-weight: 500; }
+      .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li > .event h4 a { color: #333; font-weight: 500; font-size: 16px; line-height: 1.5; }
       .enpl-ticket-page.enpl-transit-page .gb_event_list .event .place { color: #555555; }
       .enpl-ticket-page.enpl-transit-page .gb_event_list .date img { border-color: #e0e5eb; background: #f7f8fa; }
       .enpl-ticket-page.enpl-transit-page .gb_event_list .actor > ul > li:first-child:not(:has(a)) { color: #687582; }
@@ -1699,25 +1699,25 @@
       .enpl-ticket-page.enpl-transit-page .gb_score_table { background: #f1f4f8; border-color: #dbe2ea; }
       .enpl-ticket-page.enpl-transit-page .gb_score_table a { color: #006aff; }
       .enpl-ticket-page.enpl-transit-page .enpl-profile-mode { color: #566574; }
-      .enpl-ticket-page.enpl-transit-page .enpl-profile-mode select { background: #fff; border-color: #cdd6e0; color: #344352; border-radius: 9px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-profile-mode select { background: #fff; border-color: #cdd6e0; color: #344352; border-radius: 3px; }
       .enpl-ticket-page.enpl-transit-page .enpl-profile-actors { border-color: #dfe5ec; background: #fff; }
       .enpl-ticket-page.enpl-transit-page .enpl-profile-actors > li + li > a { border-color: #e8ecf1; }
       .enpl-ticket-page.enpl-transit-page .enpl-profile-actors > li > a:hover { background: #f3f7fc; }
       .enpl-ticket-page.enpl-transit-page :is(.enpl-profile-scale-note, .enpl-personal-note, .enpl-schedule-note) { color: #707070; }
-      .enpl-ticket-page.enpl-transit-page .enpl-personal { background: #fff; border: 1px solid #dbe2ea; border-left: 1px solid #dbe2ea; border-radius: 10px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-personal { background: #fff; border: 1px solid #dbe2ea; border-left: 1px solid #dbe2ea; border-radius: 3px; }
       .enpl-ticket-page.enpl-transit-page .enpl-personal-summary { color: #006aff; font-weight: 500; }
       .enpl-ticket-page.enpl-transit-page .enpl-personal :is(h2, h3) { color: #333333; }
       .enpl-ticket-page.enpl-transit-page .enpl-personal-eyebrow { color: #707070; }
       .enpl-ticket-page.enpl-transit-page .enpl-personal-tabs { border-color: #e0e6ed; }
       .enpl-ticket-page.enpl-transit-page :is(.enpl-personal-button, .enpl-interest-sort-button, .enpl-schedule-date-select),
-      .enpl-ticket-page.enpl-transit-page .enpl-personal :is(input[type="month"], select) { color: #006aff; background: #fff; border: 1px solid #c6d5e8; border-radius: 9px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-personal :is(input[type="month"], select) { color: #006aff; background: #fff; border: 1px solid #c6d5e8; border-radius: 3px; }
       .enpl-ticket-page.enpl-transit-page :is(.enpl-personal-button, .enpl-interest-sort-button):hover:not(:disabled) { color: #0052cc; background: #edf5ff; border-color: #8db5e9; }
       .enpl-ticket-page.enpl-transit-page .enpl-personal-tabs [aria-pressed="true"],
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-controls .enpl-interest-sort-button[aria-pressed="true"] { color: #fff; background: #006aff; border-color: #006aff; }
-      .enpl-ticket-page.enpl-transit-page .enpl-personal-stats > div { background: #f4f7fb; border-color: #dfe6ef; border-radius: 9px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-personal-stats > div { background: #f4f7fb; border-color: #dfe6ef; border-radius: 3px; }
       .enpl-ticket-page.enpl-transit-page .enpl-personal-stats strong { color: #006aff; }
       .enpl-ticket-page.enpl-transit-page :is(.enpl-calendar-weekday, .enpl-personal-stats span, .enpl-recap-months > div, .enpl-personal-empty) { color: #707070; }
-      .enpl-ticket-page.enpl-transit-page .enpl-calendar-day { color: #526171; background: #f4f6f8; border-radius: 9px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-calendar-day { color: #526171; background: #f4f6f8; border-radius: 3px; }
       .enpl-ticket-page.enpl-transit-page .enpl-calendar-busy { color: #0754b5; background: #deedff; font-weight: 500; }
       .enpl-ticket-page.enpl-transit-page .enpl-calendar-today { border-color: #006aff; }
       .enpl-ticket-page.enpl-transit-page .enpl-calendar-day[aria-pressed="true"] { outline-color: #006aff; }
@@ -1735,20 +1735,36 @@
       }
 
 
-      .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li > .date { box-sizing: border-box; padding: 8px; border-radius: 8px; background: #f4f4f4; }
+      .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li > .date { box-sizing: border-box; padding: 0; border-radius: 0; background: transparent; }
       .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li > .date > p:first-child { font-weight: 500; }
-      .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li > .note_count p { color: #006aff; background: #fff; box-shadow: inset 0 0 0 1px #9dc2ff; border-radius: 9px; font-size: 22px; }
-      .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li > .note_count .enpl-note-count-hot { color: #d04837; box-shadow: inset 0 0 0 1px #e9a89f; }
-      .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li > .note_count .enpl-note-count-very-hot { color: #be263a; box-shadow: inset 0 0 0 1px #de8a98; }
+      .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li > .note_count p { color: #555; background: transparent; box-shadow: none; border-radius: 0; font-size: 20px; }
+      .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li > .note_count .enpl-note-count-hot { color: #d04837; box-shadow: none; }
+      .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li > .note_count .enpl-note-count-very-hot { color: #be263a; box-shadow: none; }
       .enpl-ticket-page.enpl-transit-page .gb_score_table { background: #f5f5f5; border-color: #e1e1e1; }
       .enpl-ticket-page.enpl-transit-page .enpl-personal-summary { color: #333; }
-      .enpl-ticket-page.enpl-transit-page .enpl-personal { border-color: #dedede; background: #f7f7f7; }
-      .enpl-ticket-page.enpl-transit-page .enpl-schedule-day-header { background: #f3f3f3; }
+      .enpl-ticket-page.enpl-transit-page .enpl-personal { border: 0; border-bottom: 1px solid #ddd; background: #fff; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-day-header { background: #fff; }
       .enpl-ticket-page.enpl-transit-page .enpl-schedule-title { font-size: 18px; }
-      .enpl-ticket-page.enpl-transit-page :is(.enpl-schedule-day-count, .enpl-date-search-link, .enpl-venue-link) { border-radius: 6px; background: #fff; border-color: #bdd4fa; }
+      .enpl-ticket-page.enpl-transit-page :is(.enpl-schedule-day-count, .enpl-date-search-link, .enpl-venue-link) { border: 0; border-radius: 0; background: transparent; padding: 0 3px; }
       .enpl-ticket-page.enpl-transit-page .page table { border-color: #ddd; }
       .enpl-ticket-page.enpl-transit-page .page table th { background: #f3f3f3; color: #555; }
       .enpl-ticket-page.enpl-transit-page .navbar .search_box input[type="text"] { border-radius: 8px; background: #f4f4f4; border-color: #ddd; box-shadow: none; }
+
+      .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li:has(> .date):has(> .event) { padding: 12px 14px !important; gap: 14px; }
+      .enpl-ticket-page.enpl-transit-page .gb_event_list .event .place { margin: 3px 0; font-size: 13px; line-height: 1.6; }
+      .enpl-ticket-page.enpl-transit-page .gb_event_list .event .actor { margin-top: 6px; font-size: 13px; line-height: 1.6; }
+      .enpl-ticket-page.enpl-transit-page .gb_event_list .actor > ul { gap: 2px 8px; }
+      .enpl-ticket-page.enpl-transit-page .gb_event_list > ul > li > .date > p:first-child { font-size: 14px; margin-bottom: 6px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-day-header { padding: 10px 16px; border-bottom: 1px solid #ddd; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-calendar { display: flex; align-items: baseline; gap: 5px; border: 0; padding: 0; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-calendar strong { color: #333; font-size: 20px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-date { gap: 12px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-date-caption { display: flex; align-items: baseline; gap: 8px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-venue { margin-top: 5px; font-size: 13px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-meta { margin-top: 3px; font-size: 12px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-schedule-time-label { font-size: 11px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-profile-mode { font-size: 13px; }
+      .enpl-ticket-page.enpl-transit-page .enpl-profile-mode select { font-size: 13px; }
 
       .navbar .enpl-theme-picker { position: absolute; top: 5px; right: 130px; z-index: 10; color: #ddd8ce; font: 13px/1.5 "Noto Sans JP", sans-serif; }
       .navbar .enpl-theme-picker summary { box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 36px; padding: 7px 12px; border-radius: 5px; cursor: pointer; list-style: none; }
