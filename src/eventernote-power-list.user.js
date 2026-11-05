@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.15.25
+// @version      0.16.0
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -264,9 +264,9 @@
     const container = heading && heading.nextElementSibling;
     if (!container || !container.classList.contains("gb_event_list")) return;
     const eventItems = getEventItems(container);
-    if (!eventItems.length) return;
-    const list = eventItems[0].parentElement;
-    if (!list || eventItems.some((item) => item.parentElement !== list)) return;
+    if (!ownPath) return;
+    const list = eventItems[0]?.parentElement || container.querySelector("ul") || container.appendChild(document.createElement("ul"));
+    if (eventItems.some((item) => item.parentElement !== list)) return;
 
     let controls = list.previousElementSibling;
     if (!controls || !controls.classList.contains("enpl-interest-sort-controls")) {
@@ -280,17 +280,32 @@
     button.className = "enpl-interest-sort-button";
     button.textContent = "参加予定的行程";
     button.setAttribute("aria-pressed", "false");
-    const datePicker = document.createElement("select");
-    datePicker.className = "enpl-schedule-date-select";
-    datePicker.setAttribute("aria-label", "行程日期");
-    datePicker.hidden = true;
-    controls.append(" ", button, " ", datePicker);
+    controls.append(button);
     const view = document.createElement("section");
     view.className = "enpl-schedule";
     view.setAttribute("aria-label", "我的参加予定行程");
     view.hidden = true;
     list.insertAdjacentElement("afterend", view);
+    const toolbar = make("div", "enpl-schedule-controls enpl-schedule-toolbar", "");
+    const monthPicker = make("select", "enpl-schedule-date-select", "");
+    monthPicker.setAttribute("aria-label", "行程月份");
+    const datePicker = make("select", "enpl-schedule-date-select", "");
+    datePicker.setAttribute("aria-label", "行程日期");
+    const load = make("button", "enpl-interest-sort-button", "加载完整予定");
+    load.type = "button";
+    const status = make("p", "enpl-schedule-note", "");
+    status.setAttribute("role", "status");
+    const days = make("div", "enpl-schedule-days", "");
+    const more = make("button", "enpl-interest-sort-button", "");
+    more.type = "button";
+    more.hidden = true;
+    toolbar.append(monthPicker, datePicker, load);
+    view.append(toolbar, status, days, more, make("p", "enpl-schedule-note", "※ 按日本日期显示今天及之后的本人登记 · 间隔不含路程，终演以页面为准"));
     let active = false;
+    let fullEvents = null;
+    let loading = false;
+    let dayLimit = 7;
+    const openedDates = new Set();
 
     function make(tag, className, text) {
       const node = document.createElement(tag);
@@ -300,11 +315,24 @@
     }
 
     function refresh() {
-      const events = Array.from(list.children).map(readScheduleEvent).filter(Boolean);
-      events.sort((left, right) => (left.date || "\uffff").localeCompare(right.date || "\uffff") || (left.start ?? 1440) - (right.start ?? 1440));
-      const selectedDate = datePicker.value || "";
-      const dates = Array.from(new Set(events.map((event) => event.date || "unknown")));
-      const allDates = make("option", "", "全部日期");
+      const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Tokyo" });
+      const unique = new Map((fullEvents || Array.from(list.children).map(readScheduleEvent).filter(Boolean))
+        .filter((event) => !event.date || event.date >= today).map((event) => [getPathname(event.href), event]));
+      const events = Array.from(unique.values()).sort((left, right) => (left.date || "\uffff").localeCompare(right.date || "\uffff") || (left.start ?? 1440) - (right.start ?? 1440));
+      const selectedMonth = monthPicker.value;
+      const months = Array.from(new Set(events.map((event) => event.date.slice(0, 7) || "unknown")));
+      monthPicker.replaceChildren(...months.map((month) => {
+        const option = make("option", "", month === "unknown" ? "日期未定" : `${month.replace("-", " 年 ")} 月`);
+        option.value = month;
+        return option;
+      }));
+      if (!months.length) monthPicker.append(make("option", "", "暂无予定"));
+      monthPicker.value = months.includes(selectedMonth) ? selectedMonth : (months[0] || "");
+      monthPicker.disabled = !months.length;
+      const monthEvents = events.filter((event) => (event.date.slice(0, 7) || "unknown") === monthPicker.value);
+      const selectedDate = datePicker.value;
+      const dates = Array.from(new Set(monthEvents.map((event) => event.date || "unknown")));
+      const allDates = make("option", "", "本月全部日期");
       allDates.value = "";
       datePicker.replaceChildren(allDates);
       dates.forEach((date) => {
@@ -313,18 +341,28 @@
         datePicker.append(option);
       });
       datePicker.value = dates.includes(selectedDate) ? selectedDate : "";
+      datePicker.disabled = !dates.length;
+      const selectedDates = datePicker.value ? [datePicker.value] : dates;
+      const shownDates = selectedDates.slice(0, dayLimit);
       const fragment = document.createDocumentFragment();
-      fragment.append(make("p", "enpl-schedule-note", "当前主页的参加予定 · 按开演时间排列 · 间隔不含路程，终演时间以页面为准"));
+      if (!loading) status.textContent = `${fullEvents ? "完整予定" : "主页预览（尚未加载完整予定）"} · 共 ${events.length} 场 · 本月 ${monthEvents.length} 场 / ${dates.length} 天 · 显示 ${shownDates.length} 天`;
+      if (!events.length) fragment.append(make("p", "enpl-schedule-note", fullEvents ? "今天及之后没有登记予定。" : "主页暂无未来予定，可点击「加载完整予定」继续查找。"));
+      more.hidden = selectedDates.length <= dayLimit;
+      more.textContent = `显示更多日期（还有 ${Math.max(0, selectedDates.length - dayLimit)} 天）`;
       let date;
       let previous;
       let group;
-      const visibleEvents = events.filter((event) => !datePicker.value || (event.date || "unknown") === datePicker.value);
+      const visibleEvents = monthEvents.filter((event) => shownDates.includes(event.date || "unknown"));
       visibleEvents.forEach((event) => {
         if (event.date !== date || !group) {
           date = event.date;
           previous = null;
-          group = make("div", "enpl-schedule-day", "");
-          const header = make("div", "enpl-schedule-day-header", "");
+          const day = make("details", "enpl-schedule-day", "");
+          const key = event.date || "unknown";
+          day.open = openedDates.has(key) || datePicker.value === key;
+          day.addEventListener("toggle", () => { if (day.open) openedDates.add(key); else openedDates.delete(key); });
+          group = make("div", "enpl-schedule-day-body", "");
+          const header = make("summary", "enpl-schedule-day-header", "");
           const label = date ? new Intl.DateTimeFormat("zh-CN", { month: "long", day: "numeric", weekday: "short", timeZone: "Asia/Tokyo" }).format(new Date(`${date}T12:00:00+09:00`)) : "日期未定";
           const heading = make("h3", "enpl-schedule-date", "");
           heading.setAttribute("aria-label", date ? `${date} · ${label}` : label);
@@ -337,8 +375,8 @@
             heading.append(calendar, caption);
           } else heading.textContent = label;
           header.append(heading, make("span", "enpl-schedule-day-count", `${visibleEvents.filter((entry) => entry.date === date).length} 场活动`));
-          group.append(header);
-          fragment.append(group);
+          day.append(header, group);
+          fragment.append(day);
         }
         if (previous && event.start !== null) {
           const gap = previous.end === null || previous.start === null || previous.end < previous.start ? null : event.start - previous.end;
@@ -372,7 +410,7 @@
         group.append(row);
         previous = event;
       });
-      view.replaceChildren(fragment);
+      days.replaceChildren(fragment);
     }
 
     button.addEventListener("click", () => {
@@ -380,12 +418,32 @@
       if (active) refresh();
       list.classList.toggle("enpl-schedule-source-hidden", active);
       view.hidden = !active;
-      datePicker.hidden = !active;
       button.textContent = active ? "返回参加予定列表" : "参加予定的行程";
       button.setAttribute("aria-pressed", String(active));
     });
-    datePicker.addEventListener("change", refresh);
-    new MutationObserver(() => { if (active) refresh(); }).observe(list, { childList: true });
+    monthPicker.addEventListener("change", () => { dayLimit = 7; datePicker.value = ""; refresh(); });
+    datePicker.addEventListener("change", () => { dayLimit = 7; refresh(); });
+    more.addEventListener("click", () => { dayLimit += 7; refresh(); });
+    load.addEventListener("click", async () => {
+      if (loading) return;
+      loading = true;
+      load.disabled = true;
+      view.setAttribute("aria-busy", "true");
+      try {
+        const result = await loadPersonalRecords(ownPath, (message) => { status.textContent = message; }, fullEvents !== null);
+        fullEvents = result.records;
+        load.textContent = "刷新完整予定";
+        loading = false;
+        refresh();
+      } catch (error) {
+        status.textContent = `读取未完成：${error.message}。${fullEvents ? "保留上次完整予定" : "保留主页预览"}，可重试。`;
+      } finally {
+        loading = false;
+        load.disabled = false;
+        view.removeAttribute("aria-busy");
+      }
+    });
+    new MutationObserver(() => { if (active && !fullEvents) refresh(); }).observe(list, { childList: true });
   }
 
   function getOwnProfilePath() {
@@ -1125,6 +1183,19 @@
       .enpl-schedule { margin: 12px 0; color: #393630; }
       .enpl-schedule-note { margin: 0 4px 16px; color: #7c756a; font-size: 11px; line-height: 1.8; }
       .enpl-schedule-day { margin-bottom: 24px; padding: 0; border: 1px solid #ded7ca; border-top: 3px solid #ae4937; border-radius: 2px; background: #fffefb; }
+      .enpl-schedule-toolbar { justify-content: flex-start; }
+      .enpl-schedule > .enpl-interest-sort-button { margin: 0 4px 12px; }
+      .enpl-schedule [hidden] { display: none !important; }
+      .enpl-schedule-day > summary { cursor: pointer; list-style: none; }
+      .enpl-schedule-day > summary::-webkit-details-marker { display: none; }
+      .enpl-schedule-day > summary::after { content: "+"; color: #a94736; font-size: 20px; }
+      .enpl-schedule-day[open] > summary::after { content: "−"; }
+      .enpl-schedule-day > summary:focus-visible { outline: 2px solid #a94736; outline-offset: 2px; }
+      .enpl-schedule-day:not([open]) { margin-bottom: 10px; border-top-width: 1px; }
+      .enpl-schedule-day:not([open]) > summary { padding: 10px 16px; border-bottom: 0; }
+      .enpl-schedule-day:not([open]) .enpl-schedule-calendar { display: flex; align-items: baseline; gap: 5px; }
+      .enpl-schedule-day:not([open]) .enpl-schedule-calendar strong { font-size: 24px; }
+      .enpl-schedule-day-count { margin-left: auto; }
       .enpl-schedule-day-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #ded7ca; background: #faf7f0; }
       .enpl-schedule-date { display: flex; align-items: center; gap: 16px; margin: 0; font-size: 15px; line-height: 1.5; font-weight: 500; }
       .enpl-schedule-calendar { display: grid; justify-items: center; gap: 1px; min-width: 44px; padding-right: 16px; border-right: 1px solid #ded7ca; }

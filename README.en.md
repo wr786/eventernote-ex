@@ -72,9 +72,14 @@ Click **“读取完整参加记录”** to load your records page by page, up t
 
 ### Planned-event itinerary
 
-Open it in your profile's planned-event section to group events by date and start time. Filter dates, view venues, doors-open and end times, gaps and overlap cues, or return to the list.
+Your profile → **参加予定的行程** → **加载完整予定** (load complete plans).
 
-This itinerary uses **only your own plans currently listed on the profile**. Search results and followed-performer event suggestions are excluded. Its scope differs from the calendar backed by complete records.
+- **Preview → complete plans**: reuse the full-record loader, deduplicate events, and keep your own registrations dated today or later in Japan. Progress is shown; failures preserve existing results for retry.
+- **Month → day**: start at the nearest month with plans. Days are collapsed summaries; expand one or filter a specific date.
+- **Seven dates at a time**: show more dates in batches without stretching the whole page at once.
+- **Daily itinerary**: start-time order, venues, doors-open/end times, gaps, and overlap cues.
+
+※ Only your own registrations are included. Full records share the calendar and count filters' in-page cache, with a 100-page limit. Gaps exclude travel; unknown or overnight times need checking.
 
 ## Data and limitations
 
