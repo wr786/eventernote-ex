@@ -8,6 +8,8 @@ Make event discovery, personal plans, and attendance recaps easier on [Eventerno
 
 Ad hiding: known site ad containers, including Google and Rakuten placements, are hidden with their reserved space. Matching containers inserted later are also hidden. This hides page elements; it does not block network requests.
 
+Appearance: use “外观 → 页面风格” to choose the original site appearance, Ticket, Transit, or Idol Pop. Original mode preserves the site’s appearance and list spacing while keeping EX features. Your preference is saved locally.
+
 ## Quick start
 
 1. Install a userscript manager such as Tampermonkey or Violentmonkey in your browser.

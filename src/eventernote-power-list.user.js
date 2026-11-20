@@ -50,9 +50,7 @@
   }
 
   function applyEnhancements() {
-    document.body.classList.add("enpl-ticket-page");
     applyThemePicker();
-    document.body.classList.toggle("enpl-compact-enabled", settings.compactEnabled);
 
     const eventItems = getEventItems();
     eventItems.forEach((item) => {
@@ -68,7 +66,9 @@
   }
 
   function applyThemePicker() {
-    if (!["ticket", "transit", "pop"].includes(settings.theme)) settings.theme = "transit";
+    if (!["original", "ticket", "transit", "pop"].includes(settings.theme)) settings.theme = "transit";
+    document.body.classList.toggle("enpl-ticket-page", settings.theme !== "original");
+    document.body.classList.toggle("enpl-compact-enabled", settings.compactEnabled && settings.theme !== "original");
     document.body.classList.toggle("enpl-transit-page", settings.theme === "transit");
     document.body.classList.toggle("enpl-pop-page", settings.theme === "pop");
     if (document.querySelector(".enpl-theme-picker")) return;
@@ -82,7 +82,7 @@
     label.append("页面风格");
     const picker = document.createElement("select");
     picker.setAttribute("aria-label", "Eventernote EX 外观");
-    [["ticket", "票务手册"], ["transit", "交通导视"], ["pop", "偶像 Pop"]].forEach(([value, name]) => {
+    [["original", "原版（网站默认）"], ["ticket", "票务手册"], ["transit", "交通导视"], ["pop", "偶像 Pop"]].forEach(([value, name]) => {
       const option = document.createElement("option");
       option.value = value;
       option.textContent = name;
