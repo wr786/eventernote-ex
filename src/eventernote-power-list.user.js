@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Eventernote EX
 // @namespace    https://github.com/wr786/eventernote-power-list
-// @version      0.17.0
+// @version      0.18.0
 // @description  Eventernote UI enhancements: personal calendars, annual recaps, milestone countdowns, planned-event itineraries, weighted followed-actor recommendations, milestone gradients, popularity cues, venue maps, and profile participation counts.
 // @author       wr786
 // @match        https://www.eventernote.com/*
@@ -68,9 +68,10 @@
   }
 
   function applyThemePicker() {
-    if (!["ticket", "transit", "pop"].includes(settings.theme)) settings.theme = "transit";
+    if (!["ticket", "transit", "pop", "openrouter"].includes(settings.theme)) settings.theme = "transit";
     document.body.classList.toggle("enpl-transit-page", settings.theme === "transit");
     document.body.classList.toggle("enpl-pop-page", settings.theme === "pop");
+    document.body.classList.toggle("enpl-openrouter-page", settings.theme === "openrouter");
     if (document.querySelector(".enpl-theme-picker")) return;
     const navbar = document.querySelector(".navbar .nav-collapse");
     if (!navbar) return;
@@ -82,7 +83,7 @@
     label.append("页面风格");
     const picker = document.createElement("select");
     picker.setAttribute("aria-label", "Eventernote EX 外观");
-    [["ticket", "票务手册"], ["transit", "交通导视"], ["pop", "偶像 Pop"]].forEach(([value, name]) => {
+    [["ticket", "票务手册"], ["transit", "交通导视"], ["pop", "偶像 Pop"], ["openrouter", "OpenRouter"]].forEach(([value, name]) => {
       const option = document.createElement("option");
       option.value = value;
       option.textContent = name;
@@ -1866,6 +1867,61 @@
       .enpl-ticket-page.enpl-pop-page :focus-visible { outline-color: #c7376b; }
       @media (hover: hover) { .enpl-ticket-page.enpl-pop-page .enpl-schedule-row:hover { background: #f9f7ff; } }
       @media (prefers-contrast: more) { .enpl-ticket-page.enpl-pop-page :is(.gb_subtitle, .enpl-personal, .enpl-profile-actors, .enpl-schedule-day) { border: 1px solid #66738b; } }
+
+
+      /* OpenRouter-inspired tool skin: neutral surfaces and indigo interactions. */
+      body.enpl-ticket-page.enpl-openrouter-page {
+        --enpl-font-body: system-ui, -apple-system, "Hiragino Sans", "Yu Gothic", "PingFang SC", "Noto Sans SC", sans-serif;
+        --enpl-font-heading: var(--enpl-font-body);
+        --enpl-or-ink: hsl(240 10% 3.9%); --enpl-or-muted: hsl(240 3.8% 46.1%);
+        --enpl-or-border: hsl(240 5.9% 90%); --enpl-or-soft: hsl(240 4.8% 95.9%);
+        --enpl-or-primary: hsl(239 84% 67%);
+        color: var(--enpl-or-ink); background: #fff; font-family: var(--enpl-font-body);
+      }
+      .enpl-ticket-page.enpl-openrouter-page a { color: #4f46e5; }
+      .enpl-ticket-page.enpl-openrouter-page a:hover { color: #4338ca; }
+      .enpl-ticket-page.enpl-openrouter-page .navbar-inner { background: #fff; border-bottom: 1px solid var(--enpl-or-border); }
+      .enpl-ticket-page.enpl-openrouter-page .navbar .nav > li > a { color: var(--enpl-or-muted); letter-spacing: 0; }
+      .enpl-ticket-page.enpl-openrouter-page .navbar .nav > li > a:hover { color: #4f46e5; background: var(--enpl-or-soft); }
+      .enpl-ticket-page.enpl-openrouter-page .navbar .nav > .active > a { color: #4f46e5; border-color: var(--enpl-or-primary); background: #eef2ff; font-weight: 600; }
+      .enpl-ticket-page.enpl-openrouter-page .navbar .enpl-theme-picker { position: relative; top: auto; right: auto; float: right; margin: 0 12px; color: var(--enpl-or-ink); }
+      .enpl-ticket-page.enpl-openrouter-page :is(.page, .span8.page, .span4.page) { background: #fff; box-shadow: none; font-family: var(--enpl-font-body); font-size: 14px; line-height: 1.6; }
+      .enpl-ticket-page.enpl-openrouter-page .span4.page { box-shadow: inset 1px 0 var(--enpl-or-border); }
+      .enpl-ticket-page.enpl-openrouter-page .gb_subtitle { padding: 16px 14px; text-indent: 0; color: var(--enpl-or-ink); background: #fff; border-bottom: 1px solid var(--enpl-or-border); font-size: 20px; font-weight: 600; letter-spacing: 0; }
+      .enpl-ticket-page.enpl-openrouter-page .span4 .gb_subtitle { font-size: 16px; }
+      .enpl-ticket-page.enpl-openrouter-page .gb_event_list > ul > li { border-bottom: 1px solid var(--enpl-or-border); }
+      .enpl-ticket-page.enpl-openrouter-page .gb_event_list .event h4 a { color: var(--enpl-or-ink); font-size: 16px; font-weight: 600; }
+      .enpl-ticket-page.enpl-openrouter-page .gb_event_list .event h4 a:hover { color: #4f46e5; }
+      .enpl-ticket-page.enpl-openrouter-page .gb_event_list .event :is(.place, .actor) { font-size: 13px; line-height: 1.6; }
+      .enpl-ticket-page.enpl-openrouter-page .gb_event_list .actor > ul > li:not(.enpl-followed-actor) > a { color: var(--enpl-or-muted); }
+      .enpl-ticket-page.enpl-openrouter-page .gb_event_list .date img { border-color: var(--enpl-or-border); border-radius: 6px; }
+      .enpl-ticket-page.enpl-openrouter-page .gb_event_list .note_count p { background: var(--enpl-or-soft); box-shadow: none; border-radius: 6px; font-variant-numeric: tabular-nums; }
+      .enpl-ticket-page.enpl-openrouter-page :is(.gb_score_table, .enpl-profile-actors, .enpl-personal, .enpl-milestone-card, .enpl-schedule-day) { border: 1px solid var(--enpl-or-border); border-radius: 8px; background: #fff; box-shadow: none; }
+      .enpl-ticket-page.enpl-openrouter-page :is(.gb_score_table a, .enpl-personal-summary, .enpl-personal-event > a, .enpl-recap-ranking > a) { color: #4f46e5; }
+      .enpl-ticket-page.enpl-openrouter-page :is(.enpl-personal h2, .enpl-personal h3, .enpl-schedule-title, .enpl-schedule-calendar strong) { color: var(--enpl-or-ink); font-family: var(--enpl-font-body); }
+      .enpl-ticket-page.enpl-openrouter-page :is(.gb_event_list .place, .enpl-profile-mode, .enpl-profile-scale-note, .enpl-personal-note, .enpl-personal-eyebrow, .enpl-personal-empty, .enpl-schedule-note, .enpl-schedule-meta, .enpl-schedule-venue, .enpl-schedule-time-label, .enpl-calendar-weekday, .enpl-personal-stats span, .enpl-recap-months > div, .enpl-schedule-date-caption > small, .enpl-schedule-calendar small) { color: var(--enpl-or-muted); }
+      .enpl-ticket-page.enpl-openrouter-page :is(.enpl-personal-tabs, .enpl-profile-actors > li + li > a, .enpl-personal-event, .enpl-recap-ranking > a, .enpl-schedule-clock, .enpl-schedule-calendar) { border-color: var(--enpl-or-border); }
+      .enpl-ticket-page.enpl-openrouter-page :is(.enpl-personal-button, .enpl-interest-sort-button, .enpl-schedule-date-select, .enpl-profile-mode select, .enpl-personal input[type="month"], .enpl-personal select, .navbar .enpl-theme-picker select, .navbar .search_box input[type="text"]) { box-sizing: border-box; min-height: 44px; max-width: 100%; border: 1px solid var(--enpl-or-border); border-radius: 6px; color: var(--enpl-or-ink); background: #fff; box-shadow: none; font-family: inherit; }
+      .enpl-ticket-page.enpl-openrouter-page :is(.enpl-personal-button, .enpl-interest-sort-button):hover:not(:disabled) { color: #4338ca; border-color: #a5b4fc; background: #eef2ff; }
+      .enpl-ticket-page.enpl-openrouter-page .enpl-personal-tabs [aria-pressed="true"],
+      .enpl-ticket-page.enpl-openrouter-page .enpl-schedule-controls .enpl-interest-sort-button[aria-pressed="true"] { color: #fafafa; background: var(--enpl-or-primary); border-color: var(--enpl-or-primary); font-weight: 600; }
+      .enpl-ticket-page.enpl-openrouter-page .enpl-personal-stats > div { background: var(--enpl-or-soft); border-color: var(--enpl-or-border); border-radius: 8px; }
+      .enpl-ticket-page.enpl-openrouter-page :is(.enpl-personal-stats strong, .enpl-schedule-time) { color: #4f46e5; font-variant-numeric: tabular-nums; }
+      .enpl-ticket-page.enpl-openrouter-page .enpl-calendar-day { color: var(--enpl-or-muted); background: var(--enpl-or-soft); border-radius: 6px; }
+      .enpl-ticket-page.enpl-openrouter-page .enpl-calendar-busy { color: #4338ca; background: #eef2ff; font-weight: 600; }
+      .enpl-ticket-page.enpl-openrouter-page .enpl-calendar-today { border-color: var(--enpl-or-primary); }
+      .enpl-ticket-page.enpl-openrouter-page .enpl-calendar-day[aria-pressed="true"] { outline-color: var(--enpl-or-primary); }
+      .enpl-ticket-page.enpl-openrouter-page .enpl-recap-bar { background: var(--enpl-or-primary); }
+      .enpl-ticket-page.enpl-openrouter-page .enpl-schedule-day-header { background: var(--enpl-or-soft); border-color: var(--enpl-or-border); }
+      .enpl-ticket-page.enpl-openrouter-page .enpl-schedule-day > summary::after { color: #4f46e5; }
+      .enpl-ticket-page.enpl-openrouter-page .enpl-schedule-row { background: #fff; }
+      .enpl-ticket-page.enpl-openrouter-page .enpl-schedule-gap { color: var(--enpl-or-muted); background: var(--enpl-or-soft); }
+      .enpl-ticket-page.enpl-openrouter-page .enpl-schedule-overlap { color: #9f1239; background: #fff1f2; }
+      .enpl-ticket-page.enpl-openrouter-page :is(.enpl-schedule-day-count, .enpl-date-search-link, .enpl-venue-link) { color: #4338ca; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 4px; }
+      .enpl-ticket-page.enpl-openrouter-page :focus-visible { outline: 2px solid #4f46e5; outline-offset: 3px; }
+      .enpl-ticket-page.enpl-openrouter-page .navbar .enpl-theme-picker summary { min-height: 44px; }
+      @media (hover: hover) { .enpl-ticket-page.enpl-openrouter-page :is(.enpl-schedule-row, .enpl-profile-actors > li > a):hover { background: var(--enpl-or-soft); } }
+      @media (prefers-contrast: more) { .enpl-ticket-page.enpl-openrouter-page { --enpl-or-border: #71717a; --enpl-or-muted: #52525b; } }
 
     `);
   }
